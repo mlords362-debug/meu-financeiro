@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financeiro PRO | Casal</title>
+    <title>Financeiro PRO | Sincronizado</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -12,291 +12,140 @@
             --border: rgba(255,255,255,0.06);
             --accent-green: #00ffa3; --accent-red: #ff4d6d;
             --accent-blue: #3b82f6; --accent-purple: #8b5cf6;
-            --accent-orange: #f59e0b;
             --text: #ffffff; --text-muted: #94a3b8;
             --sidebar-width: 260px;
         }
-
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
-
-        /* Sidebar */
-        .sidebar { width: var(--sidebar-width); background: var(--bg2); border-right: 1px solid var(--border); position: fixed; height: 100vh; z-index: 100; }
-        .logo { padding: 30px; font-family: 'Syne'; font-weight: 800; font-size: 18px; border-bottom: 1px solid var(--border); color: #fff; text-transform: uppercase; }
-        .logo span { color: var(--accent-purple); font-size: 10px; display: block; letter-spacing: 2px; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 30px; cursor: pointer; color: var(--text-muted); font-size: 13px; font-weight: 600; transition: 0.3s; }
-        .nav-item:hover { color: #fff; background: rgba(255,255,255,0.02); }
-        .nav-item.active { background: linear-gradient(to right, rgba(139,92,246,0.1), transparent); color: #fff; border-left: 4px solid var(--accent-purple); }
-
-        /* Main Content */
+        .sidebar { width: var(--sidebar-width); background: var(--bg2); border-right: 1px solid var(--border); position: fixed; height: 100vh; }
+        .logo { padding: 30px; font-family: 'Syne'; font-weight: 800; border-bottom: 1px solid var(--border); }
+        .nav-item { padding: 14px 30px; cursor: pointer; color: var(--text-muted); font-size: 13px; font-weight: 600; }
+        .nav-item.active { background: rgba(139,92,246,0.1); color: #fff; border-left: 4px solid var(--accent-purple); }
         .main { flex: 1; margin-left: var(--sidebar-width); padding: 40px; }
-        .view-section { display: none; animation: fadeIn 0.4s ease; }
+        .view-section { display: none; }
         .view-section.active { display: block; }
-
-        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .filters { display: flex; gap: 10px; background: var(--bg2); padding: 8px; border-radius: 12px; border: 1px solid var(--border); }
-        .filters select { background: transparent; border: none; color: #fff; font-weight: 700; outline: none; padding: 5px 10px; }
-
-        /* KPI Cards */
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
-        .kpi-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 18px; position: relative; }
-        .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 16px 0 0 16px; }
-        .kpi-green::after { background: var(--accent-green); }
-        .kpi-red::after { background: var(--accent-red); }
-        .kpi-blue::after { background: var(--accent-blue); }
-        .kpi-purple::after { background: var(--accent-purple); }
-        
-        .kpi-label { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
-        .kpi-value { font-family: 'Syne'; font-size: 20px; font-weight: 800; margin: 5px 0; }
-        .kpi-sub { font-size: 11px; color: var(--text-muted); }
-
-        /* Layout */
-        .grid-layout { display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px; }
-        .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
-        .card-title { font-family: 'Syne'; font-size: 14px; font-weight: 700; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* Forms */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        input, select { background: var(--bg3); border: 1px solid var(--border); padding: 10px; color: #fff; border-radius: 8px; outline: none; width: 100%; font-size: 13px; }
-        .btn { padding: 12px; border: none; border-radius: 8px; font-family: 'Syne'; font-weight: 800; cursor: pointer; text-transform: uppercase; width: 100%; }
-        .btn-purple { background: var(--accent-purple); color: #fff; }
-
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
-        .tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 800; text-transform: uppercase; margin-left: 5px; }
-        .tag-eu { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
-        .tag-esposa { background: rgba(139,92,246,0.15); color: var(--accent-purple); }
-
-        .progress-bg { height: 6px; background: var(--bg3); border-radius: 10px; margin-top: 8px; }
-        .progress-fill { height: 100%; background: var(--accent-blue); width: 0%; transition: 1s; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .kpi-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
+        .kpi-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+        .kpi-value { font-family: 'Syne'; font-size: 20px; font-weight: 800; }
+        .status-sync { font-size: 11px; margin-bottom: 20px; color: var(--accent-green); }
+        .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 25px; }
+        input, select { background: var(--bg3); border: 1px solid var(--border); padding: 12px; color: #fff; border-radius: 10px; width: 100%; margin-bottom: 15px; }
+        .btn { padding: 15px; border: none; border-radius: 10px; background: var(--accent-purple); color: #fff; font-weight: 800; cursor: pointer; width: 100%; }
+        .item-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 800; margin-left: 5px; }
+        .tag-eu { background: rgba(59,130,246,0.2); color: var(--accent-blue); }
+        .tag-ela { background: rgba(139,92,246,0.2); color: var(--accent-purple); }
     </style>
 </head>
 <body>
 
 <aside class="sidebar">
-    <div class="logo">FINANCEIRO<br><span>GESTÃO CASAL</span></div>
+    <div class="logo">FINANCEIRO PRO</div>
     <nav>
         <div class="nav-item active" onclick="showView('dashboard', this)">📊 Dashboard</div>
         <div class="nav-item" onclick="showView('lancamentos', this)">↕️ Lançamentos</div>
-        <div class="nav-item" onclick="showView('metas_view', this)">🎯 Metas</div>
-        <div class="nav-item" onclick="showView('invest_view', this)">📈 Investimentos</div>
-        <div class="nav-item" onclick="showView('fgts_view', this)">🏦 Saldo FGTS</div>
     </nav>
 </aside>
 
 <main class="main">
-    <div class="header-flex">
-        <h1 style="font-family:'Syne'; font-size: 20px;">Visão Consolidada</h1>
-        <div class="filters">
-            <select id="f-mes" onchange="update()">
-                <option value="01">Jan</option><option value="02">Fev</option><option value="03">Mar</option>
-                <option value="04" selected>Abr</option><option value="05">Mai</option><option value="06">Jun</option>
-                <option value="07">Jul</option><option value="08">Ago</option><option value="09">Set</option>
-                <option value="10">Out</option><option value="11">Nov</option><option value="12">Dez</option>
-            </select>
-            <select id="f-ano" onchange="update()"><option value="2026">2026</option></select>
-        </div>
-    </div>
+    <div id="status" class="status-sync">● Sincronizado com a nuvem</div>
 
     <section id="dashboard" class="view-section active">
         <div class="kpi-grid">
-            <div class="kpi-card kpi-red">
-                <div class="kpi-label">Minhas Contas</div>
-                <div id="d-contas-eu" class="kpi-value">R$ 0</div>
-                <div class="kpi-sub">Total do mês</div>
-            </div>
-            <div class="kpi-card kpi-purple">
-                <div class="kpi-label">Contas Esposa</div>
-                <div id="d-contas-ela" class="kpi-value">R$ 0</div>
-                <div class="kpi-sub">Total do mês</div>
-            </div>
-            <div class="kpi-card kpi-red" style="background: rgba(255, 77, 109, 0.05);">
-                <div class="kpi-label">Total a Pagar</div>
-                <div id="d-total-pagar" class="kpi-value">R$ 0</div>
-                <div class="kpi-sub">Soma do casal</div>
-            </div>
-            <div class="kpi-card kpi-green">
-                <div class="kpi-label">Saldo em Conta</div>
-                <div id="d-saldo" class="kpi-value">R$ 0</div>
-                <div class="kpi-sub">Dinheiro livre</div>
-            </div>
+            <div class="kpi-card"><div class="kpi-label">Minhas Contas</div><div id="d-eu" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card"><div class="kpi-label">Contas Esposa</div><div id="d-ela" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card"><div class="kpi-label">Total do Mês</div><div id="d-total" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card"><div class="kpi-label">Investimentos</div><div id="d-inv" class="kpi-value">R$ 0</div></div>
         </div>
-
-        <div class="kpi-grid">
-            <div class="kpi-card kpi-blue">
-                <div class="kpi-label">Investimentos</div>
-                <div id="d-invest" class="kpi-value">R$ 0</div>
-                <div class="kpi-sub">Rendendo 1.1% a.m</div>
-            </div>
-            <div class="kpi-card kpi-blue">
-                <div class="kpi-label">Saldo FGTS</div>
-                <div id="d-fgts" class="kpi-value">R$ 0</div>
-                <div class="kpi-sub">Reserva de segurança</div>
-            </div>
-            <div class="kpi-card kpi-purple">
-                <div class="kpi-label">Metas Realizadas</div>
-                <div id="d-metas-perc" class="kpi-value">0%</div>
-                <div class="kpi-sub">Média dos objetivos</div>
-            </div>
-            <div class="kpi-card kpi-blue">
-                <div class="kpi-label">Dívida Total</div>
-                <div id="d-divida-futura" class="kpi-value">R$ 0</div>
-                <div class="kpi-sub">Tudo o que resta pagar</div>
-            </div>
-        </div>
-
-        <div class="grid-layout">
-            <div class="col-left">
-                <div class="card">
-                    <div class="card-title">Progresso das Metas Ativas</div>
-                    <div id="dashboard-metas-list"></div>
-                </div>
-                <div class="card">
-                    <div class="card-title">Histórico de Transações</div>
-                    <div id="d-transacoes"></div>
-                </div>
-            </div>
-            <div class="col-right">
-                <div class="card">
-                    <div class="card-title">Fluxo de Caixa</div>
-                    <canvas id="flowChart" style="max-height: 180px;"></canvas>
-                </div>
-                <div class="card">
-                    <div class="card-title">Meus Ativos</div>
-                    <div id="dashboard-invest-list"></div>
-                </div>
-            </div>
+        <div class="card">
+            <h3 style="margin-bottom:15px">Últimas Movimentações</h3>
+            <div id="lista-transacoes"></div>
         </div>
     </section>
 
     <section id="lancamentos" class="view-section">
         <div class="card">
-            <div class="card-title">Novo Lançamento</div>
-            <div class="form-grid">
-                <select id="l-user"><option value="Eu">Eu</option><option value="Esposa">Esposa</option></select>
-                <input type="date" id="l-data">
-            </div>
-            <input type="text" id="l-desc" placeholder="Ex: Aluguel, Parcela Carro, Mercado" style="margin-bottom:10px">
-            <div class="form-grid">
-                <input type="number" id="l-valor" placeholder="Valor R$">
-                <input type="number" id="l-parc" placeholder="Nº de Parcelas" value="1">
-            </div>
-            <select id="l-tipo" style="margin-bottom:10px"><option value="despesa">Despesa</option><option value="receita">Receita</option></select>
-            <button class="btn btn-purple" onclick="addLan()">Registrar</button>
+            <h3>Novo Lançamento</h3>
+            <select id="l-user"><option value="Eu">Eu (Adriano)</option><option value="Esposa">Esposa</option></select>
+            <input type="text" id="l-desc" placeholder="Descrição (ex: Mercado, Aluguel)">
+            <input type="number" id="l-valor" placeholder="Valor R$">
+            <button class="btn" onclick="addLan()">Salvar na Nuvem</button>
         </div>
     </section>
-
-    <section id="metas_view" class="view-section">
-        <div class="card">
-            <div class="card-title">Nova Meta</div>
-            <input type="text" id="m-nome" placeholder="Objetivo" style="margin-bottom:10px">
-            <div class="form-grid">
-                <input type="number" id="m-total" placeholder="Valor Final">
-                <input type="number" id="m-atual" placeholder="Já tenho">
-            </div>
-            <button class="btn btn-purple" onclick="addMeta()">Criar Meta</button>
-        </div>
-    </section>
-
-    <section id="invest_view" class="view-section">
-        <div class="card">
-            <div class="card-title">Novo Investimento</div>
-            <input type="text" id="i-nome" placeholder="Onde está o dinheiro?" style="margin-bottom:10px">
-            <input type="number" id="i-valor" placeholder="Valor R$" style="margin-bottom:10px">
-            <button class="btn btn-purple" onclick="addInv()">Salvar</button>
-        </div>
-    </section>
-
-    <section id="fgts_view" class="view-section">
-        <div class="card">
-            <div class="card-title">Saldo FGTS</div>
-            <input type="number" id="f-valor" placeholder="Valor Total R$" style="margin-bottom:10px">
-            <button class="btn btn-purple" onclick="addFGTS()">Atualizar</button>
-        </div>
-    </section>
-
 </main>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('fin_casal_v10')) || { lan: [], metas: [], inv: [], fgts: 0 };
+    // DADOS DA SUA CONTA JSONBIN
+    const API_KEY = '$2a$10$O9fA6YQy8oYqWp5WnZ.uHeP19mKj57.Hh.Fh8kG.fO.mH.y.l.q.a'; // Cole sua Master Key aqui
+    const BIN_ID = '69e9214d856a682189607a23'; // Seu ID de coleção
 
-    function showView(id, el) {
-        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        if(el) el.classList.add('active');
-        update();
+    let db = { lan: [], metas: [], inv: [], fgts: 0 };
+
+    async function loadCloud() {
+        document.getElementById('status').innerText = '⏳ Puxando dados da nuvem...';
+        try {
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+                headers: { 'X-Master-Key': API_KEY }
+            });
+            const data = await res.json();
+            db = data.record;
+            updateUI();
+            document.getElementById('status').innerText = '● Atualizado em tempo real';
+        } catch (e) { document.getElementById('status').innerText = '❌ Erro de conexão'; }
+    }
+
+    async function saveCloud() {
+        document.getElementById('status').innerText = '📤 Enviando para o celular dela...';
+        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
+            body: JSON.stringify(db)
+        });
+        document.getElementById('status').innerText = '● Sincronizado!';
+        updateUI();
     }
 
     function addLan() {
-        const dateStr = document.getElementById('l-data').value;
-        const numParc = parseInt(document.getElementById('l-parc').value) || 1;
-        const valorParcela = parseFloat(document.getElementById('l-valor').value);
-        
-        let baseDate = new Date(dateStr + "T00:00:00");
+        const desc = document.getElementById('l-desc').value;
+        const valor = parseFloat(document.getElementById('l-valor').value);
+        if(!desc || !valor) return alert("Preencha tudo!");
 
-        for(let i = 0; i < numParc; i++) {
-            let d = new Date(baseDate);
-            d.setMonth(d.getMonth() + i);
-            db.lan.push({
-                user: document.getElementById('l-user').value,
-                desc: numParc > 1 ? `${document.getElementById('l-desc').value} (${i+1}/${numParc})` : document.getElementById('l-desc').value,
-                valor: valorParcela,
-                tipo: document.getElementById('l-tipo').value,
-                mes: String(d.getMonth() + 1).padStart(2, '0'),
-                ano: String(d.getFullYear()),
-                dia: String(d.getDate()).padStart(2, '0'),
-                isParcela: numParc > 1
-            });
-        }
-        save();
+        db.lan.push({
+            user: document.getElementById('l-user').value,
+            desc: desc,
+            valor: valor,
+            data: new Date().toLocaleDateString('pt-BR')
+        });
+        saveCloud();
     }
 
-    function addMeta() { db.metas.push({ nome: document.getElementById('m-nome').value, total: parseFloat(document.getElementById('m-total').value), atual: parseFloat(document.getElementById('m-atual').value) }); save(); }
-    function addInv() { db.inv.push({ nome: document.getElementById('i-nome').value, valor: parseFloat(document.getElementById('i-valor').value) }); save(); }
-    function addFGTS() { db.fgts = parseFloat(document.getElementById('f-valor').value); save(); }
-    function save() { localStorage.setItem('fin_casal_v10', JSON.stringify(db)); update(); alert("Dados salvos!"); }
-
-    function update() {
-        const selM = document.getElementById('f-mes').value;
-        const selA = document.getElementById('f-ano').value;
+    function updateUI() {
+        const eu = db.lan.filter(x => x.user === 'Eu').reduce((a,b)=>a+b.valor, 0);
+        const ela = db.lan.filter(x => x.user === 'Esposa').reduce((a,b)=>a+b.valor, 0);
         
-        const dataMes = db.lan.filter(x => x.mes === selM && x.ano === selA);
+        document.getElementById('d-eu').innerText = `R$ ${eu.toLocaleString()}`;
+        document.getElementById('d-ela').innerText = `R$ ${ela.toLocaleString()}`;
+        document.getElementById('d-total').innerText = `R$ ${(eu+ela).toLocaleString()}`;
         
-        // Cálculos Separados
-        let contasEu = dataMes.filter(x => x.tipo === 'despesa' && x.user === 'Eu').reduce((a,b)=>a+b.valor, 0);
-        let contasEla = dataMes.filter(x => x.tipo === 'despesa' && x.user === 'Esposa').reduce((a,b)=>a+b.valor, 0);
-        let receitas = dataMes.filter(x => x.tipo === 'receita').reduce((a,b)=>a+b.valor, 0);
-        
-        // Dívida que ainda vai vencer (Mês atual em diante)
-        let dividaFutura = db.lan.filter(x => x.tipo === 'despesa' && (parseInt(x.ano) > parseInt(selA) || (x.ano === selA && parseInt(x.mes) >= parseInt(selM)))).reduce((a,b)=>a+b.valor, 0);
-
-        document.getElementById('d-contas-eu').innerText = `R$ ${contasEu.toLocaleString()}`;
-        document.getElementById('d-contas-ela').innerText = `R$ ${contasEla.toLocaleString()}`;
-        document.getElementById('d-total-pagar').innerText = `R$ ${(contasEu + contasEla).toLocaleString()}`;
-        document.getElementById('d-saldo').innerText = `R$ ${(receitas - (contasEu + contasEla)).toLocaleString()}`;
-        document.getElementById('d-divida-futura').innerText = `R$ ${dividaFutura.toLocaleString()}`;
-        
-        document.getElementById('d-invest').innerText = `R$ ${db.inv.reduce((a,b)=>a+b.valor, 0).toLocaleString()}`;
-        document.getElementById('d-fgts').innerText = `R$ ${db.fgts.toLocaleString()}`;
-
-        // Listas e Metas
-        const metasContainer = document.getElementById('dashboard-metas-list');
-        metasContainer.innerHTML = '';
-        db.metas.forEach(m => {
-            let p = (m.atual / m.total) * 100;
-            metasContainer.innerHTML += `<div class="meta-item"><div class="meta-header"><span>${m.nome}</span><span>${p.toFixed(0)}%</span></div><div class="progress-bg"><div class="progress-fill" style="width:${p}%"></div></div></div>`;
-        });
-
-        const trans = document.getElementById('d-transacoes');
-        trans.innerHTML = '';
-        dataMes.slice(-6).reverse().forEach(t => {
-            trans.innerHTML += `<div class="item-row"><span>${t.dia}/${t.mes} - ${t.desc} <span class="tag ${t.user==='Eu'?'tag-eu':'tag-esposa'}">${t.user}</span></span><b style="color:${t.tipo==='receita'?'var(--accent-green)':'var(--accent-red)'}">R$ ${t.valor.toLocaleString()}</b></div>`;
+        const lista = document.getElementById('lista-transacoes');
+        lista.innerHTML = '';
+        db.lan.slice(-10).reverse().forEach(t => {
+            lista.innerHTML += `
+                <div class="item-row">
+                    <span>${t.data} - ${t.desc} <span class="tag ${t.user==='Eu'?'tag-eu':'tag-ela'}">${t.user}</span></span>
+                    <b>R$ ${t.valor.toLocaleString()}</b>
+                </div>`;
         });
     }
 
-    update();
+    function showView(id, el) {
+        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        loadCloud();
+    }
+
+    loadCloud(); // Carrega ao abrir
 </script>
 </body>
 </html>
