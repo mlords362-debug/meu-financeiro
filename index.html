@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financeiro PRO | Ultimate App</title>
+    <title>Financeiro PRO | Dashboard Total</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="manifest" href="manifest.json">
@@ -34,7 +34,6 @@
         .view-section { display: none; animation: fadeIn 0.4s ease; }
         .view-section.active { display: block; }
 
-        /* Header */
         .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .filters { display: flex; gap: 10px; background: var(--bg2); padding: 8px; border-radius: 12px; border: 1px solid var(--border); }
         .filters select { background: transparent; border: none; color: #fff; font-weight: 700; outline: none; padding: 5px 10px; }
@@ -46,28 +45,30 @@
         .kpi-green::after { background: var(--accent-green); }
         .kpi-red::after { background: var(--accent-red); }
         .kpi-blue::after { background: var(--accent-blue); }
-        .kpi-orange::after { background: var(--accent-orange); }
+        .kpi-purple::after { background: var(--accent-purple); }
         
         .kpi-label { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; }
         .kpi-value { font-family: 'Syne'; font-size: 22px; font-weight: 800; margin: 8px 0; }
         .kpi-sub { font-size: 11px; color: var(--text-muted); }
 
+        /* Metas Progress Bar */
+        .meta-item { margin-bottom: 20px; }
+        .meta-header { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px; font-weight: 600; }
+        .progress-bg { height: 8px; background: var(--bg3); border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple)); width: 0%; transition: 1s; }
+
         /* Layout */
         .grid-layout { display: grid; grid-template-columns: 2fr 1.2fr; gap: 25px; }
         .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 25px; margin-bottom: 25px; }
-        .card-title { font-family: 'Syne'; font-size: 15px; font-weight: 700; margin-bottom: 20px; display: flex; justify-content: space-between; }
-
-        /* Items */
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-        .tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 800; text-transform: uppercase; margin-left: 5px; }
-        .tag-eu { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
-        .tag-esposa { background: rgba(139,92,246,0.15); color: var(--accent-purple); }
+        .card-title { font-family: 'Syne'; font-size: 15px; font-weight: 700; margin-bottom: 20px; }
 
         /* Forms */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         input, select { background: var(--bg3); border: 1px solid var(--border); padding: 12px; color: #fff; border-radius: 10px; outline: none; width: 100%; }
         .btn { padding: 15px; border: none; border-radius: 10px; font-family: 'Syne'; font-weight: 800; cursor: pointer; text-transform: uppercase; width: 100%; transition: 0.3s; }
-        .btn-purple { background: var(--accent-purple); color: #fff; box-shadow: 0 5px 15px rgba(139,92,246,0.3); }
+        .btn-purple { background: var(--accent-purple); color: #fff; }
+
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -79,26 +80,18 @@
     <nav>
         <div class="nav-item active" onclick="showView('dashboard', this)">📊 Dashboard</div>
         <div class="nav-item" onclick="showView('movimentacoes', this)">↕️ Lançamentos</div>
-        <div class="nav-item" onclick="showView('parcelas', this)">💳 Carnês/Parcelas</div>
         <div class="nav-item" onclick="showView('fgts', this)">🏦 Saldo FGTS</div>
-        <div class="nav-item" onclick="showView('metas', this)">🎯 Objetivos</div>
-        <div class="nav-item" onclick="showView('patrimonio', this)">📈 Patrimônio</div>
+        <div class="nav-item" onclick="showView('metas_view', this)">🎯 Metas</div>
+        <div class="nav-item" onclick="showView('investimentos_view', this)">📈 Investimentos</div>
     </nav>
 </aside>
 
 <main class="main">
     <div class="header-flex">
-        <h1 style="font-family:'Syne'; font-size: 22px;">Visão Geral</h1>
+        <h1 id="page-title" style="font-family:'Syne'; font-size: 22px;">Dashboard</h1>
         <div class="filters">
-            <select id="f-mes" onchange="update()">
-                <option value="01">Jan</option><option value="02">Fev</option><option value="03">Mar</option>
-                <option value="04" selected>Abr</option><option value="05">Mai</option><option value="06">Jun</option>
-                <option value="07">Jul</option><option value="08">Ago</option><option value="09">Set</option>
-                <option value="10">Out</option><option value="11">Nov</option><option value="12">Dez</option>
-            </select>
-            <select id="f-ano" onchange="update()">
-                <option value="2025">2025</option><option value="2026" selected>2026</option>
-            </select>
+            <select id="f-mes" onchange="update()"><option value="04">Abril</option><option value="05">Maio</option></select>
+            <select id="f-ano" onchange="update()"><option value="2026">2026</option></select>
         </div>
     </div>
 
@@ -109,28 +102,29 @@
                 <div id="d-saldo" class="kpi-value">R$ 0</div>
                 <div class="kpi-sub">Dinheiro livre</div>
             </div>
-            <div class="kpi-card kpi-red">
-                <div class="kpi-label">Contas do Mês</div>
-                <div id="d-contas-mes" class="kpi-value">R$ 0</div>
-                <div class="kpi-sub">Total a pagar</div>
-            </div>
             <div class="kpi-card kpi-blue">
-                <div class="kpi-label">Dívida Parcelada</div>
-                <div id="d-divida" class="kpi-value">R$ 0</div>
-                <div class="kpi-sub">Carnês acumulados</div>
+                <div class="kpi-label">Investimentos</div>
+                <div id="d-invest" class="kpi-value">R$ 0</div>
+                <div class="kpi-sub">Patrimônio total</div>
+            </div>
+            <div class="kpi-card kpi-purple">
+                <div class="kpi-label">Metas Realizadas</div>
+                <div id="d-metas-perc" class="kpi-value">0%</div>
+                <div id="d-metas-count" class="kpi-sub">0 objetivos ativos</div>
             </div>
             <div class="kpi-card kpi-orange">
                 <div class="kpi-label">Saldo FGTS</div>
                 <div id="d-fgts" class="kpi-value">R$ 0</div>
-                <div class="kpi-sub">Fundo de reserva</div>
+                <div class="kpi-sub">Fundo retido</div>
             </div>
         </div>
 
         <div class="grid-layout">
             <div class="col-left">
                 <div class="card">
-                    <div class="card-title">Fluxo Mensal (30 dias)</div>
-                    <canvas id="flowChart" style="max-height: 250px;"></canvas>
+                    <div class="card-title">Progresso das Metas</div>
+                    <div id="dashboard-metas-list">
+                        </div>
                 </div>
                 <div class="card">
                     <div class="card-title">Últimas Transações</div>
@@ -139,12 +133,13 @@
             </div>
             <div class="col-right">
                 <div class="card">
-                    <div class="card-title">Divisão de Gastos</div>
-                    <canvas id="splitChart" style="max-height: 180px;"></canvas>
+                    <div class="card-title">Fluxo Mensal</div>
+                    <canvas id="flowChart" style="max-height: 150px;"></canvas>
                 </div>
                 <div class="card">
-                    <div class="card-title">Top Categorias</div>
-                    <div id="d-top"></div>
+                    <div class="card-title">Carteira de Investimentos</div>
+                    <div id="dashboard-invest-list">
+                        </div>
                 </div>
             </div>
         </div>
@@ -152,40 +147,54 @@
 
     <section id="movimentacoes" class="view-section">
         <div class="card">
-            <div class="card-title">Nova Movimentação</div>
+            <div class="card-title">Lançar Receita/Despesa</div>
             <div class="form-grid">
                 <select id="l-user"><option value="Eu">Eu</option><option value="Esposa">Esposa</option></select>
                 <input type="date" id="l-data">
             </div>
+            <input type="text" id="l-desc" placeholder="Descrição" style="margin-bottom:15px">
             <div class="form-grid">
-                <input type="text" id="l-desc" placeholder="Descrição">
                 <input type="number" id="l-valor" placeholder="Valor R$">
+                <input type="number" id="l-parc" placeholder="Parcelas" value="1">
             </div>
-            <select id="l-tipo" style="margin-bottom: 15px;"><option value="receita">Receita (+)</option><option value="despesa">Despesa (-)</option></select>
-            <button class="btn btn-purple" onclick="addLan()">Salvar</button>
+            <select id="l-tipo" style="margin-bottom:15px"><option value="despesa">Despesa</option><option value="receita">Receita</option></select>
+            <button class="btn btn-purple" onclick="addLan()">Salvar Lançamento</button>
+        </div>
+    </section>
+
+    <section id="metas_view" class="view-section">
+        <div class="card">
+            <div class="card-title">Cadastrar Nova Meta</div>
+            <input type="text" id="m-nome" placeholder="Ex: Viagem, Carro Novo" style="margin-bottom:15px">
+            <div class="form-grid">
+                <input type="number" id="m-total" placeholder="Valor Alvo R$">
+                <input type="number" id="m-atual" placeholder="Já guardado R$">
+            </div>
+            <button class="btn btn-purple" onclick="addMeta()">Criar Objetivo</button>
+        </div>
+    </section>
+
+    <section id="investimentos_view" class="view-section">
+        <div class="card">
+            <div class="card-title">Registrar Investimento</div>
+            <input type="text" id="i-nome" placeholder="Ex: Tesouro Direto, CDB, Ações" style="margin-bottom:15px">
+            <input type="number" id="i-valor" placeholder="Valor Investido R$" style="margin-bottom:15px">
+            <button class="btn btn-purple" onclick="addInv()">Salvar Investimento</button>
         </div>
     </section>
 
     <section id="fgts" class="view-section">
         <div class="card">
-            <div class="card-title">Atualizar Saldo FGTS</div>
-            <div class="form-grid">
-                <select id="f-user"><option value="Eu">Eu</option><option value="Esposa">Esposa</option></select>
-                <input type="number" id="f-valor" placeholder="Saldo Atual R$">
-            </div>
-            <button class="btn btn-purple" onclick="addFGTS()">Salvar Saldo</button>
+            <div class="card-title">Saldo FGTS</div>
+            <input type="number" id="f-valor" placeholder="Valor Total R$" style="margin-bottom:15px">
+            <button class="btn btn-purple" onclick="addFGTS()">Atualizar</button>
         </div>
     </section>
-
-    <section id="parcelas" class="view-section"><div class="card"><div class="card-title">Carnês</div><div class="form-grid"><input type="text" id="p-desc" placeholder="Item"><input type="number" id="p-v-parc" placeholder="Valor Parcela"></div><input type="number" id="p-faltam" placeholder="Parcelas Restantes" style="margin-bottom:15px"><button class="btn btn-purple" onclick="addParc()">Salvar</button></div></section>
-    <section id="metas" class="view-section"><div class="card"><div class="card-title">Metas</div><div class="form-grid"><input type="text" id="m-nome" placeholder="Objetivo"><input type="number" id="m-total" placeholder="Valor Final"></div><input type="number" id="m-atual" placeholder="Já guardado" style="margin-bottom:15px"><button class="btn btn-purple" onclick="addMeta()">Criar Meta</button></div></section>
-    <section id="patrimonio" class="view-section"><div class="card"><div class="card-title">Patrimônio</div><div class="form-grid"><input type="text" id="i-desc" placeholder="Investimento"><input type="number" id="i-valor" placeholder="Valor"></div><button class="btn btn-purple" onclick="addInv()">Salvar</button></div></section>
 
 </main>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('fin_v7_final')) || { lan: [], parc: [], metas: [], inv: [], fgts: [] };
-    let flowChart, splitChart;
+    let db = JSON.parse(localStorage.getItem('fin_v9_master')) || { lan: [], metas: [], inv: [], fgts: 0 };
 
     function showView(id, el) {
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
@@ -195,78 +204,86 @@
         update();
     }
 
+    // Funções de Adicionar
     function addLan() {
-        const user = document.getElementById('l-user').value;
-        const date = document.getElementById('l-data').value;
-        const desc = document.getElementById('l-desc').value;
-        const valor = parseFloat(document.getElementById('l-valor').value);
-        const tipo = document.getElementById('l-tipo').value;
-        if(date && desc && valor) { 
-            const d = date.split('-');
-            db.lan.push({user, desc, valor, tipo, mes: d[1], ano: d[0], dia: d[2]}); 
-            save(); 
-        }
+        const d = document.getElementById('l-data').value.split('-');
+        db.lan.push({
+            user: document.getElementById('l-user').value,
+            desc: document.getElementById('l-desc').value,
+            valor: parseFloat(document.getElementById('l-valor').value),
+            tipo: document.getElementById('l-tipo').value,
+            mes: d[1], ano: d[0], dia: d[2]
+        });
+        save();
+    }
+
+    function addMeta() {
+        db.metas.push({
+            nome: document.getElementById('m-nome').value,
+            total: parseFloat(document.getElementById('m-total').value),
+            atual: parseFloat(document.getElementById('m-atual').value)
+        });
+        save();
+    }
+
+    function addInv() {
+        db.inv.push({
+            nome: document.getElementById('i-nome').value,
+            valor: parseFloat(document.getElementById('i-valor').value)
+        });
+        save();
     }
 
     function addFGTS() {
-        const user = document.getElementById('f-user').value;
-        const valor = parseFloat(document.getElementById('f-valor').value);
-        if(valor) {
-            db.fgts = db.fgts.filter(x => x.user !== user);
-            db.fgts.push({user, valor});
-            save();
-        }
+        db.fgts = parseFloat(document.getElementById('f-valor').value);
+        save();
     }
 
-    function addParc() { const d = document.getElementById('p-desc').value; const v = parseFloat(document.getElementById('p-v-parc').value); const f = parseInt(document.getElementById('p-faltam').value); if(d && v){ db.parc.push({desc:d, vParc:v, faltam:f}); save(); } }
-    function addMeta() { const n = document.getElementById('m-nome').value; const t = parseFloat(document.getElementById('m-total').value); const a = parseFloat(document.getElementById('m-atual').value); if(n && t){ db.metas.push({nome:n, total:t, atual:a}); save(); } }
-    function addInv() { const d = document.getElementById('i-desc').value; const v = parseFloat(document.getElementById('i-valor').value); if(d && v){ db.inv.push({desc:d, valor:v}); save(); } }
-
-    function save() { localStorage.setItem('fin_v7_final', JSON.stringify(db)); update(); alert("Dados salvos!"); }
+    function save() { localStorage.setItem('fin_v9_master', JSON.stringify(db)); update(); alert("Salvo com sucesso!"); }
 
     function update() {
         const selM = document.getElementById('f-mes').value;
         const selA = document.getElementById('f-ano').value;
         const dataMes = db.lan.filter(x => x.mes === selM && x.ano === selA);
 
-        let receitas = dataMes.filter(x => x.tipo === 'receita').reduce((a,b)=>a+b.valor, 0);
-        let despesas = dataMes.filter(x => x.tipo === 'despesa').reduce((a,b)=>a+b.valor, 0);
-        
-        document.getElementById('d-saldo').innerText = `R$ ${(receitas - despesas).toLocaleString()}`;
-        document.getElementById('d-contas-mes').innerText = `R$ ${despesas.toLocaleString()}`;
-        
-        let divida = db.parc.reduce((a,b)=>a + (b.vParc * b.faltam), 0);
-        document.getElementById('d-divida').innerText = `R$ ${divida.toLocaleString()}`;
+        // KPIs
+        let rec = dataMes.filter(x => x.tipo === 'receita').reduce((a,b)=>a+b.valor, 0);
+        let des = dataMes.filter(x => x.tipo === 'despesa').reduce((a,b)=>a+b.valor, 0);
+        document.getElementById('d-saldo').innerText = `R$ ${(rec-des).toLocaleString()}`;
 
-        let fgtsTot = db.fgts.reduce((a,b)=>a + b.valor, 0);
-        document.getElementById('d-fgts').innerText = `R$ ${fgtsTot.toLocaleString()}`;
+        let totalInv = db.inv.reduce((a,b)=>a+b.valor, 0);
+        document.getElementById('d-invest').innerText = `R$ ${totalInv.toLocaleString()}`;
 
-        const trans = document.getElementById('d-transacoes'); trans.innerHTML = '';
+        document.getElementById('d-fgts').innerText = `R$ ${db.fgts.toLocaleString()}`;
+
+        // Metas Dashboard
+        const metasContainer = document.getElementById('dashboard-metas-list');
+        metasContainer.innerHTML = '';
+        let totalPerc = 0;
+        db.metas.forEach(m => {
+            let p = (m.atual / m.total) * 100;
+            totalPerc += p;
+            metasContainer.innerHTML += `
+                <div class="meta-item">
+                    <div class="meta-header"><span>${m.nome}</span><span>R$ ${m.atual.toLocaleString()} / ${m.total.toLocaleString()}</span></div>
+                    <div class="progress-bg"><div class="progress-fill" style="width:${p}%"></div></div>
+                </div>`;
+        });
+        document.getElementById('d-metas-perc').innerText = db.metas.length ? (totalPerc / db.metas.length).toFixed(0) + '%' : '0%';
+        document.getElementById('d-metas-count').innerText = `${db.metas.length} objetivos ativos`;
+
+        // Investimentos Dashboard
+        const invContainer = document.getElementById('dashboard-invest-list');
+        invContainer.innerHTML = '';
+        db.inv.forEach(i => {
+            invContainer.innerHTML += `<div class="item-row"><span>${i.nome}</span><b>R$ ${i.valor.toLocaleString()}</b></div>`;
+        });
+
+        // Transações
+        const trans = document.getElementById('d-transacoes');
+        trans.innerHTML = '';
         dataMes.slice(-5).reverse().forEach(t => {
-            trans.innerHTML += `<div class="item-row"><span>${t.dia}/${t.mes} - ${t.desc} <span class="tag ${t.user==='Eu'?'tag-eu':'tag-esposa'}">${t.user}</span></span><b style="color:${t.tipo==='receita'?'var(--accent-green)':'var(--accent-red)'}">R$ ${t.valor.toLocaleString()}</b></div>`;
-        });
-
-        updateCharts();
-    }
-
-    function updateCharts() {
-        const ctxFlow = document.getElementById('flowChart').getContext('2d');
-        if(flowChart) flowChart.destroy();
-        flowChart = new Chart(ctxFlow, {
-            type: 'line',
-            data: {
-                labels: Array.from({length: 30}, (_, i) => i + 1),
-                datasets: [{ label: 'Fluxo', data: Array.from({length: 30}, () => Math.floor(Math.random() * 100)), borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.1)', fill: true, tension: 0.4 }]
-            },
-            options: { plugins:{legend:{display:false}}, scales:{y:{display:false}, x:{grid:{color:'rgba(255,255,255,0.03)'}, ticks:{font:{size:9}, color:'#666'}}} }
-        });
-
-        const ctxSplit = document.getElementById('splitChart').getContext('2d');
-        if(splitChart) splitChart.destroy();
-        splitChart = new Chart(ctxSplit, {
-            type: 'doughnut',
-            data: { labels: ['Eu', 'Esposa'], datasets: [{ data: [50, 50], backgroundColor: ['#3b82f6', '#8b5cf6'], borderWidth: 0 }] },
-            options: { cutout:'80%', plugins:{legend:{position:'bottom', labels:{color:'#fff', font:{size:10}}}} }
+            trans.innerHTML += `<div class="item-row"><span>${t.dia}/${t.mes} - ${t.desc}</span><b style="color:${t.tipo==='receita'?'var(--accent-green)':'var(--accent-red)'}">R$ ${t.valor.toLocaleString()}</b></div>`;
         });
     }
 
