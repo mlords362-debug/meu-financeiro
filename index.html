@@ -36,7 +36,7 @@
         .kpi-value { font-family: 'Syne'; font-size: 18px; font-weight: 800; }
 
         .charts-row { display: grid; grid-template-columns: 1.2fr 1fr; gap: 15px; margin-bottom: 15px; }
-        .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; }
+        .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; }
         
         input, select { background: var(--bg3); border: 1px solid var(--border); padding: 10px; color: #fff; border-radius: 8px; width: 100%; margin-bottom: 10px; font-size: 12px; }
         .btn { padding: 12px; border: none; border-radius: 8px; background: var(--accent-purple); color: #fff; font-weight: 800; cursor: pointer; width: 100%; }
@@ -50,7 +50,7 @@
 <body>
 
 <aside class="sidebar">
-    <div class="logo">FINANCEIRO PRO<span>JUNIOR & MÔNICA</span></div>
+    <div class="logo">FINANCEIRO PRO<span>ADRIANO & MÔNICA</span></div>
     <nav>
         <div class="nav-item active" onclick="showView('dashboard', this)">📊 Painel Geral</div>
         <div class="nav-item" onclick="showView('lancamentos', this)">↕️ Lançamentos</div>
@@ -69,14 +69,14 @@
 </aside>
 
 <main class="main">
-    <div id="status" style="font-size: 10px; margin-bottom: 10px; color: var(--accent-green);">● Conectando...</div>
+    <div id="status" style="font-size: 10px; margin-bottom: 10px; color: var(--accent-green);">● Conectando ao Google Cloud...</div>
 
     <section id="dashboard" class="view-section active">
         <div class="kpi-grid">
             <div class="kpi-card" style="border-color: var(--accent-blue);"><div class="kpi-label">Adriano</div><div id="d-eu" class="kpi-value">R$ 0</div></div>
             <div class="kpi-card" style="border-color: var(--accent-purple);"><div class="kpi-label">Mônica</div><div id="d-ela" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Total a Pagar</div><div id="d-total" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Saldo Livre</div><div id="d-saldo" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Total Gasto</div><div id="d-total" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Sobra Livre</div><div id="d-saldo" class="kpi-value">R$ 0</div></div>
         </div>
         <div class="kpi-grid">
             <div class="kpi-card" style="border-color: var(--accent-blue);"><div class="kpi-label">Investimentos</div><div id="d-inv" class="kpi-value">R$ 0</div></div>
@@ -87,7 +87,7 @@
 
         <div class="charts-row">
             <div class="card">
-                <h4 style="margin-bottom: 10px; font-size: 11px; opacity: 0.6;">GASTOS (ÚLTIMOS 30 DIAS)</h4>
+                <h4 style="margin-bottom: 10px; font-size: 11px; opacity: 0.6;">FLUXO DE CAIXA (30 DIAS)</h4>
                 <canvas id="chartLinha" height="110"></canvas>
             </div>
             <div class="card">
@@ -97,111 +97,65 @@
         </div>
 
         <div class="card">
-            <h4 style="margin-bottom: 10px; font-size: 11px;">HISTÓRICO RECENTE</h4>
+            <h4 style="margin-bottom: 10px; font-size: 11px;">ÚLTIMAS MOVIMENTAÇÕES</h4>
             <div id="lista-transacoes"></div>
         </div>
     </section>
 
     <section id="lancamentos" class="view-section">
         <div class="card">
-            <h3 style="margin-bottom:15px;">Novo Registro</h3>
+            <h3>Novo Lançamento</h3><br>
             <select id="l-user"><option value="Adriano">Adriano</option><option value="Mônica">Mônica</option></select>
-            <select id="l-fixa"><option value="Variavel">Variável</option><option value="Fixa">Conta Fixa</option></select>
-            <input type="text" id="l-desc" placeholder="Ex: Gasolina, Aluguel...">
+            <input type="text" id="l-desc" placeholder="Descrição (ex: Aluguel)">
             <input type="number" id="l-valor" placeholder="Valor R$">
             <select id="l-cat">
                 <option value="🏠">🏠 Casa/Aluguel</option>
-                <option value="⛽">⛽ Gasolina/Transporte</option>
+                <option value="⛽">⛽ Transporte</option>
                 <option value="🍕">🍕 Alimentação</option>
-                <option value="📄">📄 Boletos/Contas</option>
-                <option value="💰">💰 Salário/Entrada</option>
+                <option value="📄">📄 Contas Fixas</option>
+                <option value="💰">💰 Receita/Salário</option>
             </select>
             <select id="l-tipo"><option value="despesa">Despesa</option><option value="receita">Receita</option></select>
-            <button class="btn" onclick="addLan()">Salvar na Nuvem</button>
+            <button class="btn" onclick="addLan()">Salvar no Google Cloud</button>
         </div>
     </section>
 
-    <section id="metas_view" class="view-section"><div class="card"><h3>Metas</h3><input type="text" id="m-nome" placeholder="Objetivo"><input type="number" id="m-alvo" placeholder="Valor"><button class="btn" onclick="addMeta()">Salvar</button></div></section>
+    <section id="metas_view" class="view-section"><div class="card"><h3>Metas</h3><input type="text" id="m-nome" placeholder="Objetivo"><input type="number" id="m-alvo" placeholder="Valor Alvo"><button class="btn" onclick="addMeta()">Salvar</button></div></section>
     <section id="invest_view" class="view-section"><div class="card"><h3>Investimentos</h3><input type="text" id="i-nome" placeholder="Ativo"><input type="number" id="i-valor" placeholder="Valor"><button class="btn" onclick="addInv()">Salvar</button></div></section>
-    <section id="fgts_view" class="view-section"><div class="card"><h3>FGTS</h3><input type="number" id="f-valor" placeholder="Saldo FG"><button class="btn" onclick="addFGTS()">Atualizar</button></div></section>
+    <section id="fgts_view" class="view-section"><div class="card"><h3>Saldo FGTS</h3><input type="number" id="f-valor" placeholder="Valor Atual"><button class="btn" onclick="addFGTS()">Atualizar</button></div></section>
 </main>
 
 <script>
-    // CONFIGURAÇÃO EXTRAÍDA DOS SEUS PRINTS
-// Link atualizado do seu Firebase com a extensão necessária
-const FIREBASE_URL = 'https://financeiro-casal-4bc7f-default-rtdb.firebaseio.com/dados.json';
+    // URL DO SEU FIREBASE
+    const FIREBASE_URL = 'https://financeiro-casal-4bc7f-default-rtdb.firebaseio.com/dados.json';
 
-let db = { lan: [], metas: [], inv: [], fgts: 0 };
+    let db = { lan: [], metas: [], inv: [], fgts: 0 };
+    let chartLinha, chartPizza;
 
-async function loadCloud() {
-    const statusEl = document.getElementById('status');
-    try {
-        const res = await fetch(FIREBASE_URL);
-        const data = await res.json();
-        
-        // Se o banco estiver vazio (primeiro acesso), ele salva a estrutura inicial
-        if (data) {
-            db = data;
-        } else {
-            await saveCloud(); 
+    async function loadCloud() {
+        const statusEl = document.getElementById('status');
+        try {
+            const res = await fetch(FIREBASE_URL);
+            const data = await res.json();
+            if (data) db = data;
+            else await saveCloud();
+            updateUI();
+            statusEl.innerText = '● Sincronizado com Nuvem';
+            statusEl.style.color = '#00ffa3';
+        } catch (e) {
+            statusEl.innerText = '❌ Erro de Conexão com Google Cloud';
         }
-        
-        updateUI();
-        statusEl.innerText = '● Google Cloud: Conectado';
-        statusEl.style.color = '#00ffa3';
-    } catch (e) {
-        statusEl.innerText = '❌ Erro de Conexão com Google';
     }
-}
 
-async function saveCloud() {
-    try {
-        await fetch(FIREBASE_URL, {
-            method: 'PUT',
-            body: JSON.stringify(db)
-        });
-        updateUI();
-    } catch (e) {
-        console.error("Erro ao salvar:", e);
+    async function saveCloud() {
+        try {
+            await fetch(FIREBASE_URL, {
+                method: 'PUT',
+                body: JSON.stringify(db)
+            });
+            updateUI();
+        } catch (e) { alert("Erro ao salvar!"); }
     }
-}
-
-loadCloud();
-
-        updateUI();
-        statusEl.innerText = '● Sincronizado com Nuvem';
-        statusEl.style.color = '#00ffa3';
-    } catch (e) {
-        statusEl.innerText = '❌ Erro de Conexão: Tente recarregar a página';
-    }
-}
-
-        updateUI();
-        statusEl.innerText = '● Conectado: Pronto para Uso';
-        statusEl.style.color = '#00ffa3';
-    } catch (e) {
-        statusEl.innerText = '❌ Erro Crítico: Verifique se a Master Key no GitHub está idêntica ao print';
-        statusEl.style.color = '#ff4d6d';
-        console.error(e);
-    }
-}
-
-async function saveCloud() {
-    try {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-            method: 'PUT',
-            headers: { 
-                'Content-Type': 'application/json', 
-                'X-Master-Key': API_KEY 
-            },
-            body: JSON.stringify(db)
-        });
-        if (!res.ok) throw new Error("Falha no PUT");
-        updateUI();
-    } catch (e) {
-        alert("Erro ao gravar dados. Verifique a Master Key no seu código.");
-    }
-}
 
     function addLan() {
         const desc = document.getElementById('l-desc').value;
