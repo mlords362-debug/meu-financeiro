@@ -39,13 +39,14 @@
         .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; }
         
         input, select { background: var(--bg3); border: 1px solid var(--border); padding: 10px; color: #fff; border-radius: 8px; width: 100%; margin-bottom: 10px; font-size: 12px; }
-        .btn { padding: 12px; border: none; border-radius: 8px; background: var(--accent-purple); color: #fff; font-weight: 800; cursor: pointer; width: 100%; }
+        .btn { padding: 12px; border: none; border-radius: 8px; background: var(--accent-purple); color: #fff; font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; }
+        .btn:active { transform: scale(0.98); }
         .btn-del { background: var(--accent-red); padding: 5px 10px; font-size: 10px; border-radius: 5px; border: none; color: white; cursor: pointer; }
 
-        .calc-box { background: var(--bg3); padding: 12px; border-radius: 10px; margin-top: 5px; font-size: 11px; line-height: 1.5; }
+        .calc-box { background: var(--bg3); padding: 12px; border-radius: 10px; margin-top: 5px; font-size: 11px; line-height: 1.5; border: 1px solid var(--border); }
         .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
         
-        #toast { visibility: hidden; min-width: 200px; background-color: var(--accent-green); color: #000; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; right: 30px; top: 30px; font-weight: bold; }
+        #toast { visibility: hidden; min-width: 200px; background-color: var(--accent-green); color: #000; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; right: 30px; top: 30px; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -60,7 +61,7 @@
 </head>
 <body>
 
-<div id="toast">✅ Sincronizado com Google Cloud!</div>
+<div id="toast">✅ Salvo com Sucesso!</div>
 
 <aside class="sidebar">
     <div class="logo">FINANCEIRO PRO<span>JUNIOR & MÔNICA</span></div>
@@ -73,17 +74,17 @@
         <div class="nav-item" onclick="showView('fgts_view', this)">🏦 Saldo FGTS</div>
         
         <div style="padding: 20px 25px 5px 25px; font-size: 10px; font-weight: 800; color: var(--accent-purple);">🧐 SIMULADOR DE COMPRA</div>
-<div style="padding: 10px 25px;">
-    <input type="number" id="c-vista" placeholder="Valor à vista R$" oninput="calcSimulador()">
-    <input type="number" id="c-parc" placeholder="Nº parcelas" oninput="calcSimulador()">
-    <input type="number" id="c-vparc" placeholder="Valor da parcela R$" oninput="calcSimulador()">
-    <select id="v-urgencia" onchange="calcSimulador()">
-        <option value="1">Desejo (Posso esperar)</option>
-        <option value="2">Necessidade (Preciso logo)</option>
-        <option value="3">Urgência (Imediato)</option>
-    </select>
-    <div class="calc-box" id="calc-resultado">Aguardando dados...</div>
-</div>
+        <div style="padding: 10px 25px;">
+            <input type="number" id="c-vista" placeholder="Valor à vista R$" oninput="calcSimulador()">
+            <input type="number" id="c-parc" placeholder="Nº parcelas" oninput="calcSimulador()">
+            <input type="number" id="c-vparc" placeholder="Valor da parcela R$" oninput="calcSimulador()">
+            <select id="v-urgencia" onchange="calcSimulador()">
+                <option value="1">Desejo (Posso esperar)</option>
+                <option value="2">Necessidade (Preciso logo)</option>
+                <option value="3">Urgência (Imediato)</option>
+            </select>
+            <div class="calc-box" id="calc-resultado">Informe os dados...</div>
+        </div>
     </nav>
 </aside>
 
@@ -100,17 +101,17 @@
         <div class="kpi-grid">
             <div class="kpi-card" style="border-color: var(--accent-blue);"><div class="kpi-label">Investimentos</div><div id="d-inv" class="kpi-value">R$ 0</div></div>
             <div class="kpi-card" style="border-color: #f59e0b;"><div class="kpi-label">Saldo FGTS</div><div id="d-fgts" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card" style="border-color: var(--accent-purple);"><div class="kpi-label">Metas Realizadas</div><div id="d-metas-perc" class="kpi-value">0%</div></div>
-            <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Dívida Total</div><div id="d-divida-total" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card" style="border-color: var(--accent-purple);"><div class="kpi-label">Metas Ativas</div><div id="d-metas-perc" class="kpi-value">0</div></div>
+            <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Dívida Mês</div><div id="d-divida-total" class="kpi-value">R$ 0</div></div>
         </div>
 
         <div class="charts-row">
             <div class="card">
-                <h4 style="margin-bottom: 10px; font-size: 11px; opacity: 0.6;">FLUXO DE CAIXA (30 DIAS)</h4>
+                <h4 style="margin-bottom: 10px; font-size: 11px; opacity: 0.6;">FLUXO DE CAIXA (DIAS)</h4>
                 <canvas id="chartLinha" height="110"></canvas>
             </div>
             <div class="card">
-                <h4 style="margin-bottom: 10px; font-size: 11px; opacity: 0.6;">DIVISÃO: SALÁRIOS VS CONTAS</h4>
+                <h4 style="margin-bottom: 10px; font-size: 11px; opacity: 0.6;">DIVISÃO: RECEITA VS GASTOS</h4>
                 <canvas id="chartPizza" height="180"></canvas>
             </div>
         </div>
@@ -120,29 +121,31 @@
         <div class="card">
             <h3>Novo Lançamento</h3><br>
             <select id="l-user"><option value="Junior">Junior</option><option value="Mônica">Mônica</option></select>
-            <input type="text" id="l-desc" placeholder="Descrição">
+            <input type="text" id="l-desc" placeholder="Ex: Mercado, Aluguel...">
             <input type="number" id="l-valor" placeholder="Valor R$">
             <select id="l-cat">
                 <option value="🏠">🏠 Casa</option>
                 <option value="⛽">⛽ Transporte</option>
                 <option value="🍕">🍕 Alimentação</option>
                 <option value="💰">💰 Receita/Salário</option>
+                <option value="🛍️">🛍️ Compras</option>
             </select>
             <select id="l-tipo"><option value="despesa">Despesa</option><option value="receita">Receita</option></select>
-            <button class="btn" onclick="addLan()">Salvar no Google</button>
+            <button class="btn" onclick="addLan()">Registrar no Google Cloud</button>
         </div>
     </section>
 
     <section id="gerenciar" class="view-section">
         <div class="card">
-            <h3>Lista Completa</h3><br>
+            <h3>Histórico de Lançamentos</h3>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Remova itens clicando no X vermelho.</p>
             <div id="lista-gerenciar"></div>
         </div>
     </section>
 
-    <section id="metas_view" class="view-section"><div class="card"><h3>Metas</h3><input type="text" id="m-nome" placeholder="Objetivo"><input type="number" id="m-alvo" placeholder="Valor Alvo"><button class="btn" onclick="addMeta()">Salvar</button></div></section>
-    <section id="invest_view" class="view-section"><div class="card"><h3>Investimentos</h3><input type="text" id="i-nome" placeholder="Ativo"><input type="number" id="i-valor" placeholder="Valor"><button class="btn" onclick="addInv()">Salvar</button></div></section>
-    <section id="fgts_view" class="view-section"><div class="card"><h3>Saldo FGTS</h3><input type="number" id="f-valor" placeholder="Valor Atual"><button class="btn" onclick="addFGTS()">Atualizar</button></div></section>
+    <section id="metas_view" class="view-section"><div class="card"><h3>Metas🎯</h3><input type="text" id="m-nome" placeholder="Objetivo"><input type="number" id="m-alvo" placeholder="Valor Alvo"><button class="btn" onclick="addMeta()">Salvar Meta</button></div></section>
+    <section id="invest_view" class="view-section"><div class="card"><h3>Investimentos📈</h3><input type="text" id="i-nome" placeholder="Ativo"><input type="number" id="i-valor" placeholder="Valor"><button class="btn" onclick="addInv()">Salvar Ativo</button></div></section>
+    <section id="fgts_view" class="view-section"><div class="card"><h3>Saldo FGTS🏦</h3><input type="number" id="f-valor" placeholder="Valor Total Atual"><button class="btn" onclick="addFGTS()">Atualizar Saldo</button></div></section>
 </main>
 
 <script>
@@ -156,8 +159,10 @@
             const data = await res.json();
             if (data) db = data;
             if (!db.lan) db.lan = [];
+            if (!db.metas) db.metas = [];
+            if (!db.inv) db.inv = [];
             updateUI();
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Erro ao carregar dados:", e); }
     }
 
     async function saveCloud() {
@@ -165,7 +170,7 @@
             await fetch(FIREBASE_URL, { method: 'PUT', body: JSON.stringify(db) });
             updateUI();
             showToast();
-        } catch (e) { alert("Erro ao salvar!"); }
+        } catch (e) { alert("Erro ao salvar no servidor!"); }
     }
 
     function showToast() {
@@ -177,91 +182,96 @@
     function addLan() {
         const desc = document.getElementById('l-desc').value;
         const valor = parseFloat(document.getElementById('l-valor').value);
-        if(!desc || !valor) return alert("Preencha tudo!");
-        db.lan.push({ id: Date.now(), user: document.getElementById('l-user').value, desc: `${document.getElementById('l-cat').value} ${desc}`, valor, tipo: document.getElementById('l-tipo').value, dia: new Date().getDate() });
+        if(!desc || !valor) return alert("Preencha Descrição e Valor!");
+        
+        db.lan.push({ 
+            id: Date.now(), 
+            user: document.getElementById('l-user').value, 
+            desc: `${document.getElementById('l-cat').value} ${desc}`, 
+            valor, 
+            tipo: document.getElementById('l-tipo').value, 
+            dia: new Date().getDate() 
+        });
+        
+        document.getElementById('l-desc').value = '';
+        document.getElementById('l-valor').value = '';
         saveCloud();
     }
 
     function deleteLan(id) {
-        if(confirm("Apagar este item?")) { db.lan = db.lan.filter(i => i.id !== id); saveCloud(); }
+        if(confirm("Deseja realmente apagar este item?")) { 
+            db.lan = db.lan.filter(i => i.id !== id); 
+            saveCloud(); 
+        }
     }
 
-    ffunction calcSimulador() {
-    const vista = parseFloat(document.getElementById('c-vista').value) || 0;
-    const nParc = parseInt(document.getElementById('c-parc').value) || 0;
-    const vParc = parseFloat(document.getElementById('c-vparc').value) || 0;
-    const urgencia = document.getElementById('v-urgencia').value;
-    const resDiv = document.getElementById('calc-resultado');
-    
-    // Puxa a sobra livre atual do dashboard
-    const sobraStr = document.getElementById('d-saldo').innerText.replace('R$ ','').replace(/\./g,'').replace(',','.');
-    const sobra = parseFloat(sobraStr) || 0;
-
-    if (vista > 0) {
-        let html = "";
+    function calcSimulador() {
+        const vista = parseFloat(document.getElementById('c-vista').value) || 0;
+        const nParc = parseInt(document.getElementById('c-parc').value) || 0;
+        const vParc = parseFloat(document.getElementById('c-vparc').value) || 0;
+        const urgencia = document.getElementById('v-urgencia').value;
+        const resDiv = document.getElementById('calc-resultado');
         
-        // Parte 1: Cálculo de Juros
-        if (nParc > 0 && vParc > 0) {
-            const totalPrazo = nParc * vParc;
-            const diffJuros = totalPrazo - vista;
-            const percJuros = (diffJuros / vista) * 100;
-            
-            html += `<b>Total a prazo:</b> R$ ${totalPrazo.toLocaleString('pt-BR')}<br>`;
-            html += `<b>Juros:</b> <span style="color:${diffJuros > 0 ? 'var(--accent-red)' : 'var(--accent-green)'}">R$ ${diffJuros.toFixed(2)} (${percJuros.toFixed(1)}%)</span><br>`;
-            html += `<hr style="margin:8px 0; border:0; border-top:1px solid var(--border)">`;
-        }
+        // Puxa a sobra livre calculada no dashboard
+        const sText = document.getElementById('d-saldo').innerText.replace('R$ ','').replace(/\./g,'').replace(',','.');
+        const sobra = parseFloat(sText) || 0;
 
-        // Parte 2: Análise "Vale a pena?"
-        let analise = "";
-        if (vista > sobra && urgencia != "3") {
-            analise = "❌ <b>Não compre!</b> O valor excede sua sobra livre atual.";
-        } else if (urgencia == "1") {
-            analise = "⏳ <b>Regra dos 3 dias:</b> Espere! Se em 72h você ainda quiser, compre à vista.";
-        } else if (urgencia == "2") {
-            analise = "✅ <b>Necessário:</b> Se o juros for baixo, avance. Senão, negocie o valor à vista.";
-        } else {
-            analise = "🚀 <b>Urgente:</b> Compre, mas corte gastos supérfluos no próximo mês.";
-        }
+        if (vista > 0) {
+            let html = "";
+            if (nParc > 0 && vParc > 0) {
+                const totalPrazo = nParc * vParc;
+                const diffJuros = totalPrazo - vista;
+                const percJuros = (diffJuros / vista) * 100;
+                html += `<b>Total Prazo:</b> R$ ${totalPrazo.toLocaleString('pt-BR')}<br>`;
+                html += `<b>Juros:</b> <span style="color:${diffJuros > 0 ? 'var(--accent-red)' : 'var(--accent-green)'}">R$ ${diffJuros.toFixed(2)} (${percJuros.toFixed(1)}%)</span><br>`;
+                html += `<hr style="margin:8px 0; border:0; border-top:1px solid var(--border)">`;
+            }
 
-        resDiv.innerHTML = html + analise;
-    } else {
-        resDiv.innerText = "Informe o valor à vista...";
+            let analise = "";
+            if (vista > sobra && urgencia != "3") analise = "❌ <b>Não compre!</b> O valor excede sua sobra livre.";
+            else if (urgencia == "1") analise = "⏳ <b>Aguarde!</b> Use a regra dos 3 dias.";
+            else if (urgencia == "2") analise = "✅ <b>Necessário:</b> Tente desconto à vista.";
+            else analise = "🚀 <b>Urgente:</b> Compre e ajuste o próximo mês.";
+            resDiv.innerHTML = html + analise;
+        } else { resDiv.innerText = "Informe o preço..."; }
     }
-}
 
     function updateUI() {
         const junior = db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valor, 0);
         const monica = db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valor, 0);
         const receitas = db.lan.filter(x => x.tipo === 'receita').reduce((a,b)=>a+b.valor, 0);
-        const invTotal = db.inv ? db.inv.reduce((a,b)=>a+b.valor, 0) : 0;
-        const metasCount = db.metas ? db.metas.length : 0;
+        const invTotal = db.inv.reduce((a,b)=>a+b.valor, 0);
+        const totalGastos = junior + monica;
 
-        document.getElementById('d-eu').innerText = `R$ ${junior.toLocaleString()}`;
-        document.getElementById('d-ela').innerText = `R$ ${monica.toLocaleString()}`;
-        document.getElementById('d-total').innerText = `R$ ${(junior+monica).toLocaleString()}`;
-        document.getElementById('d-saldo').innerText = `R$ ${(receitas - (junior+monica)).toLocaleString()}`;
-        document.getElementById('d-inv').innerText = `R$ ${invTotal.toLocaleString()}`;
-        document.getElementById('d-fgts').innerText = `R$ ${(db.fgts || 0).toLocaleString()}`;
-        document.getElementById('d-metas-perc').innerText = `${metasCount > 0 ? 'Ativas' : '0'}`;
-        document.getElementById('d-divida-total').innerText = `R$ ${(junior+monica).toLocaleString()}`;
+        document.getElementById('d-eu').innerText = `R$ ${junior.toLocaleString('pt-BR')}`;
+        document.getElementById('d-ela').innerText = `R$ ${monica.toLocaleString('pt-BR')}`;
+        document.getElementById('d-total').innerText = `R$ ${totalGastos.toLocaleString('pt-BR')}`;
+        document.getElementById('d-saldo').innerText = `R$ ${(receitas - totalGastos).toLocaleString('pt-BR')}`;
+        document.getElementById('d-inv').innerText = `R$ ${invTotal.toLocaleString('pt-BR')}`;
+        document.getElementById('d-fgts').innerText = `R$ ${(db.fgts || 0).toLocaleString('pt-BR')}`;
+        document.getElementById('d-metas-perc').innerText = db.metas.length;
+        document.getElementById('d-divida-total').innerText = `R$ ${totalGastos.toLocaleString('pt-BR')}`;
 
         const listG = document.getElementById('lista-gerenciar');
         listG.innerHTML = '';
         db.lan.slice().reverse().forEach(t => {
-            listG.innerHTML += `<div class="item-row"><span>${t.user}: ${t.desc}</span> <span>R$ ${t.valor} <button class="btn-del" onclick="deleteLan(${t.id})">X</button></span></div>`;
+            listG.innerHTML += `<div class="item-row">
+                <span><b>${t.user}:</b> ${t.desc}</span> 
+                <span>R$ ${t.valor.toLocaleString('pt-BR')} <button class="btn-del" onclick="deleteLan(${t.id})">X</button></span>
+            </div>`;
         });
 
-        renderCharts(receitas, (junior+monica));
+        renderCharts(receitas, totalGastos);
     }
 
     function renderCharts(rec, gast) {
         if(chartPizza) chartPizza.destroy();
         const ctxP = document.getElementById('chartPizza').getContext('2d');
-        chartPizza = new Chart(ctxP, { type: 'doughnut', data: { labels: ['Salários', 'Contas', 'Sobra'], datasets: [{ data: [rec, gast, rec-gast > 0 ? rec-gast : 0], backgroundColor: ['#8b5cf6', '#ff4d6d', '#00ffa3'], borderWidth: 0 }] }, options: { plugins: { legend: { position: 'bottom', labels: { color: '#fff', font: { size: 9 } } } } } });
+        chartPizza = new Chart(ctxP, { type: 'doughnut', data: { labels: ['Receita', 'Gastos', 'Sobra'], datasets: [{ data: [rec, gast, rec-gast > 0 ? rec-gast : 0], backgroundColor: ['#8b5cf6', '#ff4d6d', '#00ffa3'], borderWidth: 0 }] }, options: { plugins: { legend: { position: 'bottom', labels: { color: '#fff', font: { size: 9 } } } } } });
         
         if(chartLinha) chartLinha.destroy();
         const ctxL = document.getElementById('chartLinha').getContext('2d');
-        chartLinha = new Chart(ctxL, { type: 'line', data: { labels: Array.from({length: 30}, (_, i) => i + 1), datasets: [{ label: 'Gastos', data: Array.from({length: 30}, (_, i) => db.lan.filter(x => x.dia === i+1 && x.tipo === 'despesa').reduce((a,b)=>a+b.valor, 0)), borderColor: '#8b5cf6', tension: 0.4, fill: true, backgroundColor: 'rgba(139,92,246,0.1)' }] }, options: { scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: '#555', font: {size: 8} } } }, plugins: { legend: { display: false } } } });
+        chartLinha = new Chart(ctxL, { type: 'line', data: { labels: Array.from({length: 31}, (_, i) => i + 1), datasets: [{ label: 'Gastos', data: Array.from({length: 31}, (_, i) => db.lan.filter(x => x.dia === i+1 && x.tipo === 'despesa').reduce((a,b)=>a+b.valor, 0)), borderColor: '#8b5cf6', tension: 0.4, fill: true, backgroundColor: 'rgba(139,92,246,0.1)' }] }, options: { scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: '#555', font: {size: 8} } } }, plugins: { legend: { display: false } } } });
     }
 
     function showView(id, el) {
@@ -271,8 +281,8 @@
         if(el) el.classList.add('active');
     }
 
-    function addMeta() { if(!db.metas) db.metas = []; db.metas.push({nome: document.getElementById('m-nome').value, alvo: parseFloat(document.getElementById('m-alvo').value)}); saveCloud(); }
-    function addInv() { if(!db.inv) db.inv = []; db.inv.push({nome: document.getElementById('i-nome').value, valor: parseFloat(document.getElementById('i-valor').value)}); saveCloud(); }
+    function addMeta() { db.metas.push({nome: document.getElementById('m-nome').value, alvo: parseFloat(document.getElementById('m-alvo').value)}); saveCloud(); }
+    function addInv() { db.inv.push({nome: document.getElementById('i-nome').value, valor: parseFloat(document.getElementById('i-valor').value)}); saveCloud(); }
     function addFGTS() { db.fgts = parseFloat(document.getElementById('f-valor').value); saveCloud(); }
 
     loadCloud();
