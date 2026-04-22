@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financeiro PRO | Adriano & Mônica</title>
+    <title>Financeiro PRO | JUNIOR & MONICA</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -35,41 +35,40 @@
         .kpi-label { font-size: 9px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
         .kpi-value { font-family: 'Syne'; font-size: 18px; font-weight: 800; }
 
-        .charts-row { display: grid; grid-template-columns: 1.2fr 1fr; gap: 15px; margin-bottom: 15px; }
         .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; }
-        
         input, select { background: var(--bg3); border: 1px solid var(--border); padding: 10px; color: #fff; border-radius: 8px; width: 100%; margin-bottom: 10px; font-size: 12px; }
         .btn { padding: 12px; border: none; border-radius: 8px; background: var(--accent-purple); color: #fff; font-weight: 800; cursor: pointer; width: 100%; }
+        .btn-del { background: var(--accent-red); padding: 5px 10px; font-size: 10px; border-radius: 5px; border: none; color: white; cursor: pointer; }
 
-        .calc-box { background: var(--bg3); padding: 12px; border-radius: 10px; margin-top: 5px; font-size: 11px; }
-        .item-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
         
+        /* Notificação de Sucesso */
+        #toast { visibility: hidden; min-width: 200px; background-color: var(--accent-green); color: #000; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; right: 30px; top: 30px; font-weight: bold; }
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadein { from {top: 0; opacity: 0;} to {top: 30px; opacity: 1;} }
+        @keyframes fadeout { from {top: 30px; opacity: 1;} to {top: 0; opacity: 0;} }
     </style>
 </head>
 <body>
 
+<div id="toast">✅ Salvo com Sucesso!</div>
+
 <aside class="sidebar">
-    <div class="logo">FINANCEIRO PRO<span>ADRIANO & MÔNICA</span></div>
+    <div class="logo">FINANCEIRO PRO<span>JUNIOR & MONICA</span></div>
     <nav>
         <div class="nav-item active" onclick="showView('dashboard', this)">📊 Painel Geral</div>
         <div class="nav-item" onclick="showView('lancamentos', this)">↕️ Lançamentos</div>
+        <div class="nav-item" onclick="showView('gerenciar', this)">⚙️ Gerenciar Dados</div>
         <div class="nav-item" onclick="showView('metas_view', this)">🎯 Metas</div>
         <div class="nav-item" onclick="showView('invest_view', this)">📈 Investimentos</div>
         <div class="nav-item" onclick="showView('fgts_view', this)">🏦 Saldo FGTS</div>
-        
-        <div style="padding: 20px 25px 5px 25px; font-size: 10px; font-weight: 800; color: var(--accent-purple);">🧮 CALCULADORA DE JUROS</div>
-        <div style="padding: 10px 25px;">
-            <input type="number" id="c-vista" placeholder="Valor à vista" oninput="calcJuros()">
-            <input type="number" id="c-parc" placeholder="Nº parcelas" oninput="calcJuros()">
-            <input type="number" id="c-vparc" placeholder="Valor da parcela" oninput="calcJuros()">
-            <div class="calc-box" id="calc-resultado">Aguardando dados...</div>
-        </div>
     </nav>
 </aside>
 
 <main class="main">
-    <div id="status" style="font-size: 10px; margin-bottom: 10px; color: var(--accent-green);">● Conectando ao Google Cloud...</div>
+    <div id="status" style="font-size: 10px; margin-bottom: 10px; color: var(--accent-green);">● Conectado ao Google Cloud</div>
 
     <section id="dashboard" class="view-section active">
         <div class="kpi-grid">
@@ -78,27 +77,10 @@
             <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Total Gasto</div><div id="d-total" class="kpi-value">R$ 0</div></div>
             <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Sobra Livre</div><div id="d-saldo" class="kpi-value">R$ 0</div></div>
         </div>
-        <div class="kpi-grid">
-            <div class="kpi-card" style="border-color: var(--accent-blue);"><div class="kpi-label">Investimentos</div><div id="d-inv" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card" style="border-color: #f59e0b;"><div class="kpi-label">Saldo FGTS</div><div id="d-fgts" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card" style="border-color: var(--accent-purple);"><div class="kpi-label">Metas Realizadas</div><div id="d-metas-perc" class="kpi-value">0%</div></div>
-            <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Dívida Total</div><div id="d-divida-total" class="kpi-value">R$ 0</div></div>
-        </div>
-
-        <div class="charts-row">
-            <div class="card">
-                <h4 style="margin-bottom: 10px; font-size: 11px; opacity: 0.6;">FLUXO DE CAIXA (30 DIAS)</h4>
-                <canvas id="chartLinha" height="110"></canvas>
-            </div>
-            <div class="card">
-                <h4 style="margin-bottom: 10px; font-size: 11px; opacity: 0.6;">DIVISÃO: SALÁRIOS VS CONTAS</h4>
-                <canvas id="chartPizza" height="180"></canvas>
-            </div>
-        </div>
 
         <div class="card">
             <h4 style="margin-bottom: 10px; font-size: 11px;">ÚLTIMAS MOVIMENTAÇÕES</h4>
-            <div id="lista-transacoes"></div>
+            <div id="lista-recente"></div>
         </div>
     </section>
 
@@ -106,116 +88,115 @@
         <div class="card">
             <h3>Novo Lançamento</h3><br>
             <select id="l-user"><option value="Adriano">Adriano</option><option value="Mônica">Mônica</option></select>
-            <input type="text" id="l-desc" placeholder="Descrição (ex: Aluguel)">
+            <input type="text" id="l-desc" placeholder="Descrição (ex: Mercado)">
             <input type="number" id="l-valor" placeholder="Valor R$">
             <select id="l-cat">
-                <option value="🏠">🏠 Casa/Aluguel</option>
+                <option value="🏠">🏠 Casa</option>
                 <option value="⛽">⛽ Transporte</option>
                 <option value="🍕">🍕 Alimentação</option>
-                <option value="📄">📄 Contas Fixas</option>
                 <option value="💰">💰 Receita/Salário</option>
             </select>
             <select id="l-tipo"><option value="despesa">Despesa</option><option value="receita">Receita</option></select>
-            <button class="btn" onclick="addLan()">Salvar no Google Cloud</button>
+            <button class="btn" onclick="addLan()">Registrar e Salvar</button>
         </div>
     </section>
 
-    <section id="metas_view" class="view-section"><div class="card"><h3>Metas</h3><input type="text" id="m-nome" placeholder="Objetivo"><input type="number" id="m-alvo" placeholder="Valor Alvo"><button class="btn" onclick="addMeta()">Salvar</button></div></section>
+    <section id="gerenciar" class="view-section">
+        <div class="card">
+            <h3>Gerenciar Lançamentos</h3>
+            <p style="font-size: 11px; color: var(--text-muted); margin-bottom: 15px;">Remova itens incorretos clicando no botão vermelho.</p>
+            <div id="lista-gerenciar"></div>
+        </div>
+    </section>
+
+    <section id="metas_view" class="view-section"><div class="card"><h3>Metas</h3><input type="text" id="m-nome" placeholder="Objetivo"><input type="number" id="m-alvo" placeholder="Valor"><button class="btn" onclick="addMeta()">Salvar</button></div></section>
     <section id="invest_view" class="view-section"><div class="card"><h3>Investimentos</h3><input type="text" id="i-nome" placeholder="Ativo"><input type="number" id="i-valor" placeholder="Valor"><button class="btn" onclick="addInv()">Salvar</button></div></section>
     <section id="fgts_view" class="view-section"><div class="card"><h3>Saldo FGTS</h3><input type="number" id="f-valor" placeholder="Valor Atual"><button class="btn" onclick="addFGTS()">Atualizar</button></div></section>
 </main>
 
 <script>
-    // URL DO SEU FIREBASE
     const FIREBASE_URL = 'https://financeiro-casal-4bc7f-default-rtdb.firebaseio.com/dados.json';
-
     let db = { lan: [], metas: [], inv: [], fgts: 0 };
-    let chartLinha, chartPizza;
 
     async function loadCloud() {
-        const statusEl = document.getElementById('status');
         try {
             const res = await fetch(FIREBASE_URL);
             const data = await res.json();
             if (data) db = data;
-            else await saveCloud();
+            if (!db.lan) db.lan = [];
             updateUI();
-            statusEl.innerText = '● Sincronizado com Nuvem';
-            statusEl.style.color = '#00ffa3';
-        } catch (e) {
-            statusEl.innerText = '❌ Erro de Conexão com Google Cloud';
-        }
+        } catch (e) { console.error("Erro ao carregar"); }
     }
 
-    async function saveCloud() {
+    async function saveCloud(showOk = true) {
         try {
-            await fetch(FIREBASE_URL, {
-                method: 'PUT',
-                body: JSON.stringify(db)
-            });
+            await fetch(FIREBASE_URL, { method: 'PUT', body: JSON.stringify(db) });
             updateUI();
+            if(showOk) showToast();
         } catch (e) { alert("Erro ao salvar!"); }
+    }
+
+    function showToast() {
+        const x = document.getElementById("toast");
+        x.className = "show";
+        setTimeout(() => { x.className = x.className.replace("show", ""); }, 3000);
     }
 
     function addLan() {
         const desc = document.getElementById('l-desc').value;
         const valor = parseFloat(document.getElementById('l-valor').value);
-        if(!desc || !valor) return alert("Preencha tudo!");
+        if(!desc || !valor) return alert("Preencha os campos!");
+        
         db.lan.push({
+            id: Date.now(),
             user: document.getElementById('l-user').value,
             desc: `${document.getElementById('l-cat').value} ${desc}`,
-            valor, tipo: document.getElementById('l-tipo').value,
-            dia: new Date().getDate()
+            valor, 
+            tipo: document.getElementById('l-tipo').value
         });
+        
+        document.getElementById('l-desc').value = '';
+        document.getElementById('l-valor').value = '';
         saveCloud();
     }
 
-    function addMeta() { db.metas.push({nome: document.getElementById('m-nome').value, alvo: parseFloat(document.getElementById('m-alvo').value)}); saveCloud(); }
-    function addInv() { db.inv.push({nome: document.getElementById('i-nome').value, valor: parseFloat(document.getElementById('i-valor').value)}); saveCloud(); }
-    function addFGTS() { db.fgts = parseFloat(document.getElementById('f-valor').value); saveCloud(); }
-
-    function calcJuros() {
-        const vista = parseFloat(document.getElementById('c-vista').value) || 0;
-        const nParc = parseInt(document.getElementById('c-parc').value) || 0;
-        const vParc = parseFloat(document.getElementById('c-vparc').value) || 0;
-        const resDiv = document.getElementById('calc-resultado');
-        if(vista && nParc && vParc) {
-            const total = nParc * vParc;
-            const diff = total - vista;
-            const perc = (diff / vista) * 100;
-            resDiv.innerHTML = `Total: R$ ${total.toFixed(2)}<br>Juros: <span style="color:var(--accent-red)">R$ ${diff.toFixed(2)}</span> (${perc.toFixed(1)}%)`;
+    function deleteLan(id) {
+        if(confirm("Deseja apagar este lançamento?")) {
+            db.lan = db.lan.filter(item => item.id !== id);
+            saveCloud(true);
         }
     }
 
     function updateUI() {
-        const adriano = db.lan.filter(x => x.user === 'Adriano' && x.tipo === 'despesa').reduce((a,b)=>a+b.valor, 0);
-        const monica = db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valor, 0);
+        // Cálculos
+        const adriano = db.lan.filter(x => x.user === 'JUNIOR' && x.tipo === 'despesa').reduce((a,b)=>a+b.valor, 0);
+        const monica = db.lan.filter(x => x.user === 'MONICA' && x.tipo === 'despesa').reduce((a,b)=>a+b.valor, 0);
         const receitas = db.lan.filter(x => x.tipo === 'receita').reduce((a,b)=>a+b.valor, 0);
-        const invTotal = db.inv.reduce((a,b)=>a+b.valor, 0);
 
-        document.getElementById('d-eu').innerText = `R$ ${adriano.toLocaleString()}`;
-        document.getElementById('d-ela').innerText = `R$ ${monica.toLocaleString()}`;
-        document.getElementById('d-total').innerText = `R$ ${(adriano+monica).toLocaleString()}`;
-        document.getElementById('d-saldo').innerText = `R$ ${(receitas - (adriano+monica)).toLocaleString()}`;
-        document.getElementById('d-inv').innerText = `R$ ${invTotal.toLocaleString()}`;
-        document.getElementById('d-fgts').innerText = `R$ ${db.fgts.toLocaleString()}`;
-        document.getElementById('d-divida-total').innerText = `R$ ${(adriano+monica).toLocaleString()}`;
+        document.getElementById('d-eu').innerText = `R$ ${junior.toLocaleString('pt-BR')}`;
+        document.getElementById('d-ela').innerText = `R$ ${monica.toLocaleString('pt-BR')}`;
+        document.getElementById('d-total').innerText = `R$ ${(junior+monica).toLocaleString('pt-BR')}`;
+        document.getElementById('d-saldo').innerText = `R$ ${(receitas - (junior+monica)).toLocaleString('pt-BR')}`;
 
-        const lista = document.getElementById('lista-transacoes');
-        lista.innerHTML = '';
-        db.lan.slice(-5).reverse().forEach(t => {
-            lista.innerHTML += `<div class="item-row"><span>${t.desc} (${t.user})</span><b style="color:${t.tipo==='receita'?'var(--accent-green)':'var(--accent-red)'}">R$ ${t.valor.toLocaleString()}</b></div>`;
+        // Listas
+        const listaRecente = document.getElementById('lista-recente');
+        const listaGerenciar = document.getElementById('lista-gerenciar');
+        listaRecente.innerHTML = '';
+        listaGerenciar.innerHTML = '';
+
+        db.lan.slice().reverse().forEach(t => {
+            const row = `<div class="item-row">
+                <span><b>${t.user}:</b> ${t.desc}</span>
+                <span style="color:${t.tipo==='receita'?'var(--accent-green)':'var(--accent-red)'}">R$ ${t.valor.toLocaleString('pt-BR')}</span>
+            </div>`;
+            listaRecente.innerHTML += row;
+
+            const rowGerenciar = `<div class="item-row">
+                <span>${t.user} | ${t.desc} | R$ ${t.valor}</span>
+                <button class="btn-del" onclick="deleteLan(${t.id})">Apagar</button>
+            </div>`;
+            listaGerenciar.innerHTML += rowGerenciar;
         });
-        renderCharts(receitas, (adriano+monica));
-    }
-
-    function renderCharts(rec, gast) {
-        if(chartPizza) chartPizza.destroy();
-        if(chartLinha) chartLinha.destroy();
-        const ctxP = document.getElementById('chartPizza').getContext('2d');
-        chartPizza = new Chart(ctxP, { type: 'doughnut', data: { labels: ['Salários', 'Contas', 'Sobra'], datasets: [{ data: [rec, gast, rec-gast > 0 ? rec-gast : 0], backgroundColor: ['#8b5cf6', '#ff4d6d', '#00ffa3'], borderWidth: 0 }] }, options: { plugins: { legend: { position: 'bottom', labels: { color: '#fff', font: { size: 9 } } } } } });
-        const ctxL = document.getElementById('chartLinha').getContext('2d');
-        chartLinha = new Chart(ctxL, { type: 'line', data: { labels: Array.from({length: 30}, (_, i) => i + 1), datasets: [{ label: 'Gastos', data: Array.from({length: 30}, (_, i) => db.lan.filter(x => x.dia === i+1 && x.tipo === 'despesa').reduce((a,b)=>a+b.valor, 0)), borderColor: '#8b5cf6', tension: 0.4, fill: true, backgroundColor: 'rgba(139,92,246,0.1)' }] }, options: { scales: { y: { display: false }, x: { grid: { display: false }, ticks: { color: '#555', font: {size: 8} } } }, plugins: { legend: { display: false } } } });
     }
 
     function showView(id, el) {
@@ -224,6 +205,10 @@
         document.getElementById(id).classList.add('active');
         if(el) el.classList.add('active');
     }
+
+    function addMeta() { db.metas.push({nome: document.getElementById('m-nome').value, alvo: parseFloat(document.getElementById('m-alvo').value)}); saveCloud(); }
+    function addInv() { db.inv.push({nome: document.getElementById('i-nome').value, valor: parseFloat(document.getElementById('i-valor').value)}); saveCloud(); }
+    function addFGTS() { db.fgts = parseFloat(document.getElementById('f-valor').value); saveCloud(); }
 
     loadCloud();
 </script>
