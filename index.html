@@ -106,33 +106,27 @@
 
     <section id="dashboard" class="view-section active">
         <div class="kpi-grid">
-            <div class="kpi-card kpi-green"><div class="kpi-label">Saldo em Conta</div><div id="d-saldo" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card kpi-red"><div class="kpi-label">Dívida Parcelada</div><div id="d-divida" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card kpi-orange"><div class="kpi-label">Saldo FGTS Total</div><div id="d-fgts" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card kpi-blue"><div class="kpi-label">Investimentos</div><div id="d-invest" class="kpi-value">R$ 0</div></div>
-        </div>
-
-        <div class="grid-layout">
-            <div class="col-left">
-                <div class="card">
-                    <div class="card-title">Fluxo de Caixa (Últimos 30 dias)</div>
-                    <canvas id="flowChart" style="max-height: 250px;"></canvas>
-                </div>
-                <div class="card">
-                    <div class="card-title">Histórico Recente</div>
-                    <div id="d-transacoes"></div>
-                </div>
-            </div>
-            <div class="col-right">
-                <div class="card">
-                    <div class="card-title">Metas Ativas</div>
-                    <div id="d-metas-list"></div>
-                </div>
-                <div class="card">
-                    <div class="card-title">Distribuição de Gastos</div>
-                    <canvas id="splitChart" style="max-height: 180px;"></canvas>
-                </div>
-            </div>
+    <div class="kpi-card kpi-blue">
+        <div class="kpi-label">Saldo em Conta</div>
+        <div id="d-saldo" class="kpi-value">R$ 0</div>
+        <div class="kpi-sub">Disponível agora</div>
+    </div>
+    <div class="kpi-card kpi-red">
+        <div class="kpi-label">Contas do Mês</div>
+        <div id="d-contas-mes" class="kpi-value">R$ 0</div>
+        <div class="kpi-sub">Total de despesas do mês</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+        <div class="kpi-label">Dívida Parcelada</div>
+        <div id="d-divida" class="kpi-value">R$ 0</div>
+        <div id="d-divida-count" class="kpi-sub">Total acumulado</div>
+    </div>
+    <div class="kpi-card kpi-orange">
+        <div class="kpi-label">Saldo FGTS</div>
+        <div id="d-fgts" class="kpi-value">R$ 0</div>
+        <div class="kpi-sub">Patrimônio retido</div>
+    </div>
+</div>
         </div>
     </section>
 
@@ -235,7 +229,9 @@
 
         let invest = db.inv.reduce((a,b)=>a + b.valor, 0);
         document.getElementById('d-invest').innerText = `R$ ${invest.toLocaleString()}`;
-
+// Dentro da função update(), onde calculamos as despesas:
+let contasDoMes = dataMes.filter(x => x.tipo === 'despesa').reduce((a,b)=>a+b.valor, 0);
+document.getElementById('d-contas-mes').innerText = `R$ ${contasDoMes.toLocaleString()}`;
         // Transações
         const trans = document.getElementById('d-transacoes'); trans.innerHTML = '';
         dataMes.slice(-4).reverse().forEach(t => {
