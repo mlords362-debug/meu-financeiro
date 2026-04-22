@@ -127,32 +127,41 @@
 </main>
 
 <script>
-    // --- CONFIGURAÇÃO VALIDADA PELOS SEUS PRINTS ---
-const API_KEY = '$2a$10$zyzhLU29YhBCCvAdhNRSZuKJa1IaOopzSb5XC41syCVXlM/.UilFq'; // Master Key
-const BIN_ID = '69e9214d856a682189607a23'; // ID da Coleção
+    // CONFIGURAÇÃO EXTRAÍDA DOS SEUS PRINTS
+const API_KEY = '$2a$10$zyzhLU29YhBCCvAdhNRSZuKJa1IaOopzSb5XC41syCVXlM/.UilFq'; 
+const BIN_ID = '69e9214d856a682189607a23'; 
 
 let db = { lan: [], metas: [], inv: [], fgts: 0 };
 
 async function loadCloud() {
     const statusEl = document.getElementById('status');
     try {
+        // Tenta puxar os dados
         const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
             headers: { 'X-Master-Key': API_KEY }
         });
 
-        if (res.status === 404 || res.status === 401) {
-            throw new Error("Erro de Autenticação ou Bin Inexistente");
+        if (res.status === 401) {
+            statusEl.innerText = '❌ Erro 401: Master Key Inválida ou com espaço!';
+            return;
         }
 
         const data = await res.json();
         
-        // Se o registro vier vazio ou inválido, ele força a estrutura inicial
-        if (!data.record || typeof data.record !== 'object') {
-            console.warn("Banco vazio. Criando estrutura...");
+        // Se a coleção estiver vazia (zerada), ele inicializa os dados
+        if (!data.record || !data.record.lan) {
             await saveCloud(); 
         } else {
             db = data.record;
         }
+
+        updateUI();
+        statusEl.innerText = '● Sincronizado com Nuvem';
+        statusEl.style.color = '#00ffa3';
+    } catch (e) {
+        statusEl.innerText = '❌ Erro de Conexão: Tente recarregar a página';
+    }
+}
 
         updateUI();
         statusEl.innerText = '● Conectado: Pronto para Uso';
