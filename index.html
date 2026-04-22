@@ -127,34 +127,59 @@
 </main>
 
 <script>
-    // DADOS ATUALIZADOS DOS SEUS PRINTS
-    const API_KEY = '$2a$10$zyzhLU29YhBCCvAdhNRSZuKJa1IaOopzSb5XC41syCVXlM/.UilFq'; 
-    const BIN_ID = '69e9214d856a682189607a23'; 
+    // --- CONFIGURAÇÃO VALIDADA PELOS SEUS PRINTS ---
+const API_KEY = '$2a$10$zyzhLU29YhBCCvAdhNRSZuKJa1IaOopzSb5XC41syCVXlM/.UilFq'; // Master Key
+const BIN_ID = '69e9214d856a682189607a23'; // ID da Coleção
 
-    let db = { lan: [], metas: [], inv: [], fgts: 0 };
-    let chartLinha, chartPizza;
+let db = { lan: [], metas: [], inv: [], fgts: 0 };
 
-    async function loadCloud() {
-        try {
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Master-Key': API_KEY } });
-            if(!res.ok) throw new Error();
-            const data = await res.json();
+async function loadCloud() {
+    const statusEl = document.getElementById('status');
+    try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+            headers: { 'X-Master-Key': API_KEY }
+        });
+
+        if (res.status === 404 || res.status === 401) {
+            throw new Error("Erro de Autenticação ou Bin Inexistente");
+        }
+
+        const data = await res.json();
+        
+        // Se o registro vier vazio ou inválido, ele força a estrutura inicial
+        if (!data.record || typeof data.record !== 'object') {
+            console.warn("Banco vazio. Criando estrutura...");
+            await saveCloud(); 
+        } else {
             db = data.record;
-            updateUI();
-            document.getElementById('status').innerText = '● Sincronizado';
-        } catch (e) { document.getElementById('status').innerText = '❌ Erro de Chave/Conexão'; }
-    }
+        }
 
-    async function saveCloud() {
-        try {
-            await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
-                body: JSON.stringify(db)
-            });
-            updateUI();
-        } catch (e) { alert("Erro ao salvar!"); }
+        updateUI();
+        statusEl.innerText = '● Conectado: Pronto para Uso';
+        statusEl.style.color = '#00ffa3';
+    } catch (e) {
+        statusEl.innerText = '❌ Erro Crítico: Verifique se a Master Key no GitHub está idêntica ao print';
+        statusEl.style.color = '#ff4d6d';
+        console.error(e);
     }
+}
+
+async function saveCloud() {
+    try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
+            method: 'PUT',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'X-Master-Key': API_KEY 
+            },
+            body: JSON.stringify(db)
+        });
+        if (!res.ok) throw new Error("Falha no PUT");
+        updateUI();
+    } catch (e) {
+        alert("Erro ao gravar dados. Verifique a Master Key no seu código.");
+    }
+}
 
     function addLan() {
         const desc = document.getElementById('l-desc').value;
