@@ -186,22 +186,48 @@
         if(confirm("Apagar este item?")) { db.lan = db.lan.filter(i => i.id !== id); saveCloud(); }
     }
 
-    function calcValePena() {
-        const preco = parseFloat(document.getElementById('v-preco').value) || 0;
-        const urgencia = document.getElementById('v-urgencia').value;
-        const res = document.getElementById('vale-pena-result');
-        const sobra = parseFloat(document.getElementById('d-saldo').innerText.replace('R$ ','').replace('.','')) || 0;
+    ffunction calcSimulador() {
+    const vista = parseFloat(document.getElementById('c-vista').value) || 0;
+    const nParc = parseInt(document.getElementById('c-parc').value) || 0;
+    const vParc = parseFloat(document.getElementById('c-vparc').value) || 0;
+    const urgencia = document.getElementById('v-urgencia').value;
+    const resDiv = document.getElementById('calc-resultado');
+    
+    // Puxa a sobra livre atual do dashboard
+    const sobraStr = document.getElementById('d-saldo').innerText.replace('R$ ','').replace(/\./g,'').replace(',','.');
+    const sobra = parseFloat(sobraStr) || 0;
 
-        if(preco <= 0) { res.innerText = "Informe o valor."; return; }
+    if (vista > 0) {
+        let html = "";
         
-        let msg = "";
-        if(preco > sobra && urgencia != "3") msg = "❌ Não compre! O valor excede sua sobra livre atual.";
-        else if(urgencia == "1") msg = "⏳ Espere 3 dias. Se ainda quiser depois disso, compre à vista.";
-        else if(urgencia == "2") msg = "✅ Necessário. Tente negociar desconto à vista.";
-        else msg = "🚀 Urgente! Realize a compra, mas ajuste o orçamento do próximo mês.";
-        
-        res.innerHTML = `<b>Análise:</b><br>${msg}`;
+        // Parte 1: Cálculo de Juros
+        if (nParc > 0 && vParc > 0) {
+            const totalPrazo = nParc * vParc;
+            const diffJuros = totalPrazo - vista;
+            const percJuros = (diffJuros / vista) * 100;
+            
+            html += `<b>Total a prazo:</b> R$ ${totalPrazo.toLocaleString('pt-BR')}<br>`;
+            html += `<b>Juros:</b> <span style="color:${diffJuros > 0 ? 'var(--accent-red)' : 'var(--accent-green)'}">R$ ${diffJuros.toFixed(2)} (${percJuros.toFixed(1)}%)</span><br>`;
+            html += `<hr style="margin:8px 0; border:0; border-top:1px solid var(--border)">`;
+        }
+
+        // Parte 2: Análise "Vale a pena?"
+        let analise = "";
+        if (vista > sobra && urgencia != "3") {
+            analise = "❌ <b>Não compre!</b> O valor excede sua sobra livre atual.";
+        } else if (urgencia == "1") {
+            analise = "⏳ <b>Regra dos 3 dias:</b> Espere! Se em 72h você ainda quiser, compre à vista.";
+        } else if (urgencia == "2") {
+            analise = "✅ <b>Necessário:</b> Se o juros for baixo, avance. Senão, negocie o valor à vista.";
+        } else {
+            analise = "🚀 <b>Urgente:</b> Compre, mas corte gastos supérfluos no próximo mês.";
+        }
+
+        resDiv.innerHTML = html + analise;
+    } else {
+        resDiv.innerText = "Informe o valor à vista...";
     }
+}
 
     function updateUI() {
         const junior = db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valor, 0);
