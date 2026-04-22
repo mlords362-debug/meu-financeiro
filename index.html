@@ -75,7 +75,7 @@
         <div class="kpi-grid">
             <div class="kpi-card" style="border-color: var(--accent-blue);"><div class="kpi-label">Adriano</div><div id="d-eu" class="kpi-value">R$ 0</div></div>
             <div class="kpi-card" style="border-color: var(--accent-purple);"><div class="kpi-label">Mônica</div><div id="d-ela" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Contas do Mês</div><div id="d-total" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Total a Pagar</div><div id="d-total" class="kpi-value">R$ 0</div></div>
             <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Saldo Livre</div><div id="d-saldo" class="kpi-value">R$ 0</div></div>
         </div>
         <div class="kpi-grid">
@@ -87,46 +87,47 @@
 
         <div class="charts-row">
             <div class="card">
-                <h4 style="margin-bottom: 10px; font-size: 11px; opacity: 0.6;">FLUXO MENSAL (30 DIAS)</h4>
+                <h4 style="margin-bottom: 10px; font-size: 11px; opacity: 0.6;">GASTOS (ÚLTIMOS 30 DIAS)</h4>
                 <canvas id="chartLinha" height="110"></canvas>
             </div>
             <div class="card">
-                <h4 style="margin-bottom: 10px; font-size: 11px; opacity: 0.6;">SALÁRIOS VS CONTAS</h4>
+                <h4 style="margin-bottom: 10px; font-size: 11px; opacity: 0.6;">DIVISÃO: SALÁRIOS VS CONTAS</h4>
                 <canvas id="chartPizza" height="180"></canvas>
             </div>
         </div>
 
         <div class="card">
-            <h4 style="margin-bottom: 10px; font-size: 11px;">ÚLTIMAS MOVIMENTAÇÕES</h4>
+            <h4 style="margin-bottom: 10px; font-size: 11px;">HISTÓRICO RECENTE</h4>
             <div id="lista-transacoes"></div>
         </div>
     </section>
 
     <section id="lancamentos" class="view-section">
         <div class="card">
-            <h3 style="margin-bottom:15px;">Novo Lançamento</h3>
+            <h3 style="margin-bottom:15px;">Novo Registro</h3>
             <select id="l-user"><option value="Adriano">Adriano</option><option value="Mônica">Mônica</option></select>
-            <input type="text" id="l-desc" placeholder="Descrição">
+            <select id="l-fixa"><option value="Variavel">Variável</option><option value="Fixa">Conta Fixa</option></select>
+            <input type="text" id="l-desc" placeholder="Ex: Gasolina, Aluguel...">
             <input type="number" id="l-valor" placeholder="Valor R$">
             <select id="l-cat">
-                <option value="🏠">🏠 Aluguel/Casa</option>
+                <option value="🏠">🏠 Casa/Aluguel</option>
                 <option value="⛽">⛽ Gasolina/Transporte</option>
                 <option value="🍕">🍕 Alimentação</option>
-                <option value="📄">📄 Boletos/Fixas</option>
-                <option value="💰">💰 Salário/Receita</option>
+                <option value="📄">📄 Boletos/Contas</option>
+                <option value="💰">💰 Salário/Entrada</option>
             </select>
             <select id="l-tipo"><option value="despesa">Despesa</option><option value="receita">Receita</option></select>
-            <button class="btn" onclick="addLan()">Registrar na Nuvem</button>
+            <button class="btn" onclick="addLan()">Salvar na Nuvem</button>
         </div>
     </section>
 
-    <section id="metas_view" class="view-section"><div class="card"><h3>Metas</h3><input type="text" id="m-nome" placeholder="Objetivo"><input type="number" id="m-alvo" placeholder="Valor Alvo"><button class="btn" onclick="addMeta()">Salvar Meta</button></div></section>
-    <section id="invest_view" class="view-section"><div class="card"><h3>Investimentos</h3><input type="text" id="i-nome" placeholder="Ativo"><input type="number" id="i-valor" placeholder="Valor"><button class="btn" onclick="addInv()">Salvar Ativo</button></div></section>
-    <section id="fgts_view" class="view-section"><div class="card"><h3>FGTS</h3><input type="number" id="f-valor" placeholder="Novo Saldo"><button class="btn" onclick="addFGTS()">Atualizar</button></div></section>
+    <section id="metas_view" class="view-section"><div class="card"><h3>Metas</h3><input type="text" id="m-nome" placeholder="Objetivo"><input type="number" id="m-alvo" placeholder="Valor"><button class="btn" onclick="addMeta()">Salvar</button></div></section>
+    <section id="invest_view" class="view-section"><div class="card"><h3>Investimentos</h3><input type="text" id="i-nome" placeholder="Ativo"><input type="number" id="i-valor" placeholder="Valor"><button class="btn" onclick="addInv()">Salvar</button></div></section>
+    <section id="fgts_view" class="view-section"><div class="card"><h3>FGTS</h3><input type="number" id="f-valor" placeholder="Saldo FG"><button class="btn" onclick="addFGTS()">Atualizar</button></div></section>
 </main>
 
 <script>
-    // CHAVE ATUALIZADA DO SEU PRINT
+    // DADOS ATUALIZADOS DOS SEUS PRINTS
     const API_KEY = '$2a$10$zyzhLU29YhBCCvAdhNRSZuKJa1IaOopzSb5XC41syCVXlM/.UilFq'; 
     const BIN_ID = '69e9214d856a682189607a23'; 
 
@@ -135,15 +136,13 @@
 
     async function loadCloud() {
         try {
-            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { 
-                headers: { 'X-Master-Key': API_KEY } 
-            });
+            const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, { headers: { 'X-Master-Key': API_KEY } });
             if(!res.ok) throw new Error();
             const data = await res.json();
             db = data.record;
             updateUI();
             document.getElementById('status').innerText = '● Sincronizado';
-        } catch (e) { document.getElementById('status').innerText = '❌ Erro de Chave ou Conexão'; }
+        } catch (e) { document.getElementById('status').innerText = '❌ Erro de Chave/Conexão'; }
     }
 
     async function saveCloud() {
