@@ -128,32 +128,45 @@
 
 <script>
     // CONFIGURAÇÃO EXTRAÍDA DOS SEUS PRINTS
-const API_KEY = '$2a$10$fDz/KRnspiY9L4gocVRwl.UEC3.G37z2.twDUxoNEh87gf0m0.g2a'; 
-const BIN_ID = '69e9214d856a682189607a23'; 
+// Link atualizado do seu Firebase com a extensão necessária
+const FIREBASE_URL = 'https://financeiro-casal-4bc7f-default-rtdb.firebaseio.com/dados.json';
 
 let db = { lan: [], metas: [], inv: [], fgts: 0 };
 
 async function loadCloud() {
     const statusEl = document.getElementById('status');
     try {
-        // Tenta puxar os dados
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-            headers: { 'X-Master-Key': API_KEY }
-        });
-
-        if (res.status === 401) {
-            statusEl.innerText = '❌ Erro 401: Master Key Inválida ou com espaço!';
-            return;
-        }
-
+        const res = await fetch(FIREBASE_URL);
         const data = await res.json();
         
-        // Se a coleção estiver vazia (zerada), ele inicializa os dados
-        if (!data.record || !data.record.lan) {
-            await saveCloud(); 
+        // Se o banco estiver vazio (primeiro acesso), ele salva a estrutura inicial
+        if (data) {
+            db = data;
         } else {
-            db = data.record;
+            await saveCloud(); 
         }
+        
+        updateUI();
+        statusEl.innerText = '● Google Cloud: Conectado';
+        statusEl.style.color = '#00ffa3';
+    } catch (e) {
+        statusEl.innerText = '❌ Erro de Conexão com Google';
+    }
+}
+
+async function saveCloud() {
+    try {
+        await fetch(FIREBASE_URL, {
+            method: 'PUT',
+            body: JSON.stringify(db)
+        });
+        updateUI();
+    } catch (e) {
+        console.error("Erro ao salvar:", e);
+    }
+}
+
+loadCloud();
 
         updateUI();
         statusEl.innerText = '● Sincronizado com Nuvem';
