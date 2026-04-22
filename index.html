@@ -72,16 +72,18 @@
         <div class="nav-item" onclick="showView('invest_view', this)">📈 Investimentos</div>
         <div class="nav-item" onclick="showView('fgts_view', this)">🏦 Saldo FGTS</div>
         
-        <div style="padding: 20px 25px 5px 25px; font-size: 10px; font-weight: 800; color: var(--accent-purple);">🤔 VALE A PENA COMPRAR?</div>
-        <div style="padding: 10px 25px;">
-            <input type="number" id="v-preco" placeholder="Preço do item R$" oninput="calcValePena()">
-            <select id="v-urgencia" onchange="calcValePena()">
-                <option value="1">Desejo (Posso esperar)</option>
-                <option value="2">Necessidade (Preciso logo)</option>
-                <option value="3">Urgência (Imediato)</option>
-            </select>
-            <div class="calc-box" id="vale-pena-result">Preencha o valor...</div>
-        </div>
+        <div style="padding: 20px 25px 5px 25px; font-size: 10px; font-weight: 800; color: var(--accent-purple);">🧐 SIMULADOR DE COMPRA</div>
+<div style="padding: 10px 25px;">
+    <input type="number" id="c-vista" placeholder="Valor à vista R$" oninput="calcSimulador()">
+    <input type="number" id="c-parc" placeholder="Nº parcelas" oninput="calcSimulador()">
+    <input type="number" id="c-vparc" placeholder="Valor da parcela R$" oninput="calcSimulador()">
+    <select id="v-urgencia" onchange="calcSimulador()">
+        <option value="1">Desejo (Posso esperar)</option>
+        <option value="2">Necessidade (Preciso logo)</option>
+        <option value="3">Urgência (Imediato)</option>
+    </select>
+    <div class="calc-box" id="calc-resultado">Aguardando dados...</div>
+</div>
     </nav>
 </aside>
 
