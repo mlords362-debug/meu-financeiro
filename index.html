@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financeiro PRO | Sincronizado</title>
+    <title>Financeiro PRO | Gestão Casal</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -16,74 +16,138 @@
             --sidebar-width: 260px;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
-        .sidebar { width: var(--sidebar-width); background: var(--bg2); border-right: 1px solid var(--border); position: fixed; height: 100vh; }
-        .logo { padding: 30px; font-family: 'Syne'; font-weight: 800; border-bottom: 1px solid var(--border); }
-        .nav-item { padding: 14px 30px; cursor: pointer; color: var(--text-muted); font-size: 13px; font-weight: 600; }
-        .nav-item.active { background: rgba(139,92,246,0.1); color: #fff; border-left: 4px solid var(--accent-purple); }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; overflow-x: hidden; }
+        
+        .sidebar { width: var(--sidebar-width); background: var(--bg2); border-right: 1px solid var(--border); position: fixed; height: 100vh; z-index: 100; }
+        .logo { padding: 30px; font-family: 'Syne'; font-weight: 800; font-size: 18px; border-bottom: 1px solid var(--border); color: #fff; text-transform: uppercase; }
+        .logo span { color: var(--accent-purple); font-size: 10px; display: block; letter-spacing: 2px; }
+        
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 30px; cursor: pointer; color: var(--text-muted); font-size: 13px; font-weight: 600; transition: 0.3s; }
+        .nav-item:hover { color: #fff; background: rgba(255,255,255,0.02); }
+        .nav-item.active { background: linear-gradient(to right, rgba(139,92,246,0.1), transparent); color: #fff; border-left: 4px solid var(--accent-purple); }
+
         .main { flex: 1; margin-left: var(--sidebar-width); padding: 40px; }
-        .view-section { display: none; }
+        .view-section { display: none; animation: fadeIn 0.4s ease; }
         .view-section.active { display: block; }
+
+        .status-sync { font-size: 11px; margin-bottom: 20px; font-weight: 600; transition: 0.3s; }
+        
+        /* KPI Grid - Os 8 Cards */
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
-        .kpi-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
-        .kpi-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+        .kpi-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 18px; position: relative; }
+        .kpi-card::after { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 16px 0 0 16px; }
+        .kpi-eu::after { background: var(--accent-blue); }
+        .kpi-ela::after { background: var(--accent-purple); }
+        .kpi-total::after { background: var(--accent-red); }
+        .kpi-saldo::after { background: var(--accent-green); }
+        .kpi-invest::after { background: var(--accent-blue); }
+        .kpi-fgts::after { background: #f59e0b; }
+        
+        .kpi-label { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
         .kpi-value { font-family: 'Syne'; font-size: 20px; font-weight: 800; }
-        .status-sync { font-size: 11px; margin-bottom: 20px; color: var(--accent-green); }
-        .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 25px; }
+
+        .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 25px; margin-bottom: 20px; }
         input, select { background: var(--bg3); border: 1px solid var(--border); padding: 12px; color: #fff; border-radius: 10px; width: 100%; margin-bottom: 15px; }
         .btn { padding: 15px; border: none; border-radius: 10px; background: var(--accent-purple); color: #fff; font-weight: 800; cursor: pointer; width: 100%; }
-        .item-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-        .tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 800; margin-left: 5px; }
-        .tag-eu { background: rgba(59,130,246,0.2); color: var(--accent-blue); }
-        .tag-ela { background: rgba(139,92,246,0.2); color: var(--accent-purple); }
+        
+        .item-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 800; margin-left: 8px; text-transform: uppercase; }
+        .tag-eu { background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+        .tag-esposa { background: rgba(139,92,246,0.15); color: var(--accent-purple); }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <aside class="sidebar">
-    <div class="logo">FINANCEIRO PRO</div>
+    <div class="logo">FINANCEIRO<br><span>GESTÃO CASAL</span></div>
     <nav>
         <div class="nav-item active" onclick="showView('dashboard', this)">📊 Dashboard</div>
         <div class="nav-item" onclick="showView('lancamentos', this)">↕️ Lançamentos</div>
+        <div class="nav-item" onclick="showView('metas_view', this)">🎯 Metas</div>
+        <div class="nav-item" onclick="showView('invest_view', this)">📈 Investimentos</div>
+        <div class="nav-item" onclick="showView('fgts_view', this)">🏦 Saldo FGTS</div>
     </nav>
 </aside>
 
 <main class="main">
-    <div id="status" class="status-sync">● Sincronizado com a nuvem</div>
+    <div id="status" class="status-sync" style="color: var(--accent-green);">● Conectado à nuvem</div>
 
     <section id="dashboard" class="view-section active">
         <div class="kpi-grid">
-            <div class="kpi-card"><div class="kpi-label">Minhas Contas</div><div id="d-eu" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card"><div class="kpi-label">Contas Esposa</div><div id="d-ela" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card"><div class="kpi-label">Total do Mês</div><div id="d-total" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card"><div class="kpi-label">Investimentos</div><div id="d-inv" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card kpi-eu"><div class="kpi-label">Minhas Contas</div><div id="d-eu" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card kpi-ela"><div class="kpi-label">Contas Esposa</div><div id="d-ela" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card kpi-total"><div class="kpi-label">Total a Pagar</div><div id="d-total" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card kpi-saldo"><div class="kpi-label">Saldo Livre</div><div id="d-saldo" class="kpi-value">R$ 0</div></div>
         </div>
-        <div class="card">
-            <h3 style="margin-bottom:15px">Últimas Movimentações</h3>
-            <div id="lista-transacoes"></div>
+        <div class="kpi-grid">
+            <div class="kpi-card kpi-invest"><div class="kpi-label">Investimentos</div><div id="d-inv" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card kpi-fgts"><div class="kpi-label">Saldo FGTS</div><div id="d-fgts" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card kpi-ela"><div class="kpi-label">Metas Realizadas</div><div id="d-metas" class="kpi-value">0%</div></div>
+            <div class="kpi-card kpi-total"><div class="kpi-label">Dívida Total</div><div id="d-divida-total" class="kpi-value">R$ 0</div></div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px;">
+            <div class="card">
+                <h3 style="margin-bottom: 20px; font-family: 'Syne'; font-size: 14px;">HISTÓRICO DE TRANSAÇÕES</h3>
+                <div id="lista-transacoes"></div>
+            </div>
+            <div class="card">
+                <h3 style="margin-bottom: 20px; font-family: 'Syne'; font-size: 14px;">METAS E ATIVOS</h3>
+                <div id="lista-metas"></div>
+            </div>
         </div>
     </section>
 
     <section id="lancamentos" class="view-section">
         <div class="card">
-            <h3>Novo Lançamento</h3>
+            <h3 style="margin-bottom:20px;">Novo Lançamento</h3>
             <select id="l-user"><option value="Eu">Eu (Adriano)</option><option value="Esposa">Esposa</option></select>
-            <input type="text" id="l-desc" placeholder="Descrição (ex: Mercado, Aluguel)">
-            <input type="number" id="l-valor" placeholder="Valor R$">
-            <button class="btn" onclick="addLan()">Salvar na Nuvem</button>
+            <input type="text" id="l-desc" placeholder="Descrição">
+            <input type="number" id="l-valor" placeholder="Valor Mensal R$">
+            <input type="number" id="l-parc" placeholder="Nº de Parcelas" value="1">
+            <select id="l-tipo"><option value="despesa">Despesa</option><option value="receita">Receita</option></select>
+            <button class="btn" onclick="addLan()">Registrar e Sincronizar</button>
+        </div>
+    </section>
+
+    <section id="metas_view" class="view-section">
+        <div class="card">
+            <h3 style="margin-bottom:20px;">Nova Meta</h3>
+            <input type="text" id="m-nome" placeholder="Objetivo">
+            <input type="number" id="m-total" placeholder="Valor Alvo">
+            <input type="number" id="m-atual" placeholder="Já tenho">
+            <button class="btn" onclick="addMeta()">Salvar Meta</button>
+        </div>
+    </section>
+
+    <section id="invest_view" class="view-section">
+        <div class="card">
+            <h3 style="margin-bottom:20px;">Novo Investimento</h3>
+            <input type="text" id="i-nome" placeholder="Tipo de Ativo">
+            <input type="number" id="i-valor" placeholder="Valor Aplicado">
+            <button class="btn" onclick="addInv()">Registrar Ativo</button>
+        </div>
+    </section>
+
+    <section id="fgts_view" class="view-section">
+        <div class="card">
+            <h3 style="margin-bottom:20px;">Atualizar Saldo FGTS</h3>
+            <input type="number" id="f-valor" placeholder="Valor Total FGTS">
+            <button class="btn" onclick="addFGTS()">Atualizar</button>
         </div>
     </section>
 </main>
 
 <script>
-    // DADOS DA SUA CONTA JSONBIN
-    const API_KEY = '$2a$10$O9fA6YQy8oYqWp5WnZ.uHeP19mKj57.Hh.Fh8kG.fO.mH.y.l.q.a'; // Cole sua Master Key aqui
-    const BIN_ID = '69e9214d856a682189607a23'; // Seu ID de coleção
+    const API_KEY = '$2a$10$O9fA6YQy8oYqWp5WnZ.uHeP19mKj57.Hh.Fh8kG.fO.mH.y.l.q.a'; 
+    const BIN_ID = '69e9214d856a682189607a23'; 
 
     let db = { lan: [], metas: [], inv: [], fgts: 0 };
 
     async function loadCloud() {
-        document.getElementById('status').innerText = '⏳ Puxando dados da nuvem...';
+        document.getElementById('status').innerText = '⏳ Sincronizando...';
         try {
             const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
                 headers: { 'X-Master-Key': API_KEY }
@@ -91,61 +155,76 @@
             const data = await res.json();
             db = data.record;
             updateUI();
-            document.getElementById('status').innerText = '● Atualizado em tempo real';
+            document.getElementById('status').innerText = '● Sincronizado agora';
         } catch (e) { document.getElementById('status').innerText = '❌ Erro de conexão'; }
     }
 
     async function saveCloud() {
-        document.getElementById('status').innerText = '📤 Enviando para o celular dela...';
+        document.getElementById('status').innerText = '📤 Enviando dados...';
         await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'X-Master-Key': API_KEY },
             body: JSON.stringify(db)
         });
-        document.getElementById('status').innerText = '● Sincronizado!';
+        document.getElementById('status').innerText = '● Atualizado com sucesso!';
         updateUI();
     }
 
     function addLan() {
         const desc = document.getElementById('l-desc').value;
         const valor = parseFloat(document.getElementById('l-valor').value);
-        if(!desc || !valor) return alert("Preencha tudo!");
+        const parc = parseInt(document.getElementById('l-parc').value) || 1;
+        const user = document.getElementById('l-user').value;
+        const tipo = document.getElementById('l-tipo').value;
 
-        db.lan.push({
-            user: document.getElementById('l-user').value,
-            desc: desc,
-            valor: valor,
-            data: new Date().toLocaleDateString('pt-BR')
-        });
+        if(!desc || !valor) return alert("Preencha os campos!");
+
+        for(let i=0; i<parc; i++) {
+            db.lan.push({
+                user, desc: parc > 1 ? `${desc} (${i+1}/${parc})` : desc,
+                valor, tipo, data: new Date().toLocaleDateString('pt-BR'),
+                venc: i // Simulação simples de meses
+            });
+        }
         saveCloud();
     }
 
+    function addMeta() { db.metas.push({ nome: document.getElementById('m-nome').value, total: parseFloat(document.getElementById('m-total').value), atual: parseFloat(document.getElementById('m-atual').value) }); saveCloud(); }
+    function addInv() { db.inv.push({ nome: document.getElementById('i-nome').value, valor: parseFloat(document.getElementById('i-valor').value) }); saveCloud(); }
+    function addFGTS() { db.fgts = parseFloat(document.getElementById('f-valor').value); saveCloud(); }
+
     function updateUI() {
-        const eu = db.lan.filter(x => x.user === 'Eu').reduce((a,b)=>a+b.valor, 0);
-        const ela = db.lan.filter(x => x.user === 'Esposa').reduce((a,b)=>a+b.valor, 0);
-        
+        // Filtros básicos para o Dashboard (Mês atual)
+        const despesas = db.lan.filter(x => x.tipo === 'despesa');
+        const eu = despesas.filter(x => x.user === 'Eu').reduce((a,b)=>a+b.valor, 0);
+        const ela = despesas.filter(x => x.user === 'Esposa').reduce((a,b)=>a+b.valor, 0);
+        const receitas = db.lan.filter(x => x.tipo === 'receita').reduce((a,b)=>a+b.valor, 0);
+        const invTotal = db.inv.reduce((a,b)=>a+b.valor, 0);
+
         document.getElementById('d-eu').innerText = `R$ ${eu.toLocaleString()}`;
         document.getElementById('d-ela').innerText = `R$ ${ela.toLocaleString()}`;
         document.getElementById('d-total').innerText = `R$ ${(eu+ela).toLocaleString()}`;
-        
+        document.getElementById('d-saldo').innerText = `R$ ${(receitas - (eu+ela)).toLocaleString()}`;
+        document.getElementById('d-inv').innerText = `R$ ${invTotal.toLocaleString()}`;
+        document.getElementById('d-fgts').innerText = `R$ ${db.fgts.toLocaleString()}`;
+        document.getElementById('d-divida-total').innerText = `R$ ${despesas.reduce((a,b)=>a+b.valor,0).toLocaleString()}`;
+
         const lista = document.getElementById('lista-transacoes');
         lista.innerHTML = '';
-        db.lan.slice(-10).reverse().forEach(t => {
-            lista.innerHTML += `
-                <div class="item-row">
-                    <span>${t.data} - ${t.desc} <span class="tag ${t.user==='Eu'?'tag-eu':'tag-ela'}">${t.user}</span></span>
-                    <b>R$ ${t.valor.toLocaleString()}</b>
-                </div>`;
+        db.lan.slice(-8).reverse().forEach(t => {
+            lista.innerHTML += `<div class="item-row"><span>${t.desc}<span class="tag ${t.user==='Eu'?'tag-eu':'tag-esposa'}">${t.user}</span></span><b style="color:${t.tipo==='receita'?'var(--accent-green)':'var(--accent-red)'}">R$ ${t.valor.toLocaleString()}</b></div>`;
         });
     }
 
     function showView(id, el) {
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(id).classList.add('active');
+        if(el) el.classList.add('active');
         loadCloud();
     }
 
-    loadCloud(); // Carrega ao abrir
+    loadCloud();
 </script>
 </body>
 </html>
