@@ -181,219 +181,162 @@
 <script>
     const FIREBASE_URL = 'https://financeiro-casal-4bc7f-default-rtdb.firebaseio.com/dados.json';
     let db = { lan: [], metas: [], fgts: [], invest: [] };
-    let myChart;
 
-    // 1. GERA OS MESES NO SELETOR
+    // 1. GERA OS MESES (2026 e 2027)
     function popularMeses() {
-    const select = document.getElementById('filtro-mes');
-    if (!select) return;
-    const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-    
-    const anoAtual = 2026;
-    select.innerHTML = ''; 
+        const select = document.getElementById('filtro-mes');
+        if (!select) return;
+        const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        const anoAtual = 2026;
+        select.innerHTML = ''; 
 
-    // Gera meses para 2026 e 2027
-    [2026, 2027].forEach(ano => {
-        mesesNomes.forEach((mes, i) => {
-            let opt = document.createElement('option');
-            // Guardamos o valor como "ano-mes" (ex: "2026-3" para Abril)
-            opt.value = `${ano}-${i}`;
-            opt.innerHTML = `${mes} ${ano}`;
-            
-            // Deixa marcado o mês/ano atual do sistema
-            if(ano === 2026 && i === new Date().getMonth()) opt.selected = true;
-            select.appendChild(opt);
+        [2026, 2027].forEach(ano => {
+            mesesNomes.forEach((mes, i) => {
+                let opt = document.createElement('option');
+                opt.value = `${ano}-${i}`;
+                opt.innerHTML = `${mes} ${ano}`;
+                if(ano === 2026 && i === new Date().getMonth()) opt.selected = true;
+                select.appendChild(opt);
+            });
         });
-    });
-}
+    }
 
-    // 2. FUNÇÃO PARA MUDAR DE ABA (CORRIGIDA)
+    // 2. NAVEGAÇÃO ENTRE ABAS
     function showView(id, el) {
         const sections = document.querySelectorAll('.view-section');
         sections.forEach(v => v.style.display = 'none');
-        
         const target = document.getElementById(id);
         if (target) target.style.display = 'block';
-
         const navItems = document.querySelectorAll('.nav-item');
         navItems.forEach(n => n.classList.remove('active'));
         if (el) el.classList.add('active');
-        
         updateUI();
     }
 
-    // 3. FUNÇÃO PARA SALVAR (CORRIGIDA E FORA DA SHOWVIEW)
+    // 3. SALVAMENTO NO FIREBASE
     async function saveCloud() {
         await fetch(FIREBASE_URL, { method: 'PUT', body: JSON.stringify(db) });
-        document.getElementById("toast").classList.add("show");
-        setTimeout(() => document.getElementById("toast").classList.remove("show"), 3000);
+        const toast = document.getElementById("toast");
+        if(toast) {
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 3000);
+        }
         updateUI();
     }
-    function renderLanTabela() {
-    const tbody = document.querySelector('#lan-tabela tbody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
 
-    // Mostra todos os lançamentos para você poder gerenciar o que cadastrou
-    db.lan.forEach((l, index) => {
-        tbody.innerHTML += `
-            <tr>
-                <td>${l.desc}</td>
-                <td>R$ ${l.valorParcela.toFixed(2)}</td>
-                <td>${l.parcelasTotal}</td>
-                <td>
-                    <button class="btn-del" onclick="deleteLan(${index})">🗑️</button>
-                </td>
-            </tr>`;
-    });
-}
-
-// Função para deletar que faltava:
-function deleteLan(index) {
-    if(confirm("Deseja excluir este lançamento?")) {
-        db.lan.splice(index, 1);
-        saveCloud();
-    }
-}
-
+    // 4. LANÇAMENTOS E METAS
     function addLan() {
-    const filtro = document.getElementById('filtro-mes').value.split('-');
-    const anoSelecionado = parseInt(filtro[0]);
-    const mesSelecionado = parseInt(filtro[1]);
+        const filtro = document.getElementById('filtro-mes').value.split('-');
+        const desc = document.getElementById('l-desc').value;
+        const valor = parseFloat(document.getElementById('l-valor').value) || 0;
+        if(!desc || valor <= 0) return alert("Preencha descrição e valor!");
 
-    const novo = {
-        id: Date.now(),
-        user: document.getElementById('l-user').value,
-        desc: document.getElementById('l-desc').value,
-        valorParcela: parseFloat(document.getElementById('l-valor').value) || 0,
-        parcelasTotal: parseInt(document.getElementById('l-parcelas').value) || 1,
-        tipo: document.getElementById('l-tipo').value,
-        mesInicio: mesSelecionado,
-        anoInicio: anoSelecionado // Agora salvamos o ano!
-    };
+        db.lan.push({
+            id: Date.now(),
+            user: document.getElementById('l-user').value,
+            desc: desc,
+            valorParcela: valor,
+            parcelasTotal: parseInt(document.getElementById('l-parcelas').value) || 1,
+            tipo: document.getElementById('l-tipo').value,
+            mesInicio: parseInt(filtro[1]),
+            anoInicio: parseInt(filtro[0])
+        });
+        saveCloud();
+        document.getElementById('l-desc').value = '';
+        document.getElementById('l-valor').value = '';
+    }
 
-    db.lan.push(novo);
-    saveCloud();
-}
-    function renderMetasDash() {
-    const container = document.getElementById('dash-metas');
-    if (!container) return;
-    container.innerHTML = '';
-    db.metas.forEach(m => {
-        const perc = Math.min(100, (m.atual / m.alvo) * 100);
-        container.innerHTML += `
-            <div style="margin-bottom:15px;">
-                <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:5px;">
-                    <span>${m.nome}</span>
-                    <span>${perc.toFixed(1)}%</span>
-                </div>
-                <div class="progress-bg"><div class="progress-fill" style="width:${perc}%"></div></div>
-            </div>`;
-    });
-}
+    function deleteLan(index) {
+        if(confirm("Excluir este lançamento?")) { db.lan.splice(index, 1); saveCloud(); }
+    }
+
     function addMeta() {
-    const nome = document.getElementById('m-nome').value;
-    const alvo = parseFloat(document.getElementById('m-alvo').value) || 0;
-    const atual = parseFloat(document.getElementById('m-atual').value) || 0;
+        const nome = document.getElementById('m-nome').value;
+        const alvo = parseFloat(document.getElementById('m-alvo').value) || 0;
+        const atual = parseFloat(document.getElementById('m-atual').value) || 0;
+        if(!nome || alvo <= 0) return alert("Preencha a meta!");
+        db.metas.push({ nome, alvo, atual });
+        saveCloud();
+        document.getElementById('m-nome').value = ''; document.getElementById('m-alvo').value = ''; document.getElementById('m-atual').value = '';
+    }
 
-    if(!nome || alvo <= 0) return alert("Preencha o nome e o valor alvo!");
-
-    db.metas.push({ nome, alvo, atual });
-    saveCloud(); // Isso já chama o updateUI que agora renderiza as metas!
-    
-    // Limpa campos
-    document.getElementById('m-nome').value = '';
-    document.getElementById('m-alvo').value = '';
-    document.getElementById('m-atual').value = '';
-}
-
-function renderMetasLista() {
-    const container = document.getElementById('metas-lista');
-    if (!container) return;
-    container.innerHTML = '';
-    db.metas.forEach((m, index) => {
-        const perc = Math.min(100, (m.atual / m.alvo) * 100);
-        container.innerHTML += `
-            <div class="meta-card">
-                <div style="display:flex; justify-content:space-between;">
-                    <strong>${m.nome}</strong>
-                    <button class="btn-del" onclick="deleteMeta(${index})">🗑️</button>
-                </div>
-                <p style="font-size:12px; color:var(--text-muted); margin:5px 0;">Objetivo: R$ ${m.alvo.toFixed(2)} | Já tenho: R$ ${m.atual.toFixed(2)}</p>
-                <div class="progress-bg"><div class="progress-fill" style="width:${perc}%"></div></div>
-            </div>`;
-    });
-}
-
-function deleteMeta(index) {
-    db.metas.splice(index, 1);
-    saveCloud();
-}
-    // 4. ATUALIZAÇÃO DOS DADOS (CORREÇÃO DE ABRIL E CÁLCULOS)
+    // 5. ATUALIZAÇÃO DA INTERFACE (A MÁGICA)
     function updateUI() {
-    const filtro = document.getElementById('filtro-mes');
-    if (!filtro) return;
+        const filtro = document.getElementById('filtro-mes');
+        if (!filtro) return;
+        const [anoSel, mesSel] = filtro.value.split('-').map(Number);
 
-    // Quebra o valor "2026-3" em ano e mês separados
-    const [anoSel, mesSel] = filtro.value.split('-').map(Number);
-
-    const gastosMes = db.lan.filter(l => {
-        if (l.tipo === 'receita') return true;
-
-        // Calculamos quantos meses se passaram desde o início da conta
-        // Consideramos que as contas antigas começaram em Abril (3) de 2026
-        const anoInicio = l.anoInicio || 2026;
-        const mesInicio = l.mesInicio !== undefined ? l.mesInicio : 3;
-
-        const mesesTotaisInicio = (anoInicio * 12) + mesInicio;
-        const mesesTotaisSelecao = (anoSel * 12) + mesSel;
-        
-        const diferenca = mesesTotaisSelecao - mesesTotaisInicio;
-
-        // A conta aparece se a diferença estiver entre 0 e o total de parcelas
-        return diferenca >= 0 && diferenca < (l.parcelasTotal || 1);
-    });
-
-    // ... (o resto dos cálculos de jG, mG, aG continuam iguais abaixo)
+        // Filtro de Gastos do Mês
+        const gastosMes = db.lan.filter(l => {
+            if (l.tipo === 'receita') return true;
+            const mInicio = l.mesInicio !== undefined ? l.mesInicio : 3;
+            const aInicio = l.anoInicio || 2026;
+            const diff = (anoSel * 12 + mesSel) - (aInicio * 12 + mInicio);
+            return diff >= 0 && diff < (l.parcelasTotal || 1);
+        });
 
         // Cálculos dos Cards
         const jG = gastosMes.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
         const mG = gastosMes.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
         const aG = gastosMes.filter(x => x.user === 'Ambos' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
         
-        // Dívida que diminui (O que falta pagar DO MÊS SELECIONADO PARA FRENTE)
         const totalRestante = db.lan.filter(x => x.tipo === 'despesa').reduce((acc, l) => {
             const mInicio = l.mesInicio !== undefined ? l.mesInicio : 3;
-            const pagos = Math.max(0, (mesSel - mInicio) + 1);
+            const aInicio = l.anoInicio || 2026;
+            const pagos = Math.max(0, (anoSel * 12 + mesSel) - (aInicio * 12 + mInicio) + 1);
             const faltam = Math.max(0, (l.parcelasTotal || 1) - pagos);
             return acc + (l.valorParcela * faltam);
         }, 0);
 
-        const totalDividaAbsoluta = db.lan.filter(x => x.tipo === 'despesa').reduce((a,b)=> a + (b.valorParcela * b.parcelasTotal), 0);
+        // Atualiza Cards no HTML
+        const setTxt = (id, val) => { if(document.getElementById(id)) document.getElementById(id).innerText = val; };
+        setTxt('k-j-g', `R$ ${jG.toFixed(2)}`);
+        setTxt('k-m-g', `R$ ${mG.toFixed(2)}`);
+        setTxt('k-total-g', `R$ ${(jG+mG+aG).toFixed(2)}`);
+        setTxt('k-div-f', `R$ ${totalRestante.toFixed(2)}`);
 
-        // Atualiza a tela
-        if(document.getElementById('k-j-g')) document.getElementById('k-j-g').innerText = `R$ ${jG.toFixed(2)}`;
-        if(document.getElementById('k-m-g')) document.getElementById('k-m-g').innerText = `R$ ${mG.toFixed(2)}`;
-        if(document.getElementById('k-total-g')) document.getElementById('k-total-g').innerText = `R$ ${(jG+mG+aG).toFixed(2)}`;
-        if(document.getElementById('k-div-f')) document.getElementById('k-div-f').innerText = `R$ ${totalRestante.toFixed(2)}`;
-        if(document.getElementById('k-total-d')) document.getElementById('k-total-d').innerText = `R$ ${totalDividaAbsoluta.toFixed(2)}`;
+        // Renderiza Tabelas e Metas
+        renderMetas(mesSel, anoSel);
+        renderTabelas(gastosMes, mesSel, anoSel);
+    }
 
-        // Extrato
-        const tbody = document.querySelector('#dash-extrato tbody');
-        if (tbody) {
-            tbody.innerHTML = '';
-            gastosMes.filter(x=>x.tipo === 'despesa').forEach(l => {
+    function renderMetas() {
+        const dash = document.getElementById('dash-metas');
+        const lista = document.getElementById('metas-lista');
+        if(dash) dash.innerHTML = '';
+        if(lista) lista.innerHTML = '';
+
+        db.metas.forEach((m, idx) => {
+            const perc = Math.min(100, (m.atual / m.alvo) * 100);
+            const html = `<div class="meta-card">
+                <div style="display:flex; justify-content:space-between; font-size:12px;">
+                    <strong>${m.nome}</strong><span>${perc.toFixed(1)}%</span>
+                </div>
+                <div class="progress-bg"><div class="progress-fill" style="width:${perc}%"></div></div>
+            </div>`;
+            if(dash) dash.innerHTML += html;
+            if(lista) lista.innerHTML += html + `<button class="btn-del" onclick="db.metas.splice(${idx},1);saveCloud()">🗑️</button>`;
+        });
+    }
+
+    function renderTabelas(gastosMes, mesSel, anoSel) {
+        // Tabela Dashboard (Extrato)
+        const dBody = document.querySelector('#dash-extrato tbody');
+        if(dBody) {
+            dBody.innerHTML = '';
+            gastosMes.filter(x=>x.tipo==='despesa').forEach(l => {
                 const mInicio = l.mesInicio !== undefined ? l.mesInicio : 3;
-                const numParc = (mesSel - mInicio) + 1;
-                tbody.innerHTML += `<tr><td>${l.user}</td><td>${l.desc}</td><td>R$ ${l.valorParcela.toFixed(2)}</td><td>${numParc} de ${l.parcelasTotal}</td></tr>`;
-                // No final da função updateUI, adicione isso:
-    renderMetasDash();
-    renderMetasLista();
-                // No final da função updateUI, deve ficar assim:
-    renderMetasDash();
-    renderMetasLista();
-    renderLanTabela(); // ADICIONE ESTA LINHA AQUI
-}
+                const aInicio = l.anoInicio || 2026;
+                const num = (anoSel * 12 + mesSel) - (aInicio * 12 + mInicio) + 1;
+                dBody.innerHTML += `<tr><td>${l.user}</td><td>${l.desc}</td><td>R$ ${l.valorParcela.toFixed(2)}</td><td>${num} de ${l.parcelasTotal}</td></tr>`;
+            });
+        }
+        // Tabela Lançamentos (Histórico Local)
+        const lBody = document.querySelector('#lan-tabela tbody');
+        if(lBody) {
+            lBody.innerHTML = '';
+            db.lan.forEach((l, idx) => {
+                lBody.innerHTML += `<tr><td>${l.desc}</td><td>R$ ${l.valorParcela.toFixed(2)}</td><td>${l.parcelasTotal}</td><td><button class="btn-del" onclick="deleteLan(${idx})">🗑️</button></td></tr>`;
             });
         }
     }
@@ -405,7 +348,7 @@ function deleteMeta(index) {
             if (data) db = data;
             popularMeses();
             updateUI();
-        } catch (e) { console.error("Erro ao carregar:", e); }
+        } catch (e) { console.error(e); }
     }
 
     loadCloud();
