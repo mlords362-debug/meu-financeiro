@@ -321,12 +321,21 @@
     }
 
     function showView(id, el) {
-        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        el.classList.add('active');
-    }
+    // Esconde todas as seções
+    document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
+    // Remove o destaque de todos os botões do menu
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    
+    // Mostra a seção clicada
+    const view = document.getElementById(id);
+    if(view) view.classList.add('active');
+    if(el) el.classList.add('active');
 
+    // Se clicou na projeção, executa o cálculo dela
+    if(id === 'projecao_view') {
+        renderProjecao();
+    }
+}
     function showToast() { const x = document.getElementById("toast"); x.className = "show"; setTimeout(() => { x.className = x.className.replace("show", ""); }, 3000); }
 
     loadCloud();
@@ -374,46 +383,43 @@
     } else {
         resDiv.innerText = "Preencha os campos...";
     }
-        function renderProjecao() {
+       function renderProjecao() {
     const lista = document.getElementById('lista-projecao');
     if (!lista) return;
     lista.innerHTML = '';
 
-    // Pegamos a receita fixa atual para base de cálculo
-    const receitaMensal = db.lan.filter(x => x.tipo === 'receita').reduce((a, b) => a + b.valorTotal, 0);
+    const lancamentos = db.lan || [];
+    // Soma todas as receitas para saber quanto entra por mês
+    const receitaMensal = lancamentos.filter(x => x.tipo === 'receita').reduce((a, b) => a + b.valorTotal, 0);
 
-    // Vamos projetar os próximos 12 meses
     for (let m = 1; m <= 12; m++) {
         let totalMes = 0;
         let detalhes = [];
 
-        db.lan.filter(x => x.tipo === 'despesa').forEach(t => {
+        // Filtra apenas despesas parceladas que ainda não venceram
+        lancamentos.filter(x => x.tipo === 'despesa').forEach(t => {
             const parcelasRestantes = t.parcelasTotal - t.parcelasPagas;
-            // Se a parcela ainda vai existir daqui a 'm' meses
             if (m <= parcelasRestantes) {
                 totalMes += t.valorParcela;
-                detalhes.push(`${t.desc} (p. ${t.parcelasPagas + m}/${t.parcelasTotal})`);
+                detalhes.push(`${t.desc} (${t.parcelasPagas + m}/${t.parcelasTotal})`);
             }
         });
 
-        if (totalMes > 0) {
-            const sobraProjetada = receitaMensal - totalMes;
-            const corSobra = sobraProjetada >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+        if (totalMes > 0 || receitaMensal > 0) {
+            const sobra = receitaMensal - totalMes;
+            const corSobra = sobra >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
             
             lista.innerHTML += `
-                <div class="card" style="border-left: 4px solid ${totalMes > receitaMensal ? 'var(--accent-red)' : 'var(--accent-blue)'}; margin-bottom: 10px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <strong>Mês ${m}</strong>
-                        <span style="font-family: 'Syne'; font-size: 14px;">Total: R$ ${totalMes.toLocaleString('pt-BR')}</span>
+                <div class="card" style="border-left: 4px solid ${sobra >= 0 ? 'var(--accent-blue)' : 'var(--accent-red)'}; margin-bottom: 10px; padding: 15px;">
+                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                        <span>Mês +${m}</span>
+                        <span>Total Contas: R$ ${totalMes.toLocaleString('pt-BR')}</span>
                     </div>
-                    <div style="font-size: 10px; opacity: 0.6; margin: 5px 0;">
-                        ${detalhes.join(', ')}
+                    <div style="font-size: 10px; opacity: 0.6; margin: 8px 0;">${detalhes.join(', ') || 'Sem parcelas para este mês'}</div>
+                    <div style="text-align: right; color: ${corSobra}; font-weight: 800; font-size: 12px;">
+                        Sobra Prevista: R$ ${sobra.toLocaleString('pt-BR')}
                     </div>
-                    <div style="font-size: 11px; font-weight: bold; text-align: right; color: ${corSobra}">
-                        Sobra prevista: R$ ${sobraProjetada.toLocaleString('pt-BR')}
-                    </div>
-                </div>
-            `;
+                </div>`;
         }
     }
 }
