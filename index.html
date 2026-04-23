@@ -179,200 +179,96 @@
 </main>
 
 <script>
-    // URL DO SEU FIREBASE
     const FIREBASE_URL = 'https://financeiro-casal-4bc7f-default-rtdb.firebaseio.com/dados.json';
     let db = { lan: [], metas: [], fgts: [], invest: [] };
     let myChart;
 
-    async function loadCloud() {
-        const res = await fetch(FIREBASE_URL);
-        const data = await res.json();
-        if (data) {
-            db.lan = data.lan || [];
-            db.metas = data.metas || [];
-            db.fgts = data.fgts || [];
-            db.invest = data.invest || [];
-        }
-        updateUI();
-    }
-
-    async function saveCloud() {
-        await fetch(FIREBASE_URL, { method: 'PUT', body: JSON.stringify(db) });
-        document.getElementById("toast").classList.add("show");
-        setTimeout(() => document.getElementById("toast").classList.remove("show"), 3000);
-        updateUI();
-    }
-
-    function addLan() {
-        const v = parseFloat(document.getElementById('l-valor').value) || 0;
-        const p = parseInt(document.getElementById('l-parcelas').value) || 1;
-        db.lan.push({
-            id: Date.now(),
-            user: document.getElementById('l-user').value,
-            desc: document.getElementById('l-desc').value,
-            valorParcela: v,
-            parcelasTotal: p,
-            tipo: document.getElementById('l-tipo').value
+    // 1. GERA OS MESES E DESTRAVA O FILTRO
+    function popularMeses() {
+        const select = document.getElementById('filtro-mes');
+        if (!select) return;
+        const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+        const mesAtual = new Date().getMonth();
+        select.innerHTML = ''; 
+        meses.forEach((mes, i) => {
+            let opt = document.createElement('option');
+            opt.value = i;
+            opt.innerHTML = mes;
+            if(i === mesAtual) opt.selected = true;
+            select.appendChild(opt);
         });
-        saveCloud();
     }
 
-    function addMeta() {
-        db.metas.push({
-            id: Date.now(),
-            nome: document.getElementById('m-nome').value,
-            alvo: parseFloat(document.getElementById('m-alvo').value) || 0,
-            atual: parseFloat(document.getElementById('m-atual').value) || 0
-        });
-        saveCloud();
-    }
-
-    function addFGTS() {
-        db.fgts.push({ id: Date.now(), user: document.getElementById('f-user').value, valor: parseFloat(document.getElementById('f-valor').value) || 0, desc: document.getElementById('f-desc').value });
-        saveCloud();
-    }
-
-    function addInvest() {
-        db.invest.push({ id: Date.now(), user: document.getElementById('i-user').value, valor: parseFloat(document.getElementById('i-valor').value) || 0, desc: document.getElementById('i-desc').value });
-        saveCloud();
-    }
-
-    function calcJuros() {
-        const v = parseFloat(document.getElementById('c-vista').value);
-        const p = parseInt(document.getElementById('c-parc').value);
-        const vp = parseFloat(document.getElementById('c-vparc').value);
-        const total = p * vp;
-        const juros = total - v;
-        const perc = (juros / v) * 100;
-        const res = document.getElementById('calc-res');
-        res.style.display = 'block';
-        if(juros > 0) {
-            res.style.background = 'rgba(255,77,109,0.1)'; res.style.color = '#ff4d6d';
-            res.innerHTML = `⚠️ Alerta! Você vai pagar R$ ${juros.toFixed(2)} de JUROS (${perc.toFixed(1)}%). total final: R$ ${total.toFixed(2)}`;
-        } else {
-            res.style.background = 'rgba(0,255,163,0.1)'; res.style.color = '#00ffa3';
-            res.innerHTML = `✅ Ótimo negócio! Sem juros detectados.`;
-        }
-    }
-
-  ffunction updateUI() {
-    const mesSelecionado = parseInt(document.getElementById('filtro-mes').value);
-    const mesAtualReal = new Date().getMonth();
-    
-    // Filtra apenas gastos que ainda possuem parcelas para o mês selecionado
-    const gastosMes = db.lan.filter(l => {
-        // Se for receita (salário), aparece todo mês
-        if (l.tipo === 'receita') return true;
-        
-        // Lógica para Despesas:
-        // Se o mês selecionado for maior ou igual ao mês que você lançou 
-        // E ainda estiver dentro do período das parcelas totais
-        const mesesDesdeOInicio = mesSelecionado - (l.mesInicio || mesAtualReal);
-        return mesesDesdeOInicio >= 0 && mesesDesdeOInicio < l.parcelasTotal;
-    });
-
-    const jG = gastosMes.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
-    const mG = gastosMes.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
-    const aG = gastosMes.filter(x => x.user === 'Ambos' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
-    
-    // Cálculo de Dívida Total e o que falta pagar após o mês selecionado
-    const totalDívidaRestante = db.lan.filter(x => x.tipo === 'despesa').reduce((a,b) => {
-        const mesesPagos = Math.max(0, (mesSelecionado - (b.mesInicio || mesAtualReal)) + 1);
-        const parcelasQueFaltam = Math.max(0, b.parcelasTotal - mesesPagos);
-        return a + (b.valorParcela * parcelasQueFaltam);
-    }, 0);
-
-    // Atualiza os Cards
-    document.getElementById('k-j-g').innerText = `R$ ${jG.toFixed(2)}`;
-    document.getElementById('k-m-g').innerText = `R$ ${mG.toFixed(2)}`;
-    document.getElementById('k-total-g').innerText = `R$ ${(jG+mG+aG).toFixed(2)}`;
-    document.getElementById('k-div-f').innerText = `R$ ${totalDívidaRestante.toFixed(2)}`;
-
-    // Atualiza o Extrato com o número da parcela correta
-    const tbody = document.querySelector('#dash-extrato tbody');
-    tbody.innerHTML = '';
-    gastosMes.filter(x => x.tipo === 'despesa').forEach(l => {
-        const parcelaAtual = (mesSelecionado - (l.mesInicio || mesAtualReal)) + 1;
-        tbody.innerHTML += `<tr>
-            <td>${l.user}</td>
-            <td>${l.desc}</td>
-            <td>R$ ${l.valorParcela.toFixed(2)}</td>
-            <td>${parcelaAtual} de ${l.parcelasTotal}</td>
-        </tr>`;
-    });
-}
-// Função auxiliar para mostrar o valor total nas tabelas
-function renderizarTabelasComTotais() {
-    const tDash = document.querySelector('#dash-extrato tbody');
-    const tLan = document.querySelector('#lan-tabela tbody');
-    tDash.innerHTML = ''; tLan.innerHTML = '';
-
-    db.lan.forEach(l => {
-        const valorTotalCompra = l.valorParcela * l.parcelasTotal;
-        const linha = `<tr>
-            <td>${l.user}</td>
-            <td>${l.desc}</td>
-            <td>R$ ${l.valorParcela.toFixed(2)} (Total: R$ ${valorTotalCompra.toFixed(2)})</td>
-            <td>${l.parcelasTotal}x</td>
-            <td><button class="btn-del" onclick="deleteItem('lan', ${l.id})">🗑️</button></td>
-        </tr>`;
-        
-        if(l.tipo === 'despesa') tDash.innerHTML += linha;
-        tLan.innerHTML += linha;
-    });
-}
-
-    function deleteItem(tableId, id) {
-        if(!confirm("Excluir?")) return;
-        db.lan = db.lan.filter(x => x.id !== id);
-        db.metas = db.metas.filter(x => x.id !== id);
-        db.fgts = db.fgts.filter(x => x.id !== id);
-        db.invest = db.invest.filter(x => x.id !== id);
-        saveCloud();
-    }
-
+    // 2. FUNÇÃO PARA MUDAR DE ABA (DESTRAVADA)
     function showView(id, el) {
-    try {
-        // 1. Esconde todas as seções
         const sections = document.querySelectorAll('.view-section');
         sections.forEach(v => v.style.display = 'none');
-
-        // 2. Mostra apenas a clicada
+        
         const target = document.getElementById(id);
-        if (target) {
-            target.style.display = 'block';
-        }
+        if (target) target.style.display = 'block';
 
-        // 3. Muda a cor do botão na lateral
         const navItems = document.querySelectorAll('.nav-item');
         navItems.forEach(n => n.classList.remove('active'));
-        if (el) {
-            el.classList.add('active');
-        }
+        if (el) el.classList.add('active');
         
-        // 4. Força a atualização dos dados daquela tela
-        updateUI(); 
-    } catch (e) {
-        console.error("Erro ao mudar de aba:", e);
+        updateUI();
     }
-}
-    // COLE ESTA FUNÇÃO NO FINAL DO SCRIPT
-function popularMeses() {
-    const select = document.getElementById('filtro-mes');
-    const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-    const mesAtual = new Date().getMonth();
-    
-    meses.forEach((mes, i) => {
-        let opt = document.createElement('option');
-        opt.value = i;
-        opt.innerHTML = mes;
-        if(i === mesAtual) opt.selected = true;
-        select.appendChild(opt);
-    });
-}
 
-// CHAME A FUNÇÃO LOGO ABAIXO DELA
-popularMeses();
+    // 3. ATUALIZAÇÃO DOS DADOS (COM LÓGICA DE PARCELAS)
+    function updateUI() {
+        const filtro = document.getElementById('filtro-mes');
+        const mesSel = filtro ? parseInt(filtro.value) : new Date().getMonth();
+        const mesAtualReal = new Date().getMonth();
+
+        // Filtra o que aparece no mês
+        const gastosMes = db.lan.filter(l => {
+            if (l.tipo === 'receita') return true;
+            const mesesDesdeInicio = mesSel - (l.mesInicio || 0);
+            return mesesDesdeInicio >= 0 && mesesDesdeInicio < (l.parcelasTotal || 1);
+        });
+
+        // Cálculos dos Cards
+        const jG = gastosMes.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
+        const mG = gastosMes.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
+        const aG = gastosMes.filter(x => x.user === 'Ambos' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
+        
+        // Dívida que diminui conforme muda o mês
+        const totalRestante = db.lan.filter(x => x.tipo === 'despesa').reduce((acc, l) => {
+            const pagos = Math.max(0, (mesSel - (l.mesInicio || 0)) + 1);
+            const faltam = Math.max(0, (l.parcelasTotal || 1) - pagos);
+            return acc + (l.valorParcela * faltam);
+        }, 0);
+
+        const totalDividaAbsoluta = db.lan.filter(x => x.tipo === 'despesa').reduce((a,b)=> a + (b.valorParcela * b.parcelasTotal), 0);
+
+        // Preenche os IDs (Certifique-se que esses IDs existem no seu HTML)
+        if(document.getElementById('k-j-g')) document.getElementById('k-j-g').innerText = `R$ ${jG.toFixed(2)}`;
+        if(document.getElementById('k-m-g')) document.getElementById('k-m-g').innerText = `R$ ${mG.toFixed(2)}`;
+        if(document.getElementById('k-total-g')) document.getElementById('k-total-g').innerText = `R$ ${(jG+mG+aG).toFixed(2)}`;
+        if(document.getElementById('k-div-f')) document.getElementById('k-div-f').innerText = `R$ ${totalRestante.toFixed(2)}`;
+        if(document.getElementById('k-total-d')) document.getElementById('k-total-d').innerText = `R$ ${totalDividaAbsoluta.toFixed(2)}`;
+
+        // Atualiza Extrato
+        const tbody = document.querySelector('#dash-extrato tbody');
+        if (tbody) {
+            tbody.innerHTML = '';
+            gastosMes.filter(x=>x.tipo === 'despesa').forEach(l => {
+                const numParc = (mesSel - (l.mesInicio || 0)) + 1;
+                tbody.innerHTML += `<tr><td>${l.user}</td><td>${l.desc}</td><td>R$ ${l.valorParcela.toFixed(2)}</td><td>${numParc} de ${l.parcelasTotal}</td></tr>`;
+            });
+        }
+    }
+
+    async function loadCloud() {
+        try {
+            const res = await fetch(FIREBASE_URL);
+            const data = await res.json();
+            if (data) db = data;
+            popularMeses();
+            updateUI();
+        } catch (e) { console.error("Erro ao carregar:", e); }
+    }
+
     loadCloud();
 </script>
 </body>
