@@ -210,7 +210,36 @@
         const navItems = document.querySelectorAll('.nav-item');
         navItems.forEach(n => n.classList.remove('active'));
         if (el) el.classList.add('active');
-        
+        function addLan() {
+    // Pega os valores dos campos que aparecem na sua imagem
+    const desc = document.getElementById('l-desc').value;
+    const valor = parseFloat(document.getElementById('l-valor').value) || 0;
+    const parc = parseInt(document.getElementById('l-parcelas').value) || 1;
+    const mesFiltro = document.getElementById('filtro-mes');
+
+    if(!desc || valor <= 0) {
+        alert("Ops! Coloque uma descrição e o valor da conta.");
+        return;
+    }
+
+    const novo = {
+        id: Date.now(),
+        user: document.getElementById('l-user').value,
+        desc: desc,
+        valorParcela: valor,
+        parcelasTotal: parc,
+        tipo: document.getElementById('l-tipo').value,
+        // Aqui está o segredo: se não tiver mês selecionado, ele assume Abril (3)
+        mesInicio: mesFiltro ? parseInt(mesFiltro.value) : 3 
+    };
+
+    db.lan.push(novo);
+    saveCloud(); // Envia para o seu Firebase
+    
+    // Limpa os campos para o próximo lançamento
+    document.getElementById('l-desc').value = '';
+    document.getElementById('l-valor').value = '';
+}
         updateUI();
     }
 
