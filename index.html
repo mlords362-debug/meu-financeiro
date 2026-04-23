@@ -259,24 +259,22 @@
         document.getElementById('d-total-falta').innerText = `R$ ${totalRest.toLocaleString('pt-BR')}`;
         document.getElementById('d-metas-falta').innerText = `R$ ${metF.toLocaleString('pt-BR')}`;
 
-        const dashContas = document.getElementById('dash-contas-falta');
-        dashContas.innerHTML = '';
-        db.lan.filter(x => x.tipo === 'despesa' && x.parcelasTotal > 1).forEach(t => {
-            const f = t.valorParcela * (t.parcelasTotal - t.parcelasPagas);
-            if(f > 0) dashContas.innerHTML += `<div class="item-row"><span>${t.desc}</span> <b>R$ ${f.toLocaleString('pt-BR')}</b></div>`;
-        });
-
-        const listG = document.getElementById('lista-gerenciar');
-        listG.innerHTML = '';
-        db.lan.slice().reverse().forEach(t => {
-            listG.innerHTML += `<div class="item-row">
-                <span><b>${t.user}:</b> ${t.desc}</span> 
-                <span>
-                    <button class="btn-edit" onclick="editLan(${t.id})">Editar</button>
-                    <button class="btn-del" onclick="if(confirm('Excluir?')){db.lan=db.lan.filter(i=>i.id!=${t.id});saveCloud();}">X</button>
-                </span>
+       // Substitua o trecho do dashContas por este:
+const dashContas = document.getElementById('dash-contas-falta');
+dashContas.innerHTML = '';
+db.lan.filter(x => x.tipo === 'despesa').forEach(t => {
+    const faltam = (t.parcelasTotal || 1) - (t.parcelasPagas || 1);
+    const valorFalta = (t.valorParcela || 0) * faltam;
+    
+    if(valorFalta > 0) {
+        // Aqui adicionamos o t.user para aparecer o nome
+        dashContas.innerHTML += `
+            <div class="item-row">
+                <span><strong>[${t.user}]</strong> ${t.desc}</span> 
+                <b>R$ ${valorFalta.toLocaleString('pt-BR')}</b>
             </div>`;
-        });
+    }
+});
 
         const listM = document.getElementById('lista-metas-detalhe');
         listM.innerHTML = '';
