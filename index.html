@@ -72,6 +72,11 @@
 <main class="main">
     
     <section id="dashboard" class="view-section active">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: var(--bg2); padding: 15px; border-radius: 12px; border: 1px solid var(--border);">
+    <h2 style="font-size: 16px;">Resumo Mensal</h2>
+    <select id="filtro-mes" onchange="updateUI()" style="width: auto; margin: 0; padding: 5px 15px;">
+        </select>
+</div>
         <div class="kpi-grid">
             <div class="kpi-card" style="border-color:var(--accent-blue)"><div class="kpi-label">Gasto Junior</div><div id="k-j-g" class="kpi-value">R$ 0</div></div>
             <div class="kpi-card" style="border-color:var(--accent-purple)"><div class="kpi-label">Gasto Mônica</div><div id="k-m-g" class="kpi-value">R$ 0</div></div>
@@ -339,6 +344,23 @@ function renderizarTabelasComTotais() {
         el.classList.add('active');
     }
 
+    // COLE ESTA FUNÇÃO NO FINAL DO SCRIPT
+function popularMeses() {
+    const select = document.getElementById('filtro-mes');
+    const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    const mesAtual = new Date().getMonth();
+    
+    meses.forEach((mes, i) => {
+        let opt = document.createElement('option');
+        opt.value = i;
+        opt.innerHTML = mes;
+        if(i === mesAtual) opt.selected = true;
+        select.appendChild(opt);
+    });
+}
+
+// CHAME A FUNÇÃO LOGO ABAIXO DELA
+popularMeses();
     loadCloud();
 </script>
 </body>
