@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -18,51 +17,35 @@
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
-        
-        /* Sidebar */
         .sidebar { width: var(--sidebar-width); background: var(--bg2); border-right: 1px solid var(--border); position: fixed; height: 100vh; z-index: 100; overflow-y: auto; }
         .logo { padding: 30px; font-family: 'Syne'; font-weight: 800; font-size: 16px; border-bottom: 1px solid var(--border); text-align: center; }
         .logo span { color: var(--accent-purple); font-size: 9px; display: block; opacity: 0.7; letter-spacing: 1px; }
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 25px; cursor: pointer; color: var(--text-muted); font-size: 13px; font-weight: 600; transition: 0.3s; }
         .nav-item.active { background: linear-gradient(to right, rgba(139,92,246,0.1), transparent); color: #fff; border-left: 4px solid var(--accent-purple); }
-        
-        /* Main Content */
         .main { flex: 1; margin-left: var(--sidebar-width); padding: 30px; width: calc(100% - var(--sidebar-width)); }
-        .view-section { display: none; animation: fadeIn 0.4s ease; }
-        .view-section.active { display: block; }
-        
-        /* Cards e KPIs */
+        .view-section { display: none; }
+        .view-section.active { display: block; animation: fadeIn 0.4s ease; }
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 15px; }
         .kpi-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 15px; border-left: 3px solid var(--accent-blue); }
         .kpi-label { font-size: 9px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
         .kpi-value { font-family: 'Syne'; font-size: 18px; font-weight: 800; }
         .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; }
-        
-        /* Gráficos Controlados */
-        canvas { max-height: 180px !important; }
-        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        
-        /* Formulários */
-        input, select { background: var(--bg3); border: 1px solid var(--border); padding: 12px; color: #fff; border-radius: 8px; width: 100%; margin-bottom: 10px; font-size: 13px; }
-        .btn { padding: 12px; border: none; border-radius: 8px; background: var(--accent-purple); color: #fff; font-weight: 800; cursor: pointer; width: 100%; transition: 0.3s; }
-        .btn:hover { opacity: 0.8; }
-        
-        /* Listas e Metas */
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
-        .btn-del { background: var(--accent-red); padding: 6px 10px; font-size: 10px; border-radius: 6px; border: none; color: white; cursor: pointer; margin-left: 5px; }
-        .btn-edit { background: var(--accent-blue); padding: 6px 10px; font-size: 10px; border-radius: 6px; border: none; color: white; cursor: pointer; }
-        
-        .progress-container { background: var(--bg3); border-radius: 10px; height: 10px; margin: 10px 0; overflow: hidden; }
+        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        input, select { background: var(--bg3); border: 1px solid var(--border); padding: 12px; color: #fff; border-radius: 8px; width: 100%; margin-bottom: 10px; }
+        .btn { padding: 12px; border: none; border-radius: 8px; background: var(--accent-purple); color: #fff; font-weight: 800; cursor: pointer; width: 100%; }
+        .progress-container { background: var(--bg3); border-radius: 10px; height: 8px; margin: 8px 0; overflow: hidden; }
         .progress-bar { background: var(--accent-green); height: 100%; transition: 0.5s; }
-
-        #toast { visibility: hidden; min-width: 200px; background-color: var(--accent-green); color: #000; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; right: 30px; top: 30px; font-weight: bold; }
-        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; } }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th { text-align: left; color: var(--text-muted); padding: 10px; border-bottom: 1px solid var(--border); }
+        td { padding: 10px; border-bottom: 1px solid var(--border); }
+        #toast { visibility: hidden; background: var(--accent-green); color: #000; padding: 16px; position: fixed; top: 20px; right: 20px; border-radius: 8px; font-weight: bold; z-index: 1000; }
+        #toast.show { visibility: visible; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div id="toast">✅ Sincronizado com a Nuvem!</div>
+<div id="toast">✅ Sincronizado!</div>
 
 <aside class="sidebar">
     <div class="logo">FINANCEIRO PRO<span>JUNIOR & MÔNICA</span></div>
@@ -70,19 +53,8 @@
         <div class="nav-item active" onclick="showView('dashboard', this)">📊 Painel Geral</div>
         <div class="nav-item" onclick="showView('lancamentos', this)">↕️ Lançamentos</div>
         <div class="nav-item" onclick="showView('metas_view', this)">🎯 Metas</div>
-        <div class="nav-item" onclick="showView('invest_view', this)">📈 Investimentos</div>
-        <div class="nav-item" onclick="showView('fgts_view', this)">🏦 Saldo FGTS</div>
-        <div class="nav-item" onclick="showView('projecao_view', this)">📅 Projeção Mensal</div>
-        <div class="nav-item" onclick="showView('gerenciar', this)">⚙️ Gerenciar Tudo</div>
-        
-        <div style="padding: 20px 25px 5px 25px; font-size: 10px; font-weight: 800; color: var(--accent-purple); border-top: 1px solid var(--border); margin-top: 10px;">🧐 SUPER SIMULADOR</div>
-        <div style="padding: 10px 25px;">
-            <input type="number" id="c-vista" placeholder="Preço à vista R$" oninput="calcSimulador()">
-            <input type="number" id="c-parc" placeholder="Nº parcelas" oninput="calcSimulador()">
-            <input type="number" id="c-vparc" placeholder="R$ da parcela" oninput="calcSimulador()">
-            <input type="number" id="c-renda" placeholder="Sua Renda Mensal R$" oninput="calcSimulador()">
-            <div id="calc-resultado" style="font-size: 10px; background: var(--bg3); padding: 10px; border-radius: 8px; border: 1px solid var(--border); line-height: 1.4;">Aguardando...</div>
-        </div>
+        <div class="nav-item" onclick="showView('projecao_view', this)">📅 Projeção</div>
+        <div class="nav-item" onclick="showView('gerenciar', this)">⚙️ Gerenciar</div>
     </nav>
 </aside>
 
@@ -94,22 +66,23 @@
             <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Total Gasto</div><div id="d-total" class="kpi-value">R$ 0</div></div>
             <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Sobra Livre</div><div id="d-saldo" class="kpi-value">R$ 0</div></div>
         </div>
-        <div class="kpi-grid">
-            <div class="kpi-card" style="border-color: #f59e0b;"><div class="kpi-label">FGTS Junior</div><div id="d-fgts-j" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card" style="border-color: #f59e0b;"><div class="kpi-label">FGTS Mônica</div><div id="d-fgts-m" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Investimentos</div><div id="d-invest-total" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Dívidas Futuras</div><div id="d-total-falta" class="kpi-value">R$ 0</div></div>
-        </div>
-        <div class="charts-row">
-            <div class="card" style="padding:15px; height: 210px; display: flex; align-items: center;"><canvas id="chartGeral"></canvas></div>
-            <div class="card" style="padding:15px; height: 210px; display: flex; align-items: center;"><canvas id="chartResumo"></canvas></div>
-        </div>
-    </section>
 
-    <section id="projecao_view" class="view-section">
+        <div class="charts-row">
+            <div class="card" style="height: 280px;"><canvas id="chartGeral"></canvas></div>
+            <div class="card" style="height: 280px; overflow-y: auto;">
+                <h3 style="font-size: 12px; margin-bottom: 10px; color: var(--accent-purple);">🎯 STATUS DAS METAS</h3>
+                <div id="dash-metas-container"></div>
+            </div>
+        </div>
+
         <div class="card">
-            <h3>Projeção de Fluxo de Caixa (12 meses) 🗓️</h3><br>
-            <div id="lista-projecao"></div>
+            <h3 style="font-size: 12px; margin-bottom: 15px; color: var(--accent-blue);">🧾 CONTAS PARCELADAS (EXTRATO)</h3>
+            <div id="container-extrato">
+                <table>
+                    <thead><tr><th>DESCRIÇÃO</th><th>MENSAL</th><th>RESTAM</th><th>TOTAL DEVEDOR</th></tr></thead>
+                    <tbody id="dash-extrato-corpo"></tbody>
+                </table>
+            </div>
         </div>
     </section>
 
@@ -128,87 +101,24 @@
 
     <section id="metas_view" class="view-section">
         <div class="card">
-            <h3>🎯 Minhas Metas</h3><br>
+            <h3>🎯 Configurar Metas</h3><br>
             <input type="hidden" id="m-edit-id">
             <input type="text" id="m-nome" placeholder="Nome da Meta">
             <input type="number" id="m-alvo" placeholder="Valor Alvo">
-            <input type="number" id="m-atual" placeholder="Valor que já tenho">
+            <input type="number" id="m-atual" placeholder="Já tenho">
             <button class="btn" onclick="addMeta()">Salvar Meta</button>
         </div>
         <div id="lista-metas-detalhe"></div>
     </section>
 
-    <section id="invest_view" class="view-section">
-        <div class="card">
-            <h3>📈 Investimentos</h3><br>
-            <input type="hidden" id="i-edit-id">
-            <input type="text" id="i-nome" placeholder="Ativo (Ex: CDB, Ações)">
-            <input type="number" id="i-valor" placeholder="Valor R$">
-            <button class="btn" onclick="addInv()">Salvar</button>
-        </div>
-        <div class="card" id="lista-invest-hist"></div>
-    </section>
-
-    <section id="fgts_view" class="view-section">
-        <div class="card">
-            <h3>🏦 Saldo FGTS</h3><br>
-            <input type="hidden" id="f-edit-id">
-            <select id="f-user"><option value="Junior">Junior</option><option value="Mônica">Mônica</option></select>
-            <input type="text" id="f-desc" placeholder="Ex: Depósito Mensal">
-            <input type="number" id="f-valor" placeholder="Valor R$">
-            <button class="btn" onclick="addFgts()">Salvar</button>
-        </div>
-        <div class="card" id="lista-fgts-hist"></div>
+    <section id="projecao_view" class="view-section">
+        <div class="card"><h3>📅 Projeção Mensal</h3><br><div id="lista-projecao"></div></div>
     </section>
 
     <section id="gerenciar" class="view-section">
-        <div class="card">
-            <h3>⚙️ Gerenciar Todos os Dados</h3><br>
-            <div id="lista-gerenciar"></div>
-        </div>
-  <main class="main">
-    <section id="dashboard" class="view-section active">
-        <div class="kpi-grid">
-            <div class="kpi-card" style="border-color: var(--accent-blue);"><div class="kpi-label">Junior (Mês)</div><div id="d-eu" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card" style="border-color: var(--accent-purple);"><div class="kpi-label">Mônica (Mês)</div><div id="d-ela" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Total Gasto</div><div id="d-total" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Sobra Livre</div><div id="d-saldo" class="kpi-value">R$ 0</div></div>
-        </div>
-
-        <div class="charts-row">
-            <div class="card" style="padding:15px; height: 280px; display: flex; align-items: center;"><canvas id="chartGeral"></canvas></div>
-            <div class="card" style="padding:15px; height: 280px; overflow-y: auto;">
-                <h3 style="font-size: 12px; font-family: 'Syne'; margin-bottom: 15px; color: var(--accent-purple);">🎯 STATUS DAS METAS</h3>
-                <div id="dash-metas-container"></div>
-            </div>
-        </div>
-
-        <div class="card" style="margin-top: 15px;">
-            <h3 style="font-size: 12px; font-family: 'Syne'; margin-bottom: 15px; color: var(--accent-blue);">🧾 CONTAS PARCELADAS (PENDENTES)</h3>
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
-                    <thead>
-                        <tr style="text-align: left; color: var(--text-muted); border-bottom: 1px solid var(--border);">
-                            <th style="padding: 10px 5px;">DESCRIÇÃO</th>
-                            <th style="padding: 10px 5px;">MENSAL</th>
-                            <th style="padding: 10px 5px;">FALTAM</th>
-                            <th style="padding: 10px 5px;">TOTAL DEVEDOR</th>
-                        </tr>
-                    </thead>
-                    <tbody id="dash-extrato-corpo">
-                        </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="kpi-grid" style="margin-top: 15px;">
-            <div class="kpi-card" style="border-color: #f59e0b;"><div class="kpi-label">FGTS Total</div><div id="d-fgts-total" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Investido</div><div id="d-invest-total" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Dívida Total Acumulada</div><div id="d-total-falta" class="kpi-value">R$ 0</div></div>
-        </div>
+        <div class="card"><h3>⚙️ Gerenciar Dados</h3><br><div id="lista-gerenciar"></div></div>
     </section>
-
-    </main>
+</main>
 
 <script>
     const FIREBASE_URL = 'https://financeiro-casal-4bc7f-default-rtdb.firebaseio.com/dados.json';
@@ -219,95 +129,142 @@
         try {
             const res = await fetch(FIREBASE_URL);
             const data = await res.json();
-            if(data) db = data;
+            if (data) {
+                db.lan = data.lan || [];
+                db.metas = data.metas || [];
+                db.inv = data.inv || [];
+                db.fgts_lan = data.fgts_lan || [];
+            }
             updateUI();
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Erro ao carregar:", e); }
     }
 
     async function saveCloud() {
         await fetch(FIREBASE_URL, { method: 'PUT', body: JSON.stringify(db) });
         updateUI();
-        showToast();
+        const t = document.getElementById("toast"); t.className = "show"; setTimeout(() => t.className = "", 3000);
+    }
+
+    function addLan() {
+        const id = document.getElementById('l-edit-id').value;
+        const vt = parseFloat(document.getElementById('l-valor').value) || 0;
+        const pt = parseInt(document.getElementById('l-parcelas').value) || 1;
+        const d = {
+            id: id ? parseInt(id) : Date.now(),
+            user: document.getElementById('l-user').value,
+            desc: document.getElementById('l-desc').value,
+            valorTotal: vt,
+            parcelasTotal: pt,
+            valorParcela: vt / pt,
+            tipo: document.getElementById('l-tipo').value,
+            parcelasPagas: 0
+        };
+        if (id) { const i = db.lan.findIndex(x => x.id == id); db.lan[i] = d; } else { db.lan.push(d); }
+        document.getElementById('l-edit-id').value = '';
+        saveCloud();
+    }
+
+    function addMeta() {
+        const id = document.getElementById('m-edit-id').value;
+        const d = {
+            id: id ? parseInt(id) : Date.now(),
+            nome: document.getElementById('m-nome').value,
+            alvo: parseFloat(document.getElementById('m-alvo').value) || 0,
+            atual: parseFloat(document.getElementById('m-atual').value) || 0
+        };
+        if (id) { const i = db.metas.findIndex(x => x.id == id); db.metas[i] = d; } else { db.metas.push(d); }
+        document.getElementById('m-edit-id').value = '';
+        saveCloud();
     }
 
     function updateUI() {
-        // Cálculos Financeiros
-        const junD = db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+(parseFloat(b.valorParcela)||0), 0);
-        const monD = db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+(parseFloat(b.valorParcela)||0), 0);
-        const recTotal = db.lan.filter(x => x.tipo === 'receita').reduce((a,b)=>a+(parseFloat(b.valorTotal)||0), 0);
-        const sobra = recTotal - (junD + monD);
+        // Cálculos
+        const junD = db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a, b) => a + (b.valorParcela || 0), 0);
+        const monD = db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a, b) => a + (b.valorParcela || 0), 0);
+        const recTotal = db.lan.filter(x => x.tipo === 'receita').reduce((a, b) => a + (b.valorTotal || 0), 0);
+        const gastTotal = junD + monD;
 
         document.getElementById('d-eu').innerText = `R$ ${junD.toLocaleString('pt-BR')}`;
         document.getElementById('d-ela').innerText = `R$ ${monD.toLocaleString('pt-BR')}`;
-        document.getElementById('d-total').innerText = `R$ ${(junD+monD).toLocaleString('pt-BR')}`;
-        document.getElementById('d-saldo').innerText = `R$ ${sobra.toLocaleString('pt-BR')}`;
-        document.getElementById('d-saldo').style.color = sobra >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+        document.getElementById('d-total').innerText = `R$ ${gastTotal.toLocaleString('pt-BR')}`;
+        document.getElementById('d-saldo').innerText = `R$ ${(recTotal - gastTotal).toLocaleString('pt-BR')}`;
 
-        // 1. RENDERIZAR METAS NO DASHBOARD
-        const dashMetas = document.getElementById('dash-metas-container');
-        dashMetas.innerHTML = '';
+        // Render Metas (Dash e Aba)
+        const dMetas = document.getElementById('dash-metas-container');
+        const lMetas = document.getElementById('lista-metas-detalhe');
+        dMetas.innerHTML = ''; lMetas.innerHTML = '';
         db.metas.forEach(m => {
-            const alvo = parseFloat(m.alvo) || 0;
-            const atual = parseFloat(m.atual) || 0;
-            const perc = alvo > 0 ? Math.min((atual/alvo)*100, 100) : 0;
-            dashMetas.innerHTML += `
-                <div style="margin-bottom:12px;">
-                    <div style="display:flex; justify-content:space-between; font-size:11px;"><b>${m.nome}</b> <span>${perc.toFixed(1)}%</span></div>
-                    <div class="progress-container" style="background:var(--bg3); height:6px; border-radius:10px; margin:4px 0;"><div class="progress-bar" style="width:${perc}%; background:var(--accent-green); height:100%; border-radius:10px;"></div></div>
-                </div>`;
+            const perc = m.alvo > 0 ? Math.min((m.atual / m.alvo) * 100, 100) : 0;
+            const html = `<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:11px;"><b>${m.nome}</b><span>${perc.toFixed(1)}%</span></div>
+                <div class="progress-container"><div class="progress-bar" style="width:${perc}%"></div></div></div>`;
+            dMetas.innerHTML += html;
+            lMetas.innerHTML += `<div class="card">${html}<button class="btn" style="width:auto;padding:5px 10px;" onclick="editMeta(${m.id})">Editar</button></div>`;
         });
 
-        // 2. RENDERIZAR EXTRATO DE PARCELAS (O NOVO)
-        const corpoExtrato = document.getElementById('dash-extrato-corpo');
-        corpoExtrato.innerHTML = '';
-        let dividaAcumulada = 0;
-
+        // Extrato Parcelado
+        const corpo = document.getElementById('dash-extrato-corpo');
+        corpo.innerHTML = '';
         db.lan.filter(x => x.tipo === 'despesa').forEach(l => {
-            const parcPagas = parseInt(l.parcelasPagas) || 0;
-            const parcTotais = parseInt(l.parcelasTotal) || 1;
-            const faltam = parcTotais - parcPagas;
-            const vMensal = parseFloat(l.valorParcela) || 0;
-            const vDevedor = vMensal * faltam;
-            
-            dividaAcumulada += vDevedor;
-
-            if(faltam > 0) {
-                corpoExtrato.innerHTML += `
-                    <tr style="border-bottom: 1px solid var(--border);">
-                        <td style="padding: 10px 5px;">[${l.user}] ${l.desc}</td>
-                        <td style="padding: 10px 5px;">R$ ${vMensal.toLocaleString('pt-BR')}</td>
-                        <td style="padding: 10px 5px;">${faltam}x</td>
-                        <td style="padding: 10px 5px; font-weight:bold; color:var(--accent-red);">R$ ${vDevedor.toLocaleString('pt-BR')}</td>
-                    </tr>`;
+            const faltam = l.parcelasTotal - (l.parcelasPagas || 0);
+            if (faltam > 0) {
+                corpo.innerHTML += `<tr><td>[${l.user}] ${l.desc}</td><td>R$ ${l.valorParcela.toLocaleString('pt-BR')}</td><td>${faltam}x</td><td>R$ ${(l.valorParcela * faltam).toLocaleString('pt-BR')}</td></tr>`;
             }
         });
-        document.getElementById('d-total-falta').innerText = `R$ ${dividaAcumulada.toLocaleString('pt-BR')}`;
 
-        // Gráficos e Outros
-        renderCharts(recTotal, (junD+monD));
-    }
-
-    // Mantenha as outras funções (addLan, editItem, delItem, showView, etc) iguais ao código anterior.
-    function renderCharts(rec, gast) {
-        const ctx = document.getElementById('chartGeral');
-        if(chartG) chartG.destroy();
-        chartG = new Chart(ctx, {
-            type: 'bar',
-            data: { labels: ['Ganhos', 'Gastos'], datasets: [{ data: [rec, gast], backgroundColor: ['#00ffa3', '#ff4d6d'] }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        // Gerenciar
+        const g = document.getElementById('lista-gerenciar');
+        g.innerHTML = '';
+        db.lan.forEach(l => {
+            g.innerHTML += `<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid var(--border);"><span>${l.desc}</span><div><button onclick="editLan(${l.id})">✏️</button><button onclick="delLan(${l.id})">🗑️</button></div></div>`;
         });
+
+        if (chartG) chartG.destroy();
+        chartG = new Chart(document.getElementById('chartGeral'), {
+            type: 'bar',
+            data: { labels: ['Receitas', 'Despesas'], datasets: [{ data: [recTotal, gastTotal], backgroundColor: ['#00ffa3', '#ff4d6d'] }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+        
+        renderProjecao(recTotal);
     }
+
+    function renderProjecao(rec) {
+        const c = document.getElementById('lista-projecao'); c.innerHTML = '';
+        for (let i = 1; i <= 12; i++) {
+            let gast = 0;
+            db.lan.filter(x => x.tipo === 'despesa').forEach(l => { if (i <= (l.parcelasTotal - l.parcelasPagas)) gast += l.valorParcela; });
+            c.innerHTML += `<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid var(--border);"><span>Mês ${i}</span><b>R$ ${(rec - gast).toLocaleString('pt-BR')}</b></div>`;
+        }
+    }
+
+    function editLan(id) { 
+        const l = db.lan.find(x => x.id == id); 
+        showView('lancamentos');
+        document.getElementById('l-edit-id').value = l.id;
+        document.getElementById('l-desc').value = l.desc;
+        document.getElementById('l-valor').value = l.valorTotal;
+        document.getElementById('l-parcelas').value = l.parcelasTotal;
+    }
+    
+    function editMeta(id) {
+        const m = db.metas.find(x => x.id == id);
+        document.getElementById('m-edit-id').value = m.id;
+        document.getElementById('m-nome').value = m.nome;
+        document.getElementById('m-alvo').value = m.alvo;
+        document.getElementById('m-atual').value = m.atual;
+    }
+
+    function delLan(id) { if (confirm("Excluir?")) { db.lan = db.lan.filter(x => x.id != id); saveCloud(); } }
 
     function showView(id, el) {
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(el) {
+        if (el) {
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
         }
     }
 
-    function showToast() { const t = document.getElementById("toast"); t.className = "show"; setTimeout(()=>t.className="", 3000); }
     loadCloud();
 </script>
 </body>
