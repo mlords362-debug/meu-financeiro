@@ -37,7 +37,7 @@
         .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
         #toast { visibility: hidden; min-width: 200px; background-color: var(--accent-green); color: #000; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; right: 30px; top: 30px; font-weight: bold; }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; max-height: 220px; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; } }
     </style>
 </head>
@@ -84,11 +84,11 @@
             <div id="dash-contas-falta"></div>
         </div>
 
-        <<div class="charts-row">
-    <div class="card" style="padding:10px; display: flex; justify-content: center; align-items: center;">
+        <div class="charts-row">
+    <div class="card" style="padding:10px; height: 200px; display: flex; justify-content: center; align-items: center;">
         <canvas id="chartGeral"></canvas>
     </div>
-    <div class="card" style="padding:10px; display: flex; justify-content: center; align-items: center;">
+    <div class="card" style="padding:10px; height: 200px; display: flex; justify-content: center; align-items: center;">
         <canvas id="chartResumo"></canvas>
     </div>
 </div>
