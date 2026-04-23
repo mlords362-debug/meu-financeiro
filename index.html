@@ -306,14 +306,14 @@
         if(chartB) chartB.destroy();
         chartB = new Chart(document.getElementById('chartBarras'), {
             type: 'bar',
-            data: { labels: ['Ganhos', 'Gastos'], datasets: [{ data: [rec, gast], backgroundColor: ['#00ffa3', '#ff4d6d'] }] },
+            data: { labels: ['Ganhos', 'Gastos'], datasets: [{ data: [rec, gast], backgroundColor: ['#00ffa3', '#8b5cf6'] }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
 
         if(chartR) chartR.destroy();
         chartR = new Chart(document.getElementById('chartRosca'), {
             type: 'doughnut',
-            data: { labels: ['Junior', 'Mônica'], datasets: [{ data: [jD, mD], backgroundColor: ['#3b82f6', '#8b5cf6'], borderWeight: 0 }] },
+            data: { labels: ['Junior', 'Mônica'], datasets: [{ data: [jD, mD], backgroundColor: ['#94a3b8', '#8b5cf6'], borderWeight: 0 }] },
             options: { responsive: true, maintainAspectRatio: false }
         });
     }
