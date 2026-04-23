@@ -185,19 +185,27 @@
 
     // 1. GERA OS MESES NO SELETOR
     function popularMeses() {
-        const select = document.getElementById('filtro-mes');
-        if (!select) return;
-        const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-        const mesAtual = new Date().getMonth();
-        select.innerHTML = ''; 
-        meses.forEach((mes, i) => {
+    const select = document.getElementById('filtro-mes');
+    if (!select) return;
+    const mesesNomes = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+    
+    const anoAtual = 2026;
+    select.innerHTML = ''; 
+
+    // Gera meses para 2026 e 2027
+    [2026, 2027].forEach(ano => {
+        mesesNomes.forEach((mes, i) => {
             let opt = document.createElement('option');
-            opt.value = i;
-            opt.innerHTML = mes;
-            if(i === mesAtual) opt.selected = true;
+            // Guardamos o valor como "ano-mes" (ex: "2026-3" para Abril)
+            opt.value = `${ano}-${i}`;
+            opt.innerHTML = `${mes} ${ano}`;
+            
+            // Deixa marcado o mês/ano atual do sistema
+            if(ano === 2026 && i === new Date().getMonth()) opt.selected = true;
             select.appendChild(opt);
         });
-    }
+    });
+}
 
     // 2. FUNÇÃO PARA MUDAR DE ABA (CORRIGIDA)
     function showView(id, el) {
@@ -223,45 +231,104 @@
     }
 
     function addLan() {
-        const desc = document.getElementById('l-desc').value;
-        const valor = parseFloat(document.getElementById('l-valor').value) || 0;
-        const parc = parseInt(document.getElementById('l-parcelas').value) || 1;
-        const mesFiltro = document.getElementById('filtro-mes');
+    const filtro = document.getElementById('filtro-mes').value.split('-');
+    const anoSelecionado = parseInt(filtro[0]);
+    const mesSelecionado = parseInt(filtro[1]);
 
-        if(!desc || valor <= 0) {
-            alert("Preencha a descrição e o valor!");
-            return;
-        }
+    const novo = {
+        id: Date.now(),
+        user: document.getElementById('l-user').value,
+        desc: document.getElementById('l-desc').value,
+        valorParcela: parseFloat(document.getElementById('l-valor').value) || 0,
+        parcelasTotal: parseInt(document.getElementById('l-parcelas').value) || 1,
+        tipo: document.getElementById('l-tipo').value,
+        mesInicio: mesSelecionado,
+        anoInicio: anoSelecionado // Agora salvamos o ano!
+    };
 
-        const novo = {
-            id: Date.now(),
-            user: document.getElementById('l-user').value,
-            desc: desc,
-            valorParcela: valor,
-            parcelasTotal: parc,
-            tipo: document.getElementById('l-tipo').value,
-            mesInicio: mesFiltro ? parseInt(mesFiltro.value) : 3 // Padrão Abril se não achar o filtro
-        };
+    db.lan.push(novo);
+    saveCloud();
+}
+    function renderMetasDash() {
+    const container = document.getElementById('dash-metas');
+    if (!container) return;
+    container.innerHTML = '';
+    db.metas.forEach(m => {
+        const perc = Math.min(100, (m.atual / m.alvo) * 100);
+        container.innerHTML += `
+            <div style="margin-bottom:15px;">
+                <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:5px;">
+                    <span>${m.nome}</span>
+                    <span>${perc.toFixed(1)}%</span>
+                </div>
+                <div class="progress-bg"><div class="progress-fill" style="width:${perc}%"></div></div>
+            </div>`;
+    });
+}
+    function addMeta() {
+    const nome = document.getElementById('m-nome').value;
+    const alvo = parseFloat(document.getElementById('m-alvo').value) || 0;
+    const atual = parseFloat(document.getElementById('m-atual').value) || 0;
 
-        db.lan.push(novo);
-        saveCloud();
-        
-        document.getElementById('l-desc').value = '';
-        document.getElementById('l-valor').value = '';
-    }
+    if(!nome || alvo <= 0) return alert("Preencha o nome e o valor alvo!");
 
+    db.metas.push({ nome, alvo, atual });
+    saveCloud(); // Isso já chama o updateUI que agora renderiza as metas!
+    
+    // Limpa campos
+    document.getElementById('m-nome').value = '';
+    document.getElementById('m-alvo').value = '';
+    document.getElementById('m-atual').value = '';
+}
+
+function renderMetasLista() {
+    const container = document.getElementById('metas-lista');
+    if (!container) return;
+    container.innerHTML = '';
+    db.metas.forEach((m, index) => {
+        const perc = Math.min(100, (m.atual / m.alvo) * 100);
+        container.innerHTML += `
+            <div class="meta-card">
+                <div style="display:flex; justify-content:space-between;">
+                    <strong>${m.nome}</strong>
+                    <button class="btn-del" onclick="deleteMeta(${index})">🗑️</button>
+                </div>
+                <p style="font-size:12px; color:var(--text-muted); margin:5px 0;">Objetivo: R$ ${m.alvo.toFixed(2)} | Já tenho: R$ ${m.atual.toFixed(2)}</p>
+                <div class="progress-bg"><div class="progress-fill" style="width:${perc}%"></div></div>
+            </div>`;
+    });
+}
+
+function deleteMeta(index) {
+    db.metas.splice(index, 1);
+    saveCloud();
+}
     // 4. ATUALIZAÇÃO DOS DADOS (CORREÇÃO DE ABRIL E CÁLCULOS)
     function updateUI() {
-        const filtro = document.getElementById('filtro-mes');
-        const mesSel = filtro ? parseInt(filtro.value) : new Date().getMonth();
+    const filtro = document.getElementById('filtro-mes');
+    if (!filtro) return;
 
-        // Filtra o que aparece no mês selecionado
-        const gastosMes = db.lan.filter(l => {
-            if (l.tipo === 'receita') return true;
-            const mInicio = l.mesInicio !== undefined ? l.mesInicio : 3; // Se não tiver data, assume Abril
-            const mesesDesdeInicio = mesSel - mInicio;
-            return mesesDesdeInicio >= 0 && mesesDesdeInicio < (l.parcelasTotal || 1);
-        });
+    // Quebra o valor "2026-3" em ano e mês separados
+    const [anoSel, mesSel] = filtro.value.split('-').map(Number);
+
+    const gastosMes = db.lan.filter(l => {
+        if (l.tipo === 'receita') return true;
+
+        // Calculamos quantos meses se passaram desde o início da conta
+        // Consideramos que as contas antigas começaram em Abril (3) de 2026
+        const anoInicio = l.anoInicio || 2026;
+        const mesInicio = l.mesInicio !== undefined ? l.mesInicio : 3;
+
+        const mesesTotaisInicio = (anoInicio * 12) + mesInicio;
+        const mesesTotaisSelecao = (anoSel * 12) + mesSel;
+        
+        const diferenca = mesesTotaisSelecao - mesesTotaisInicio;
+
+        // A conta aparece se a diferença estiver entre 0 e o total de parcelas
+        return diferenca >= 0 && diferenca < (l.parcelasTotal || 1);
+    });
+
+    // ... (o resto dos cálculos de jG, mG, aG continuam iguais abaixo)
 
         // Cálculos dos Cards
         const jG = gastosMes.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
@@ -293,6 +360,9 @@
                 const mInicio = l.mesInicio !== undefined ? l.mesInicio : 3;
                 const numParc = (mesSel - mInicio) + 1;
                 tbody.innerHTML += `<tr><td>${l.user}</td><td>${l.desc}</td><td>R$ ${l.valorParcela.toFixed(2)}</td><td>${numParc} de ${l.parcelasTotal}</td></tr>`;
+                // No final da função updateUI, adicione isso:
+    renderMetasDash();
+    renderMetasLista();
             });
         }
     }
