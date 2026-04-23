@@ -54,6 +54,7 @@
         <div class="nav-item" onclick="showView('invest_view', this)">📈 Investimentos</div>
         <div class="nav-item" onclick="showView('fgts_view', this)">🏦 Saldo FGTS</div>
         <div class="nav-item" onclick="showView('gerenciar', this)">⚙️ Gerenciar Tudo</div>
+        <div class="nav-item" onclick="showView('projecao_view', this)">📅 Projeção Mensal</div>
         
         <div style="padding: 20px 25px 5px 25px; font-size: 10px; font-weight: 800; color: var(--accent-purple); border-top: 1px solid var(--border); margin-top: 10px;">🧐 SUPER SIMULADOR</div>
 <div style="padding: 10px 25px;">
@@ -153,6 +154,16 @@
         </div>
         <div id="lista-metas-detalhe"></div>
     </section>
+    
+    <section id="projecao_view" class="view-section">
+    <div class="card">
+        <h3>Projeção dos Próximos Meses 🗓️</h3>
+        <p style="font-size: 11px; opacity: 0.7; margin-bottom: 15px;">
+            Visualize o total de parcelas que vencerão em cada mês futuro.
+        </p>
+        <div id="lista-projecao"></div>
+    </div>
+</section>
 </main>
 
 <script>
@@ -362,6 +373,48 @@
         `;
     } else {
         resDiv.innerText = "Preencha os campos...";
+    }
+        function renderProjecao() {
+    const lista = document.getElementById('lista-projecao');
+    if (!lista) return;
+    lista.innerHTML = '';
+
+    // Pegamos a receita fixa atual para base de cálculo
+    const receitaMensal = db.lan.filter(x => x.tipo === 'receita').reduce((a, b) => a + b.valorTotal, 0);
+
+    // Vamos projetar os próximos 12 meses
+    for (let m = 1; m <= 12; m++) {
+        let totalMes = 0;
+        let detalhes = [];
+
+        db.lan.filter(x => x.tipo === 'despesa').forEach(t => {
+            const parcelasRestantes = t.parcelasTotal - t.parcelasPagas;
+            // Se a parcela ainda vai existir daqui a 'm' meses
+            if (m <= parcelasRestantes) {
+                totalMes += t.valorParcela;
+                detalhes.push(`${t.desc} (p. ${t.parcelasPagas + m}/${t.parcelasTotal})`);
+            }
+        });
+
+        if (totalMes > 0) {
+            const sobraProjetada = receitaMensal - totalMes;
+            const corSobra = sobraProjetada >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+            
+            lista.innerHTML += `
+                <div class="card" style="border-left: 4px solid ${totalMes > receitaMensal ? 'var(--accent-red)' : 'var(--accent-blue)'}; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong>Mês ${m}</strong>
+                        <span style="font-family: 'Syne'; font-size: 14px;">Total: R$ ${totalMes.toLocaleString('pt-BR')}</span>
+                    </div>
+                    <div style="font-size: 10px; opacity: 0.6; margin: 5px 0;">
+                        ${detalhes.join(', ')}
+                    </div>
+                    <div style="font-size: 11px; font-weight: bold; text-align: right; color: ${corSobra}">
+                        Sobra prevista: R$ ${sobraProjetada.toLocaleString('pt-BR')}
+                    </div>
+                </div>
+            `;
+        }
     }
 }
 </script>
