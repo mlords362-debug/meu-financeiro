@@ -332,12 +332,30 @@ function renderizarTabelasComTotais() {
     }
 
     function showView(id, el) {
-        document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
-    }
+    try {
+        // 1. Esconde todas as seções
+        const sections = document.querySelectorAll('.view-section');
+        sections.forEach(v => v.style.display = 'none');
 
+        // 2. Mostra apenas a clicada
+        const target = document.getElementById(id);
+        if (target) {
+            target.style.display = 'block';
+        }
+
+        // 3. Muda a cor do botão na lateral
+        const navItems = document.querySelectorAll('.nav-item');
+        navItems.forEach(n => n.classList.remove('active'));
+        if (el) {
+            el.classList.add('active');
+        }
+        
+        // 4. Força a atualização dos dados daquela tela
+        updateUI(); 
+    } catch (e) {
+        console.error("Erro ao mudar de aba:", e);
+    }
+}
     // COLE ESTA FUNÇÃO NO FINAL DO SCRIPT
 function popularMeses() {
     const select = document.getElementById('filtro-mes');
