@@ -180,17 +180,21 @@
     let chartB, chartR;
 
     async function loadCloud() {
-        try {
-            const res = await fetch(FIREBASE_URL);
-            const data = await res.json();
-            if (data) {
-                db.lan = data.lan || [];
-                db.metas = data.metas || [];
-                db.fgts = data.fgts || [];
-            }
-            updateUI();
-        } catch (e) { console.error(e); }
+    try {
+        const res = await fetch(FIREBASE_URL);
+        const data = await res.json();
+        if (data) {
+            // Garante que cada categoria exista para não dar erro de "undefined"
+            db.lan = data.lan || [];
+            db.metas = data.metas || [];
+            db.fgts = data.fgts || [];
+            console.log("Dados carregados:", db);
+        }
+        updateUI(); // Renderiza os gráficos e tabelas
+    } catch (e) { 
+        console.error("Erro ao carregar dados:", e); 
     }
+}
 
     async function saveCloud() {
         await fetch(FIREBASE_URL, { method: 'PUT', body: JSON.stringify(db) });
