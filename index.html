@@ -102,6 +102,14 @@
             <div class="card" style="padding:10px;"><canvas id="chartGeral"></canvas></div>
             <div class="card" style="padding:10px;"><canvas id="chartResumo"></canvas></div>
         </div>
+        <div class="kpi-grid">
+    <div class="kpi-card" style="border-color: #f59e0b;"><div class="kpi-label">FGTS Junior</div><div id="d-fgts-j" class="kpi-value">R$ 0</div></div>
+    <div class="kpi-card" style="border-color: #f59e0b;"><div class="kpi-label">FGTS Mônica</div><div id="d-fgts-m" class="kpi-value">R$ 0</div></div>
+    
+    <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Total Investido</div><div id="d-invest-total" class="kpi-value">R$ 0</div></div>
+    
+    <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Dívidas Futuras</div><div id="d-total-falta" class="kpi-value">R$ 0</div></div>
+</div>
     </section>
 
     <section id="lancamentos" class="view-section">
@@ -138,7 +146,20 @@
             <hr style="margin:20px 0; border-color: var(--border);">
             <div id="lista-metas-detalhe"></div>
         </div>
-    </section>
+    <section id="invest_view" class="view-section">
+    <div class="card">
+        <h3>Novo Investimento / Ativo 📈</h3><br>
+        <input type="hidden" id="i-edit-id">
+        <input type="text" id="i-nome" placeholder="Nome do Ativo (ex: CDB, Tesouro, Ações)">
+        <input type="number" id="i-valor" placeholder="Valor Atual R$">
+        <button class="btn" id="btn-inv" onclick="addInv()">Salvar Investimento</button>
+    </div>
+
+    <div class="card">
+        <h4 style="font-size: 11px; opacity: 0.6; margin-bottom: 10px;">MEUS ATIVOS</h4>
+        <div id="lista-invest-hist"></div>
+    </div>
+</section>
 
     <section id="fgts_view" class="view-section">
     <div class="kpi-grid">
@@ -377,6 +398,43 @@ db.lan.filter(x => x.tipo === 'despesa').forEach(t => {
         document.getElementById(id).classList.add('active');
         if(el) el.classList.add('active');
     }
+    function addInv() {
+    const id = document.getElementById('i-edit-id').value;
+    const nome = document.getElementById('i-nome').value;
+    const valor = parseFloat(document.getElementById('i-valor').value);
+    
+    if(!nome || isNaN(valor)) return alert("Preencha nome e valor!");
+
+    db.inv = db.inv || [];
+
+    if(id) {
+        let item = db.inv.find(x => x.id == id);
+        if(item) { item.nome = nome; item.valor = valor; }
+    } else {
+        db.inv.push({ id: Date.now(), nome, valor });
+    }
+
+    document.getElementById('i-edit-id').value = '';
+    document.getElementById('i-nome').value = '';
+    document.getElementById('i-valor').value = '';
+    document.getElementById('btn-inv').innerText = "Salvar Investimento";
+    saveCloud();
+}
+
+function editInv(id) {
+    let item = db.inv.find(x => x.id == id);
+    document.getElementById('i-edit-id').value = item.id;
+    document.getElementById('i-nome').value = item.nome;
+    document.getElementById('i-valor').value = item.valor;
+    document.getElementById('btn-inv').innerText = "Atualizar Investimento";
+}
+
+function deleteInv(id) {
+    if(confirm("Excluir este ativo?")) {
+        db.inv = db.inv.filter(x => x.id != id);
+        saveCloud();
+    }
+}
 
   // COPIE E COLE NO LUGAR DA FUNÇÃO updateFGTS ANTIGA
 function addFgts() {
