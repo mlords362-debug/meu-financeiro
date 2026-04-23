@@ -358,11 +358,20 @@ db.lan.filter(x => x.tipo === 'despesa').forEach(t => {
     }
 
     function updateFGTS() {
-        const v = parseFloat(document.getElementById('f-valor').value) || 0;
-        if(document.getElementById('f-user').value === "Junior") db.fgts_j = v; else db.fgts_m = v;
-        saveCloud();
+    const v = parseFloat(document.getElementById('f-valor').value) || 0;
+    const user = document.getElementById('f-user').value;
+
+    if(user === "Junior") {
+        // O += faz ele pegar o saldo antigo e somar com o novo
+        db.fgts_j = (db.fgts_j || 0) + v; 
+    } else {
+        db.fgts_m = (db.fgts_m || 0) + v;
     }
 
+    // Limpa o campo após lançar para não confundir
+    document.getElementById('f-valor').value = ''; 
+    saveCloud();
+}
     loadCloud();
 </script>
 </body>
