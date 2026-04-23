@@ -183,7 +183,7 @@
     let db = { lan: [], metas: [], fgts: [], invest: [] };
     let myChart;
 
-    // 1. GERA OS MESES E DESTRAVA O FILTRO
+    // 1. GERA OS MESES NO SELETOR
     function popularMeses() {
         const select = document.getElementById('filtro-mes');
         if (!select) return;
@@ -199,7 +199,7 @@
         });
     }
 
-    // 2. FUNÇÃO PARA MUDAR DE ABA (DESTRAVADA)
+    // 2. FUNÇÃO PARA MUDAR DE ABA (CORRIGIDA)
     function showView(id, el) {
         const sections = document.querySelectorAll('.view-section');
         sections.forEach(v => v.style.display = 'none');
@@ -210,50 +210,57 @@
         const navItems = document.querySelectorAll('.nav-item');
         navItems.forEach(n => n.classList.remove('active'));
         if (el) el.classList.add('active');
-        function addLan() {
-    // Pega os valores dos campos que aparecem na sua imagem
-    const desc = document.getElementById('l-desc').value;
-    const valor = parseFloat(document.getElementById('l-valor').value) || 0;
-    const parc = parseInt(document.getElementById('l-parcelas').value) || 1;
-    const mesFiltro = document.getElementById('filtro-mes');
-
-    if(!desc || valor <= 0) {
-        alert("Ops! Coloque uma descrição e o valor da conta.");
-        return;
-    }
-
-    const novo = {
-        id: Date.now(),
-        user: document.getElementById('l-user').value,
-        desc: desc,
-        valorParcela: valor,
-        parcelasTotal: parc,
-        tipo: document.getElementById('l-tipo').value,
-        // Aqui está o segredo: se não tiver mês selecionado, ele assume Abril (3)
-        mesInicio: mesFiltro ? parseInt(mesFiltro.value) : 3 
-    };
-
-    db.lan.push(novo);
-    saveCloud(); // Envia para o seu Firebase
-    
-    // Limpa os campos para o próximo lançamento
-    document.getElementById('l-desc').value = '';
-    document.getElementById('l-valor').value = '';
-}
+        
         updateUI();
     }
 
-    // 3. ATUALIZAÇÃO DOS DADOS (COM LÓGICA DE PARCELAS)
+    // 3. FUNÇÃO PARA SALVAR (CORRIGIDA E FORA DA SHOWVIEW)
+    async function saveCloud() {
+        await fetch(FIREBASE_URL, { method: 'PUT', body: JSON.stringify(db) });
+        document.getElementById("toast").classList.add("show");
+        setTimeout(() => document.getElementById("toast").classList.remove("show"), 3000);
+        updateUI();
+    }
+
+    function addLan() {
+        const desc = document.getElementById('l-desc').value;
+        const valor = parseFloat(document.getElementById('l-valor').value) || 0;
+        const parc = parseInt(document.getElementById('l-parcelas').value) || 1;
+        const mesFiltro = document.getElementById('filtro-mes');
+
+        if(!desc || valor <= 0) {
+            alert("Preencha a descrição e o valor!");
+            return;
+        }
+
+        const novo = {
+            id: Date.now(),
+            user: document.getElementById('l-user').value,
+            desc: desc,
+            valorParcela: valor,
+            parcelasTotal: parc,
+            tipo: document.getElementById('l-tipo').value,
+            mesInicio: mesFiltro ? parseInt(mesFiltro.value) : 3 // Padrão Abril se não achar o filtro
+        };
+
+        db.lan.push(novo);
+        saveCloud();
+        
+        document.getElementById('l-desc').value = '';
+        document.getElementById('l-valor').value = '';
+    }
+
+    // 4. ATUALIZAÇÃO DOS DADOS (CORREÇÃO DE ABRIL E CÁLCULOS)
     function updateUI() {
         const filtro = document.getElementById('filtro-mes');
         const mesSel = filtro ? parseInt(filtro.value) : new Date().getMonth();
-        const mesAtualReal = new Date().getMonth();
 
-        // Filtra o que aparece no mês
+        // Filtra o que aparece no mês selecionado
         const gastosMes = db.lan.filter(l => {
             if (l.tipo === 'receita') return true;
-            const mesesDesdeInicio = mesSel - (l.mesInicio || 0);
-            return mesesDesdeInicio >= 3 && mesesDesdeInicio < (l.parcelasTotal || 1);
+            const mInicio = l.mesInicio !== undefined ? l.mesInicio : 3; // Se não tiver data, assume Abril
+            const mesesDesdeInicio = mesSel - mInicio;
+            return mesesDesdeInicio >= 0 && mesesDesdeInicio < (l.parcelasTotal || 1);
         });
 
         // Cálculos dos Cards
@@ -261,28 +268,30 @@
         const mG = gastosMes.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
         const aG = gastosMes.filter(x => x.user === 'Ambos' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
         
-        // Dívida que diminui conforme muda o mês
+        // Dívida que diminui (O que falta pagar DO MÊS SELECIONADO PARA FRENTE)
         const totalRestante = db.lan.filter(x => x.tipo === 'despesa').reduce((acc, l) => {
-            const pagos = Math.max(0, (mesSel - (l.mesInicio || 0)) + 1);
+            const mInicio = l.mesInicio !== undefined ? l.mesInicio : 3;
+            const pagos = Math.max(0, (mesSel - mInicio) + 1);
             const faltam = Math.max(0, (l.parcelasTotal || 1) - pagos);
             return acc + (l.valorParcela * faltam);
         }, 0);
 
         const totalDividaAbsoluta = db.lan.filter(x => x.tipo === 'despesa').reduce((a,b)=> a + (b.valorParcela * b.parcelasTotal), 0);
 
-        // Preenche os IDs (Certifique-se que esses IDs existem no seu HTML)
+        // Atualiza a tela
         if(document.getElementById('k-j-g')) document.getElementById('k-j-g').innerText = `R$ ${jG.toFixed(2)}`;
         if(document.getElementById('k-m-g')) document.getElementById('k-m-g').innerText = `R$ ${mG.toFixed(2)}`;
         if(document.getElementById('k-total-g')) document.getElementById('k-total-g').innerText = `R$ ${(jG+mG+aG).toFixed(2)}`;
         if(document.getElementById('k-div-f')) document.getElementById('k-div-f').innerText = `R$ ${totalRestante.toFixed(2)}`;
         if(document.getElementById('k-total-d')) document.getElementById('k-total-d').innerText = `R$ ${totalDividaAbsoluta.toFixed(2)}`;
 
-        // Atualiza Extrato
+        // Extrato
         const tbody = document.querySelector('#dash-extrato tbody');
         if (tbody) {
             tbody.innerHTML = '';
             gastosMes.filter(x=>x.tipo === 'despesa').forEach(l => {
-                const numParc = (mesSel - (l.mesInicio || 0)) + 1;
+                const mInicio = l.mesInicio !== undefined ? l.mesInicio : 3;
+                const numParc = (mesSel - mInicio) + 1;
                 tbody.innerHTML += `<tr><td>${l.user}</td><td>${l.desc}</td><td>R$ ${l.valorParcela.toFixed(2)}</td><td>${numParc} de ${l.parcelasTotal}</td></tr>`;
             });
         }
