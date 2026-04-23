@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -13,6 +12,7 @@
             --border: rgba(255,255,255,0.06);
             --accent-green: #00ffa3; --accent-red: #ff4d6d;
             --accent-blue: #3b82f6; --accent-purple: #8b5cf6;
+            --accent-orange: #f59e0b;
             --text: #ffffff; --text-muted: #94a3b8;
             --sidebar-width: 260px;
         }
@@ -34,7 +34,7 @@
         .kpi-label { font-size: 9px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
         .kpi-value { font-family: 'Syne'; font-size: 18px; font-weight: 800; }
         .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; }
-        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+        .charts-row { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 15px; margin-bottom: 15px; }
         
         input, select { background: var(--bg3); border: 1px solid var(--border); padding: 12px; color: #fff; border-radius: 8px; width: 100%; margin-bottom: 10px; font-size: 13px; }
         .btn { padding: 12px; border: none; border-radius: 8px; background: var(--accent-purple); color: #fff; font-weight: 800; cursor: pointer; width: 100%; }
@@ -47,7 +47,7 @@
         th { text-align: left; color: var(--text-muted); padding: 10px; border-bottom: 1px solid var(--border); }
         td { padding: 10px; border-bottom: 1px solid var(--border); }
         
-        #toast { visibility: hidden; background: var(--accent-green); color: #000; padding: 16px; position: fixed; top: 20px; right: 20px; border-radius: 8px; font-weight: bold; z-index: 1000; min-width: 200px; text-align: center; }
+        #toast { visibility: hidden; background: var(--accent-green); color: #000; padding: 16px; position: fixed; top: 20px; right: 20px; border-radius: 8px; font-weight: bold; z-index: 1000; }
         #toast.show { visibility: visible; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -62,6 +62,7 @@
         <div class="nav-item active" onclick="showView('dashboard', this)">📊 Painel Geral</div>
         <div class="nav-item" onclick="showView('lancamentos', this)">↕️ Lançamentos</div>
         <div class="nav-item" onclick="showView('metas_view', this)">🎯 Metas</div>
+        <div class="nav-item" onclick="showView('fgts_view', this)">💰 FGTS</div>
         <div class="nav-item" onclick="showView('projecao_view', this)">📅 Projeção</div>
         <div class="nav-item" onclick="showView('gerenciar', this)">⚙️ Gerenciar Tudo</div>
         
@@ -71,7 +72,7 @@
             <input type="number" id="c-parc" placeholder="Nº parcelas" oninput="calcSimulador()">
             <input type="number" id="c-vparc" placeholder="R$ da parcela" oninput="calcSimulador()">
             <input type="number" id="c-renda" placeholder="Sua Renda R$" oninput="calcSimulador()">
-            <div id="calc-resultado" style="font-size: 10px; background: var(--bg3); padding: 10px; border-radius: 8px; border: 1px solid var(--border); line-height: 1.4; color: var(--text-muted);">Aguardando dados...</div>
+            <div id="calc-resultado" style="font-size: 10px; background: var(--bg3); padding: 10px; border-radius: 8px; border: 1px solid var(--border); line-height: 1.4;">Preencha para simular...</div>
         </div>
     </nav>
 </aside>
@@ -84,21 +85,27 @@
             <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Total Gasto</div><div id="d-total" class="kpi-value">R$ 0</div></div>
             <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Sobra Livre</div><div id="d-saldo" class="kpi-value">R$ 0</div></div>
         </div>
-
-        <div class="charts-row">
-            <div class="card" style="height: 280px;"><canvas id="chartGeral"></canvas></div>
-            <div class="card" style="height: 280px; overflow-y: auto;">
-                <h3 style="font-size: 12px; margin-bottom: 15px; color: var(--accent-purple);">🎯 STATUS DAS METAS</h3>
-                <div id="dash-metas-container"></div>
-            </div>
+        <div class="kpi-grid">
+            <div class="kpi-card" style="border-color: var(--accent-orange);"><div class="kpi-label">FGTS Junior</div><div id="d-fgts-j" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card" style="border-color: var(--accent-orange);"><div class="kpi-label">FGTS Mônica</div><div id="d-fgts-m" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Investimentos</div><div id="d-inv" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Dívidas Futuras</div><div id="d-div-fut" class="kpi-value">R$ 0</div></div>
         </div>
 
-        <div class="card">
-            <h3 style="font-size: 12px; margin-bottom: 15px; color: var(--accent-blue);">🧾 EXTRATO DE PARCELAS</h3>
-            <table>
-                <thead><tr><th>DESCRIÇÃO</th><th>MENSAL</th><th>RESTAM</th><th>TOTAL DEVEDOR</th><th>AÇÕES</th></tr></thead>
-                <tbody id="dash-extrato-corpo"></tbody>
-            </table>
+        <div class="charts-row">
+            <div class="card" style="height: 320px;"><canvas id="chartBarras"></canvas></div>
+            <div class="card" style="height: 320px;"><canvas id="chartRosca"></canvas></div>
+        </div>
+
+        <div class="charts-row">
+            <div class="card" style="height: 250px; overflow-y: auto;">
+                <h3 style="font-size: 11px; color: var(--accent-purple); margin-bottom: 10px;">🎯 STATUS DAS METAS</h3>
+                <div id="dash-metas"></div>
+            </div>
+            <div class="card" style="height: 250px; overflow-y: auto;">
+                <h3 style="font-size: 11px; color: var(--accent-blue); margin-bottom: 10px;">🧾 EXTRATO DE PARCELAS</h3>
+                <table id="dash-extrato-parc"></table>
+            </div>
         </div>
     </section>
 
@@ -107,46 +114,62 @@
             <h3 id="lan-title">Novo Lançamento</h3><br>
             <input type="hidden" id="l-edit-id">
             <select id="l-user"><option value="Junior">Junior</option><option value="Mônica">Mônica</option></select>
-            <input type="text" id="l-desc" placeholder="Ex: Parcela Carro">
+            <input type="text" id="l-desc" placeholder="Ex: Aluguel, Parcela Carro">
             <input type="number" id="l-valor" placeholder="Valor Total R$">
             <input type="number" id="l-parcelas" placeholder="Qtd Parcelas" value="1">
-            <select id="l-tipo"><option value="despesa">Despesa</option><option value="receita">Receita</option></select>
+            <select id="l-tipo"><option value="despesa">Despesa</option><option value="receita">Receita</option><option value="investimento">Investimento</option></select>
             <button class="btn" onclick="addLan()">Salvar Lançamento</button>
         </div>
     </section>
 
     <section id="metas_view" class="view-section">
         <div class="card">
-            <h3 id="meta-title">🎯 Configurar Metas</h3><br>
+            <h3 id="meta-title">🎯 Minhas Metas</h3><br>
             <input type="hidden" id="m-edit-id">
-            <input type="text" id="m-nome" placeholder="Ex: Presente da Manu">
-            <input type="number" id="m-alvo" placeholder="Valor Objetivo">
-            <input type="number" id="m-atual" placeholder="Valor que já tenho">
+            <input type="text" id="m-nome" placeholder="Nome da Meta">
+            <input type="number" id="m-alvo" placeholder="Valor Objetivo R$">
+            <input type="number" id="m-atual" placeholder="Já tenho R$">
             <button class="btn" onclick="addMeta()">Salvar Meta</button>
         </div>
-        <div id="lista-metas-detalhe"></div>
+        <div id="lista-metas"></div>
+    </section>
+
+    <section id="fgts_view" class="view-section">
+        <div class="card">
+            <h3>💰 Gerenciar FGTS</h3><br>
+            <input type="hidden" id="f-edit-id">
+            <select id="f-user"><option value="Junior">Junior</option><option value="Mônica">Mônica</option></select>
+            <input type="text" id="f-desc" placeholder="Ex: Saldo Atual Jan/2024">
+            <input type="number" id="f-valor" placeholder="Valor R$">
+            <button class="btn" onclick="addFGTS()">Registrar FGTS</button>
+        </div>
+        <div class="card">
+            <table>
+                <thead><tr><th>USUÁRIO</th><th>DESCRIÇÃO</th><th>VALOR</th><th>AÇÕES</th></tr></thead>
+                <tbody id="lista-fgts"></tbody>
+            </table>
+        </div>
     </section>
 
     <section id="projecao_view" class="view-section">
         <div class="card">
-            <h3>📅 Projeção de Gastos (Próximos Meses)</h3><br>
+            <h3>📅 Projeção 12 Meses (Fluxo de Caixa)</h3><br>
             <div id="lista-projecao"></div>
         </div>
     </section>
 
     <section id="gerenciar" class="view-section">
         <div class="card">
-            <h3>⚙️ Todos os Registros</h3><br>
+            <h3>⚙️ Histórico Geral</h3><br>
             <div id="lista-gerenciar"></div>
         </div>
     </section>
 </main>
 
 <script>
-    // Substitua pela sua URL real do Firebase
     const FIREBASE_URL = 'https://financeiro-casal-4bc7f-default-rtdb.firebaseio.com/dados.json';
-    let db = { lan: [], metas: [] };
-    let chartG;
+    let db = { lan: [], metas: [], fgts: [] };
+    let chartB, chartR;
 
     async function loadCloud() {
         try {
@@ -155,6 +178,7 @@
             if (data) {
                 db.lan = data.lan || [];
                 db.metas = data.metas || [];
+                db.fgts = data.fgts || [];
             }
             updateUI();
         } catch (e) { console.error(e); }
@@ -166,6 +190,7 @@
         const t = document.getElementById("toast"); t.className = "show"; setTimeout(() => t.className = "", 3000);
     }
 
+    // --- LOGICA DE DADOS ---
     function addLan() {
         const id = document.getElementById('l-edit-id').value;
         const vt = parseFloat(document.getElementById('l-valor').value) || 0;
@@ -198,89 +223,141 @@
         saveCloud();
     }
 
+    function addFGTS() {
+        const id = document.getElementById('f-edit-id').value;
+        const d = {
+            id: id ? parseInt(id) : Date.now(),
+            user: document.getElementById('f-user').value,
+            desc: document.getElementById('f-desc').value,
+            valor: parseFloat(document.getElementById('f-valor').value) || 0
+        };
+        if (id) { const i = db.fgts.findIndex(x => x.id == id); db.fgts[i] = d; } else { db.fgts.push(d); }
+        document.getElementById('f-edit-id').value = '';
+        saveCloud();
+    }
+
+    // --- INTERFACE ---
     function updateUI() {
-        const junD = db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a, b) => a + (b.valorParcela || 0), 0);
-        const monD = db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a, b) => a + (b.valorParcela || 0), 0);
-        const recTotal = db.lan.filter(x => x.tipo === 'receita').reduce((a, b) => a + (b.valorTotal || 0), 0);
-        const gastTotal = junD + monD;
+        // KPIs
+        const jD = db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
+        const mD = db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
+        const rec = db.lan.filter(x => x.tipo === 'receita').reduce((a,b)=>a+b.valorTotal,0);
+        const inv = db.lan.filter(x => x.tipo === 'investimento').reduce((a,b)=>a+b.valorTotal,0);
+        
+        const fJ = db.fgts.filter(x => x.user === 'Junior').reduce((a,b)=>a+b.valor,0);
+        const fM = db.fgts.filter(x => x.user === 'Mônica').reduce((a,b)=>a+b.valor,0);
 
-        document.getElementById('d-eu').innerText = `R$ ${junD.toLocaleString('pt-BR')}`;
-        document.getElementById('d-ela').innerText = `R$ ${monD.toLocaleString('pt-BR')}`;
-        document.getElementById('d-total').innerText = `R$ ${gastTotal.toLocaleString('pt-BR')}`;
-        document.getElementById('d-saldo').innerText = `R$ ${(recTotal - gastTotal).toLocaleString('pt-BR')}`;
-
-        // Metas
-        const dMetas = document.getElementById('dash-metas-container');
-        const lMetas = document.getElementById('lista-metas-detalhe');
-        dMetas.innerHTML = ''; lMetas.innerHTML = '';
-        db.metas.forEach(m => {
-            const perc = m.alvo > 0 ? Math.min((m.atual / m.alvo) * 100, 100) : 0;
-            const html = `<div style="margin-bottom:12px;">
-                <div style="display:flex;justify-content:space-between;font-size:11px;"><b>${m.nome}</b><span>${perc.toFixed(1)}%</span></div>
-                <div class="progress-container"><div class="progress-bar" style="width:${perc}%"></div></div>
-                <div style="display:flex;justify-content:space-between;font-size:9px;opacity:0.6;"><span>Já: R$ ${m.atual.toLocaleString('pt-BR')}</span><span>Falta: R$ ${(m.alvo - m.atual).toLocaleString('pt-BR')}</span></div>
-            </div>`;
-            dMetas.innerHTML += html;
-            lMetas.innerHTML += `<div class="card">${html}
-                <button class="btn-mini" style="background:var(--accent-blue)" onclick="editMeta(${m.id})">Editar</button>
-                <button class="btn-mini" style="background:var(--accent-red)" onclick="delMeta(${m.id})">Apagar</button></div>`;
+        let divFut = 0;
+        db.lan.filter(x => x.tipo === 'despesa').forEach(l => {
+            divFut += (l.valorParcela * (l.parcelasTotal - l.parcelasPagas));
         });
 
-        // Extrato Dashboard
-        const corpo = document.getElementById('dash-extrato-corpo');
-        corpo.innerHTML = '';
-        db.lan.filter(x => x.tipo === 'despesa').forEach(l => {
-            const faltam = l.parcelasTotal - (l.parcelasPagas || 0);
-            if (faltam > 0) {
-                corpo.innerHTML += `<tr>
-                    <td>[${l.user}] ${l.desc}</td>
-                    <td>R$ ${l.valorParcela.toLocaleString('pt-BR')}</td>
-                    <td>${faltam}x</td>
-                    <td style="color:var(--accent-red);font-weight:bold;">R$ ${(l.valorParcela * faltam).toLocaleString('pt-BR')}</td>
-                    <td>
-                        <button class="btn-mini" style="background:var(--accent-blue)" onclick="editLan(${l.id})">✏️</button>
-                        <button class="btn-mini" style="background:var(--accent-red)" onclick="delLan(${l.id})">🗑️</button>
-                    </td>
-                </tr>`;
-            }
+        document.getElementById('d-eu').innerText = `R$ ${jD.toLocaleString('pt-BR')}`;
+        document.getElementById('d-ela').innerText = `R$ ${mD.toLocaleString('pt-BR')}`;
+        document.getElementById('d-total').innerText = `R$ ${(jD+mD).toLocaleString('pt-BR')}`;
+        document.getElementById('d-saldo').innerText = `R$ ${(rec - (jD+mD)).toLocaleString('pt-BR')}`;
+        document.getElementById('d-fgts-j').innerText = `R$ ${fJ.toLocaleString('pt-BR')}`;
+        document.getElementById('d-fgts-m').innerText = `R$ ${fM.toLocaleString('pt-BR')}`;
+        document.getElementById('d-inv').innerText = `R$ ${inv.toLocaleString('pt-BR')}`;
+        document.getElementById('d-div-fut').innerText = `R$ ${divFut.toLocaleString('pt-BR')}`;
+
+        // Metas Dash
+        const dM = document.getElementById('dash-metas'); dM.innerHTML = '';
+        const lM = document.getElementById('lista-metas'); lM.innerHTML = '';
+        db.metas.forEach(m => {
+            const perc = m.alvo > 0 ? Math.min((m.atual/m.alvo)*100, 100) : 0;
+            const html = `<div style="margin-bottom:15px;"><div style="display:flex;justify-content:space-between;font-size:10px;"><b>${m.nome}</b> <span>${perc.toFixed(1)}%</span></div>
+                <div class="progress-container"><div class="progress-bar" style="width:${perc}%"></div></div></div>`;
+            dM.innerHTML += html;
+            lM.innerHTML += `<div class="card">${html}
+                <button class="btn-mini" style="background:var(--accent-blue)" onclick="editMeta(${m.id})">Editar</button>
+                <button class="btn-mini" style="background:var(--accent-red)" onclick="delMeta(${m.id})">X</button></div>`;
+        });
+
+        // Extrato Dash
+        const dE = document.getElementById('dash-extrato-parc');
+        dE.innerHTML = '<tr><th>DESC</th><th>VALOR</th><th>FALTAM</th></tr>';
+        db.lan.filter(x => x.tipo === 'despesa' && x.parcelasTotal > 1).forEach(l => {
+            dE.innerHTML += `<tr><td>${l.desc}</td><td>R$ ${l.valorParcela.toLocaleString('pt-BR')}</td><td>${l.parcelasTotal - l.parcelasPagas}x</td></tr>`;
+        });
+
+        // FGTS Lista
+        const lF = document.getElementById('lista-fgts'); lF.innerHTML = '';
+        db.fgts.forEach(f => {
+            lF.innerHTML += `<tr><td>${f.user}</td><td>${f.desc}</td><td>R$ ${f.valor.toLocaleString('pt-BR')}</td>
+                <td><button class="btn-mini" style="background:var(--accent-blue)" onclick="editFGTS(${f.id})">✏️</button>
+                <button class="btn-mini" style="background:var(--accent-red)" onclick="delFGTS(${f.id})">🗑️</button></td></tr>`;
         });
 
         // Gerenciar Tudo
-        const g = document.getElementById('lista-gerenciar');
-        g.innerHTML = '';
+        const lG = document.getElementById('lista-gerenciar'); lG.innerHTML = '';
         db.lan.forEach(l => {
-            g.innerHTML += `<div style="display:flex;justify-content:space-between;padding:12px;border-bottom:1px solid var(--border);">
-                <span>[${l.user}] ${l.desc} - R$ ${l.valorTotal.toLocaleString('pt-BR')}</span>
-                <div>
-                    <button class="btn-mini" style="background:var(--accent-blue)" onclick="editLan(${l.id})">Editar</button>
-                    <button class="btn-mini" style="background:var(--accent-red)" onclick="delLan(${l.id})">Apagar</button>
-                </div>
-            </div>`;
+            lG.innerHTML += `<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid var(--border);font-size:12px;">
+                <span>[${l.tipo.toUpperCase()}] ${l.desc} - R$ ${l.valorTotal.toLocaleString('pt-BR')}</span>
+                <div><button class="btn-mini" style="background:var(--accent-blue)" onclick="editLan(${l.id})">✏️</button>
+                <button class="btn-mini" style="background:var(--accent-red)" onclick="delLan(${l.id})">🗑️</button></div></div>`;
         });
 
-        // Gráfico
-        if (chartG) chartG.destroy();
-        chartG = new Chart(document.getElementById('chartGeral'), {
+        renderCharts(rec, (jD+mD), jD, mD);
+        renderProjecao(rec);
+    }
+
+    function renderCharts(rec, gast, jD, mD) {
+        if(chartB) chartB.destroy();
+        chartB = new Chart(document.getElementById('chartBarras'), {
             type: 'bar',
-            data: { labels: ['Ganhos', 'Gastos'], datasets: [{ data: [recTotal, gastTotal], backgroundColor: ['#00ffa3', '#ff4d6d'] }] },
+            data: { labels: ['Ganhos', 'Gastos'], datasets: [{ data: [rec, gast], backgroundColor: ['#00ffa3', '#ff4d6d'] }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
-        
-        renderProjecao(recTotal);
+
+        if(chartR) chartR.destroy();
+        chartR = new Chart(document.getElementById('chartRosca'), {
+            type: 'doughnut',
+            data: { labels: ['Junior', 'Mônica'], datasets: [{ data: [jD, mD], backgroundColor: ['#3b82f6', '#8b5cf6'], borderWeight: 0 }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
     }
 
     function renderProjecao(rec) {
         const c = document.getElementById('lista-projecao'); c.innerHTML = '';
         for (let i = 1; i <= 12; i++) {
-            let gast = 0;
-            db.lan.filter(x => x.tipo === 'despesa').forEach(l => { if (i <= (l.parcelasTotal - l.parcelasPagas)) gast += l.valorParcela; });
-            const saldo = rec - gast;
-            c.innerHTML += `<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid var(--border); font-size:13px;">
-                <span>Mês +${i}</span>
-                <span style="color:${saldo>=0?'var(--accent-green)':'var(--accent-red)'}"><b>R$ ${saldo.toLocaleString('pt-BR')}</b></span>
-            </div>`;
+            let gastM = 0;
+            db.lan.filter(x => x.tipo === 'despesa').forEach(l => {
+                if (i <= (l.parcelasTotal - l.parcelasPagas)) gastM += l.valorParcela;
+            });
+            const sobra = rec - gastM;
+            c.innerHTML += `<div style="display:flex;justify-content:space-between;padding:8px;border-bottom:1px solid var(--border);font-size:12px;">
+                <span>Mês +${i}</span><span style="color:${sobra>=0?'var(--accent-green)':'var(--accent-red)'}">R$ ${sobra.toLocaleString('pt-BR')}</span></div>`;
         }
     }
+
+    // --- AUXILIARES ---
+    function editLan(id) { 
+        const l = db.lan.find(x => x.id == id); showView('lancamentos');
+        document.getElementById('l-edit-id').value = l.id;
+        document.getElementById('l-desc').value = l.desc;
+        document.getElementById('l-valor').value = l.valorTotal;
+        document.getElementById('l-parcelas').value = l.parcelasTotal;
+        document.getElementById('l-tipo').value = l.tipo;
+    }
+    function delLan(id) { if(confirm("Excluir?")) { db.lan = db.lan.filter(x => x.id != id); saveCloud(); } }
+
+    function editMeta(id) {
+        const m = db.metas.find(x => x.id == id); showView('metas_view');
+        document.getElementById('m-edit-id').value = m.id;
+        document.getElementById('m-nome').value = m.nome;
+        document.getElementById('m-alvo').value = m.alvo;
+        document.getElementById('m-atual').value = m.atual;
+    }
+    function delMeta(id) { if(confirm("Excluir meta?")) { db.metas = db.metas.filter(x => x.id != id); saveCloud(); } }
+
+    function editFGTS(id) {
+        const f = db.fgts.find(x => x.id == id); showView('fgts_view');
+        document.getElementById('f-edit-id').value = f.id;
+        document.getElementById('f-desc').value = f.desc;
+        document.getElementById('f-valor').value = f.valor;
+    }
+    function delFGTS(id) { if(confirm("Excluir?")) { db.fgts = db.fgts.filter(x => x.id != id); saveCloud(); } }
 
     function calcSimulador() {
         const vV = parseFloat(document.getElementById('c-vista').value) || 0;
@@ -289,42 +366,16 @@
         const renda = parseFloat(document.getElementById('c-renda').value) || 0;
         const res = document.getElementById('calc-resultado');
         if(vV && nP && vP) {
-            const tot = nP * vP;
-            const j = tot - vV;
-            let h = "";
-            if(renda > 0) h = `<br>⏱️ <b>${(tot / (renda / 220)).toFixed(0)} horas</b> de trabalho.`;
+            const tot = nP * vP; const j = tot - vV;
+            let h = renda > 0 ? `<br>⏱️ <b>${(tot/(renda/220)).toFixed(0)}h</b> de trabalho.` : "";
             res.innerHTML = `Total: R$ ${tot.toLocaleString('pt-BR')}<br>Juros: R$ ${j.toLocaleString('pt-BR')} (${((j/vV)*100).toFixed(1)}%)${h}`;
-            res.style.color = "#fff";
         }
     }
-
-    function editLan(id) { 
-        const l = db.lan.find(x => x.id == id); 
-        showView('lancamentos');
-        document.getElementById('l-edit-id').value = l.id;
-        document.getElementById('l-user').value = l.user;
-        document.getElementById('l-desc').value = l.desc;
-        document.getElementById('l-valor').value = l.valorTotal;
-        document.getElementById('l-parcelas').value = l.parcelasTotal;
-        document.getElementById('l-tipo').value = l.tipo;
-    }
-    
-    function editMeta(id) {
-        const m = db.metas.find(x => x.id == id);
-        showView('metas_view');
-        document.getElementById('m-edit-id').value = m.id;
-        document.getElementById('m-nome').value = m.nome;
-        document.getElementById('m-alvo').value = m.alvo;
-        document.getElementById('m-atual').value = m.atual;
-    }
-
-    function delLan(id) { if (confirm("Excluir registro?")) { db.lan = db.lan.filter(x => x.id != id); saveCloud(); } }
-    function delMeta(id) { if (confirm("Excluir meta?")) { db.metas = db.metas.filter(x => x.id != id); saveCloud(); } }
 
     function showView(id, el) {
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if (el) {
+        if(el) {
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             el.classList.add('active');
         }
