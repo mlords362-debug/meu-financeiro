@@ -250,59 +250,78 @@
         }
     }
 
-    function updateUI() {
-        const jG = db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
-        const mG = db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
-        const aG = db.lan.filter(x => x.user === 'Ambos' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
-        const jR = db.lan.filter(x => x.user === 'Junior' && x.tipo === 'receita').reduce((a,b)=>a+b.valorParcela,0);
-        const mR = db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'receita').reduce((a,b)=>a+b.valorParcela,0);
+  function updateUI() {
+    // Cálculos Básicos de Gastos Mensais
+    const jG = db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
+    const mG = db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
+    const aG = db.lan.filter(x => x.user === 'Ambos' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
+    
+    // Cálculos de Receita (Salário)
+    const jR = db.lan.filter(x => x.user === 'Junior' && x.tipo === 'receita').reduce((a,b)=>a+b.valorParcela,0);
+    const mR = db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'receita').reduce((a,b)=>a+b.valorParcela,0);
 
-        document.getElementById('k-j-g').innerText = `R$ ${jG.toFixed(2)}`;
-        document.getElementById('k-m-g').innerText = `R$ ${mG.toFixed(2)}`;
-        document.getElementById('k-a-g').innerText = `R$ ${aG.toFixed(2)}`;
-        document.getElementById('k-total-g').innerText = `R$ ${(jG+mG+aG).toFixed(2)}`;
-        document.getElementById('k-j-s').innerText = `R$ ${(jR - jG - (aG/2)).toFixed(2)}`;
-        document.getElementById('k-m-s').innerText = `R$ ${(mR - mG - (aG/2)).toFixed(2)}`;
+    // --- NOVA LÓGICA DE DÍVIDA TOTAL E FUTURA ---
+    // Total Dívida: Soma de (Parcela * Qtd de Parcelas) de todas as despesas
+    const totalDividaGeral = db.lan.filter(x => x.tipo === 'despesa').reduce((a,b) => a + (b.valorParcela * b.parcelasTotal), 0);
+    
+    // Dívidas Futuras: O que falta pagar (Total - o que já foi pago este mês)
+    const dividasFuturas = totalDividaGeral - (jG + mG + aG);
 
-        // FGTS e INVEST
-        const fJ = db.fgts.filter(x => x.user === 'Junior').reduce((a,b)=>a+b.valor,0);
-        const fM = db.fgts.filter(x => x.user === 'Mônica').reduce((a,b)=>a+b.valor,0);
-        const iJ = db.invest.filter(x => x.user === 'Junior').reduce((a,b)=>a+b.valor,0);
-        const iM = db.invest.filter(x => x.user === 'Mônica').reduce((a,b)=>a+b.valor,0);
-        document.getElementById('k-j-fgts').innerText = `R$ ${fJ}`;
-        document.getElementById('k-m-fgts').innerText = `R$ ${fM}`;
-        document.getElementById('k-j-inv').innerText = `R$ ${iJ}`;
-        document.getElementById('k-m-inv').innerText = `R$ ${iM}`;
+    // Atualização dos Cards (KPIs)
+    document.getElementById('k-j-g').innerText = `R$ ${jG.toFixed(2)}`;
+    document.getElementById('k-m-g').innerText = `R$ ${mG.toFixed(2)}`;
+    document.getElementById('k-a-g').innerText = `R$ ${aG.toFixed(2)}`;
+    document.getElementById('k-total-g').innerText = `R$ ${(jG+mG+aG).toFixed(2)}`;
+    
+    document.getElementById('k-j-s').innerText = `R$ ${(jR - jG - (aG/2)).toFixed(2)}`;
+    document.getElementById('k-m-s').innerText = `R$ ${(mR - mG - (aG/2)).toFixed(2)}`;
+    
+    // Atualizando os novos campos que você pediu
+    document.getElementById('k-div-f').innerText = `R$ ${dividasFuturas.toFixed(2)}`;
+    document.getElementById('k-total-d').innerText = `R$ ${totalDividaGeral.toFixed(2)}`;
 
-        // Metas
-        const dm = document.getElementById('dash-metas'); dm.innerHTML = '';
-        db.metas.forEach(m => {
-            const p = Math.min((m.atual/m.alvo)*100, 100) || 0;
-            dm.innerHTML += `<div class="meta-card"><strong>${m.nome}</strong><div class="progress-bg"><div class="progress-fill" style="width:${p}%"></div></div>
-            <div style="display:flex;justify-content:space-between;font-size:10px;"><span>Tenho: R$ ${m.atual}</span><span>Falta: R$ ${m.alvo-m.atual}</span></div></div>`;
-        });
+    // FGTS e Investimentos
+    const fJ = db.fgts.filter(x => x.user === 'Junior').reduce((a,b)=>a+b.valor,0);
+    const fM = db.fgts.filter(x => x.user === 'Mônica').reduce((a,b)=>a+b.valor,0);
+    const iJ = db.invest.filter(x => x.user === 'Junior').reduce((a,b)=>a+b.valor,0);
+    const iM = db.invest.filter(x => x.user === 'Mônica').reduce((a,b)=>a+b.valor,0);
+    
+    document.getElementById('k-j-fgts').innerText = `R$ ${fJ.toFixed(2)}`;
+    document.getElementById('k-m-fgts').innerText = `R$ ${fM.toFixed(2)}`;
+    document.getElementById('k-j-inv').innerText = `R$ ${iJ.toFixed(2)}`;
+    document.getElementById('k-m-inv').innerText = `R$ ${iM.toFixed(2)}`;
 
-        // Gráfico
-        if(myChart) myChart.destroy();
-        myChart = new Chart(document.getElementById('chartRosca'), {
-            type: 'doughnut',
-            data: { labels: ['Junior', 'Mônica', 'Ambos'], datasets: [{ data: [jG, mG, aG], backgroundColor: ['#3b82f6', '#8b5cf6', '#f59e0b'], borderWidth: 0 }] }
-        });
+    // Renderizar Tabelas
+    renderizarTabelasComTotais();
+    
+    // Gráfico
+    if(myChart) myChart.destroy();
+    myChart = new Chart(document.getElementById('chartRosca'), {
+        type: 'doughnut',
+        data: { labels: ['Junior', 'Mônica', 'Ambos'], datasets: [{ data: [jG, mG, aG], backgroundColor: ['#3b82f6', '#8b5cf6', '#f59e0b'], borderWidth: 0 }] }
+    });
+}
 
-        // Tabelas
-        renderTable('lan-tabela', db.lan);
-        renderTable('fgts-tabela', db.fgts);
-        renderTable('invest-tabela', db.invest);
-        renderTable('gerenciar-tabela', [...db.lan, ...db.metas, ...db.fgts, ...db.invest]);
-    }
+// Função auxiliar para mostrar o valor total nas tabelas
+function renderizarTabelasComTotais() {
+    const tDash = document.querySelector('#dash-extrato tbody');
+    const tLan = document.querySelector('#lan-tabela tbody');
+    tDash.innerHTML = ''; tLan.innerHTML = '';
 
-    function renderTable(id, data) {
-        const t = document.getElementById(id).querySelector('tbody');
-        t.innerHTML = '';
-        data.forEach(item => {
-            t.innerHTML += `<tr><td>${item.desc || item.nome}</td><td>R$ ${item.valorParcela || item.valor || 0}</td><td>${item.parcelasTotal || '-'}</td><td><button class="btn-del" onclick="deleteItem('${id}', ${item.id})">🗑️</button></td></tr>`;
-        });
-    }
+    db.lan.forEach(l => {
+        const valorTotalCompra = l.valorParcela * l.parcelasTotal;
+        const linha = `<tr>
+            <td>${l.user}</td>
+            <td>${l.desc}</td>
+            <td>R$ ${l.valorParcela.toFixed(2)} (Total: R$ ${valorTotalCompra.toFixed(2)})</td>
+            <td>${l.parcelasTotal}x</td>
+            <td><button class="btn-del" onclick="deleteItem('lan', ${l.id})">🗑️</button></td>
+        </tr>`;
+        
+        if(l.tipo === 'despesa') tDash.innerHTML += linha;
+        tLan.innerHTML += linha;
+    });
+}
 
     function deleteItem(tableId, id) {
         if(!confirm("Excluir?")) return;
