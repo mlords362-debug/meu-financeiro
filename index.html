@@ -57,14 +57,12 @@
         
         <div style="padding: 20px 25px 5px 25px; font-size: 10px; font-weight: 800; color: var(--accent-purple); border-top: 1px solid var(--border); margin-top: 10px;">🧐 SUPER SIMULADOR</div>
 <div style="padding: 10px 25px;">
-    <input type="number" id="c-vista" placeholder="Preço à vista R$" oninput="calcSimulador()" style="margin-bottom: 5px; font-size: 11px;">
-    <input type="number" id="c-parc" placeholder="Nº parcelas" oninput="calcSimulador()" style="margin-bottom: 5px; font-size: 11px;">
-    <input type="number" id="c-vparc" placeholder="R$ da parcela" oninput="calcSimulador()" style="margin-bottom: 5px; font-size: 11px;">
-    <input type="number" id="c-renda" placeholder="Sua renda mensal R$" oninput="calcSimulador()" style="margin-bottom: 5px; font-size: 11px;">
+    <input type="number" id="c-vista" placeholder="Preço à vista R$" oninput="calcSimulador()">
+    <input type="number" id="c-parc" placeholder="Nº parcelas" oninput="calcSimulador()">
+    <input type="number" id="c-vparc" placeholder="R$ da parcela" oninput="calcSimulador()">
+    <input type="number" id="c-renda" placeholder="Sua Renda Mensal R$" oninput="calcSimulador()">
     
-    <div id="calc-resultado" style="font-size:10px; background: var(--bg3); padding: 10px; border-radius: 8px; border: 1px solid var(--border); line-height: 1.4;">
-        Aguardando dados...
-    </div>
+    <div id="calc-resultado">Aguardando dados...</div>
 </div>
 </aside>
 <main class="main">
@@ -335,20 +333,15 @@
         const jurosReais = totalParcelado - vVista;
         const porcentagemJuros = (jurosReais / vVista) * 100;
         
-        // Cálculo de Horas de Trabalho (Base 160h mensais)
+        // Cálculo baseado nas suas 220 horas mensais
         let horasTrabalho = "";
-        if(renda > 0) {
-            const valorHora = renda / 160;
-            const horasNecessarias = totalParcelado / valorHora;
-            horasTrabalho = `<br>⏱️ <b>${horasTrabalho.toFixed(0)}h</b> de trabalho para pagar.`;
-            
-            if (renda > 0) {
-               const h = totalParcelado / (renda / 160);
-               horasTrabalho = `<br>⏱️ Vale <b>${h.toFixed(1)} horas</b> de trabalho.`;
-            }
+        if (renda > 0) {
+            const valorHora = renda / 220; // Ajustado para 220h
+            const hNecessarias = totalParcelado / valorHora;
+            horasTrabalho = `<br>⏱️ Vale <b>${hNecessarias.toFixed(1)} horas</b> de trabalho.`;
         }
 
-        // Alerta de Impacto na Sobra (Usando os dados reais do DB)
+        // Alerta de Impacto na Sobra (Puxando do seu Dashboard)
         const recTotal = db.lan.filter(x => x.tipo === 'receita').reduce((a,b)=>a+b.valorTotal, 0);
         const gastMes = db.lan.filter(x => x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0);
         const sobraLivre = recTotal - gastMes;
@@ -356,9 +349,9 @@
         let alerta = "";
         if(sobraLivre > 0) {
             const impacto = (vParc / sobraLivre) * 100;
-            if(impacto < 15) alerta = "<br><span style='color:var(--accent-green)'>✅ Impacto leve na sobra.</span>";
-            else if(impacto < 30) alerta = "<br><span style='color:#f59e0b'>⚠️ Impacto moderado.</span>";
-            else alerta = "<br><span style='color:var(--accent-red)'>❌ Impacto CRÍTICO na sobra!</span>";
+            if(impacto < 15) alerta = "<br><span style='color:var(--accent-green)'>✅ Seguro para o mês.</span>";
+            else if(impacto < 40) alerta = "<br><span style='color:#f59e0b'>⚠️ Aperta o orçamento.</span>";
+            else alerta = "<br><span style='color:var(--accent-red)'>❌ Risco de ficar no vermelho!</span>";
         }
 
         resDiv.innerHTML = `
@@ -368,7 +361,7 @@
             ${alerta}
         `;
     } else {
-        resDiv.innerText = "Preencha os campos acima...";
+        resDiv.innerText = "Preencha os campos...";
     }
 }
 </script>
