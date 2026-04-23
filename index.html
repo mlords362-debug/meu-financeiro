@@ -17,35 +17,46 @@
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+        
+        /* Sidebar */
         .sidebar { width: var(--sidebar-width); background: var(--bg2); border-right: 1px solid var(--border); position: fixed; height: 100vh; z-index: 100; overflow-y: auto; }
         .logo { padding: 30px; font-family: 'Syne'; font-weight: 800; font-size: 16px; border-bottom: 1px solid var(--border); text-align: center; }
         .logo span { color: var(--accent-purple); font-size: 9px; display: block; opacity: 0.7; letter-spacing: 1px; }
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 25px; cursor: pointer; color: var(--text-muted); font-size: 13px; font-weight: 600; transition: 0.3s; }
         .nav-item.active { background: linear-gradient(to right, rgba(139,92,246,0.1), transparent); color: #fff; border-left: 4px solid var(--accent-purple); }
+        
+        /* Main */
         .main { flex: 1; margin-left: var(--sidebar-width); padding: 30px; width: calc(100% - var(--sidebar-width)); }
         .view-section { display: none; }
         .view-section.active { display: block; animation: fadeIn 0.4s ease; }
+        
+        /* Componentes */
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 15px; }
         .kpi-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 15px; border-left: 3px solid var(--accent-blue); }
         .kpi-label { font-size: 9px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
         .kpi-value { font-family: 'Syne'; font-size: 18px; font-weight: 800; }
         .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; }
         .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-        input, select { background: var(--bg3); border: 1px solid var(--border); padding: 12px; color: #fff; border-radius: 8px; width: 100%; margin-bottom: 10px; }
+        
+        input, select { background: var(--bg3); border: 1px solid var(--border); padding: 12px; color: #fff; border-radius: 8px; width: 100%; margin-bottom: 10px; font-size: 13px; }
         .btn { padding: 12px; border: none; border-radius: 8px; background: var(--accent-purple); color: #fff; font-weight: 800; cursor: pointer; width: 100%; }
+        .btn-mini { padding: 5px 10px; font-size: 10px; border-radius: 4px; border: none; color: #fff; cursor: pointer; margin-left: 5px; }
+        
         .progress-container { background: var(--bg3); border-radius: 10px; height: 8px; margin: 8px 0; overflow: hidden; }
-        .progress-bar { background: var(--accent-green); height: 100%; transition: 0.5s; }
+        .progress-bar { background: linear-gradient(90deg, var(--accent-purple), var(--accent-green)); height: 100%; transition: 0.5s; }
+        
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
         th { text-align: left; color: var(--text-muted); padding: 10px; border-bottom: 1px solid var(--border); }
         td { padding: 10px; border-bottom: 1px solid var(--border); }
+        
         #toast { visibility: hidden; background: var(--accent-green); color: #000; padding: 16px; position: fixed; top: 20px; right: 20px; border-radius: 8px; font-weight: bold; z-index: 1000; }
         #toast.show { visibility: visible; animation: fadeIn 0.5s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div id="toast">✅ Sincronizado!</div>
+<div id="toast">✅ Sincronizado com a Nuvem!</div>
 
 <aside class="sidebar">
     <div class="logo">FINANCEIRO PRO<span>JUNIOR & MÔNICA</span></div>
@@ -54,7 +65,16 @@
         <div class="nav-item" onclick="showView('lancamentos', this)">↕️ Lançamentos</div>
         <div class="nav-item" onclick="showView('metas_view', this)">🎯 Metas</div>
         <div class="nav-item" onclick="showView('projecao_view', this)">📅 Projeção</div>
-        <div class="nav-item" onclick="showView('gerenciar', this)">⚙️ Gerenciar</div>
+        <div class="nav-item" onclick="showView('gerenciar', this)">⚙️ Gerenciar Tudo</div>
+        
+        <div style="padding: 20px 25px 5px 25px; font-size: 10px; font-weight: 800; color: var(--accent-purple); border-top: 1px solid var(--border); margin-top: 10px;">🧐 SUPER SIMULADOR</div>
+        <div style="padding: 10px 25px;">
+            <input type="number" id="c-vista" placeholder="Preço à vista R$" oninput="calcSimulador()">
+            <input type="number" id="c-parc" placeholder="Nº parcelas" oninput="calcSimulador()">
+            <input type="number" id="c-vparc" placeholder="R$ da parcela" oninput="calcSimulador()">
+            <input type="number" id="c-renda" placeholder="Sua Renda R$" oninput="calcSimulador()">
+            <div id="calc-resultado" style="font-size: 10px; background: var(--bg3); padding: 10px; border-radius: 8px; border: 1px solid var(--border); line-height: 1.4;">Aguardando dados...</div>
+        </div>
     </nav>
 </aside>
 
@@ -70,19 +90,17 @@
         <div class="charts-row">
             <div class="card" style="height: 280px;"><canvas id="chartGeral"></canvas></div>
             <div class="card" style="height: 280px; overflow-y: auto;">
-                <h3 style="font-size: 12px; margin-bottom: 10px; color: var(--accent-purple);">🎯 STATUS DAS METAS</h3>
+                <h3 style="font-size: 12px; font-family: 'Syne'; margin-bottom: 15px; color: var(--accent-purple);">🎯 STATUS DAS METAS</h3>
                 <div id="dash-metas-container"></div>
             </div>
         </div>
 
         <div class="card">
-            <h3 style="font-size: 12px; margin-bottom: 15px; color: var(--accent-blue);">🧾 CONTAS PARCELADAS (EXTRATO)</h3>
-            <div id="container-extrato">
-                <table>
-                    <thead><tr><th>DESCRIÇÃO</th><th>MENSAL</th><th>RESTAM</th><th>TOTAL DEVEDOR</th></tr></thead>
-                    <tbody id="dash-extrato-corpo"></tbody>
-                </table>
-            </div>
+            <h3 style="font-size: 12px; font-family: 'Syne'; margin-bottom: 15px; color: var(--accent-blue);">🧾 EXTRATO DE CONTAS PARCELADAS</h3>
+            <table>
+                <thead><tr><th>DESCRIÇÃO</th><th>MENSAL</th><th>RESTAM</th><th>TOTAL DEVEDOR</th><th>AÇÕES</th></tr></thead>
+                <tbody id="dash-extrato-corpo"></tbody>
+            </table>
         </div>
     </section>
 
@@ -91,7 +109,7 @@
             <h3 id="lan-title">Novo Lançamento</h3><br>
             <input type="hidden" id="l-edit-id">
             <select id="l-user"><option value="Junior">Junior</option><option value="Mônica">Mônica</option></select>
-            <input type="text" id="l-desc" placeholder="Descrição">
+            <input type="text" id="l-desc" placeholder="Ex: Parcela Carro">
             <input type="number" id="l-valor" placeholder="Valor Total R$">
             <input type="number" id="l-parcelas" placeholder="Qtd Parcelas" value="1">
             <select id="l-tipo"><option value="despesa">Despesa</option><option value="receita">Receita</option></select>
@@ -101,22 +119,28 @@
 
     <section id="metas_view" class="view-section">
         <div class="card">
-            <h3>🎯 Configurar Metas</h3><br>
+            <h3 id="meta-title">🎯 Configurar Metas</h3><br>
             <input type="hidden" id="m-edit-id">
-            <input type="text" id="m-nome" placeholder="Nome da Meta">
-            <input type="number" id="m-alvo" placeholder="Valor Alvo">
-            <input type="number" id="m-atual" placeholder="Já tenho">
+            <input type="text" id="m-nome" placeholder="Nome da Meta (Ex: Presente Manu)">
+            <input type="number" id="m-alvo" placeholder="Valor Objetivo R$">
+            <input type="number" id="m-atual" placeholder="Já tenho R$">
             <button class="btn" onclick="addMeta()">Salvar Meta</button>
         </div>
         <div id="lista-metas-detalhe"></div>
     </section>
 
     <section id="projecao_view" class="view-section">
-        <div class="card"><h3>📅 Projeção Mensal</h3><br><div id="lista-projecao"></div></div>
+        <div class="card">
+            <h3>📅 Projeção de Fluxo de Caixa (12 Meses)</h3><br>
+            <div id="lista-projecao"></div>
+        </div>
     </section>
 
     <section id="gerenciar" class="view-section">
-        <div class="card"><h3>⚙️ Gerenciar Dados</h3><br><div id="lista-gerenciar"></div></div>
+        <div class="card">
+            <h3>⚙️ Todos os Lançamentos</h3><br>
+            <div id="lista-gerenciar"></div>
+        </div>
     </section>
 </main>
 
@@ -132,8 +156,6 @@
             if (data) {
                 db.lan = data.lan || [];
                 db.metas = data.metas || [];
-                db.inv = data.inv || [];
-                db.fgts_lan = data.fgts_lan || [];
             }
             updateUI();
         } catch (e) { console.error("Erro ao carregar:", e); }
@@ -145,6 +167,7 @@
         const t = document.getElementById("toast"); t.className = "show"; setTimeout(() => t.className = "", 3000);
     }
 
+    // --- FUNÇÕES DE ADIÇÃO E EDIÇÃO ---
     function addLan() {
         const id = document.getElementById('l-edit-id').value;
         const vt = parseFloat(document.getElementById('l-valor').value) || 0;
@@ -161,6 +184,7 @@
         };
         if (id) { const i = db.lan.findIndex(x => x.id == id); db.lan[i] = d; } else { db.lan.push(d); }
         document.getElementById('l-edit-id').value = '';
+        document.getElementById('lan-title').innerText = "Novo Lançamento";
         saveCloud();
     }
 
@@ -174,11 +198,12 @@
         };
         if (id) { const i = db.metas.findIndex(x => x.id == id); db.metas[i] = d; } else { db.metas.push(d); }
         document.getElementById('m-edit-id').value = '';
+        document.getElementById('meta-title').innerText = "🎯 Configurar Metas";
         saveCloud();
     }
 
+    // --- INTERFACE ---
     function updateUI() {
-        // Cálculos
         const junD = db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a, b) => a + (b.valorParcela || 0), 0);
         const monD = db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a, b) => a + (b.valorParcela || 0), 0);
         const recTotal = db.lan.filter(x => x.tipo === 'receita').reduce((a, b) => a + (b.valorTotal || 0), 0);
@@ -189,72 +214,121 @@
         document.getElementById('d-total').innerText = `R$ ${gastTotal.toLocaleString('pt-BR')}`;
         document.getElementById('d-saldo').innerText = `R$ ${(recTotal - gastTotal).toLocaleString('pt-BR')}`;
 
-        // Render Metas (Dash e Aba)
+        // Metas no Dash e Aba
         const dMetas = document.getElementById('dash-metas-container');
         const lMetas = document.getElementById('lista-metas-detalhe');
         dMetas.innerHTML = ''; lMetas.innerHTML = '';
         db.metas.forEach(m => {
             const perc = m.alvo > 0 ? Math.min((m.atual / m.alvo) * 100, 100) : 0;
-            const html = `<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:11px;"><b>${m.nome}</b><span>${perc.toFixed(1)}%</span></div>
-                <div class="progress-container"><div class="progress-bar" style="width:${perc}%"></div></div></div>`;
+            const html = `<div style="margin-bottom:12px;">
+                <div style="display:flex;justify-content:space-between;font-size:11px;"><b>${m.nome}</b><span>${perc.toFixed(1)}%</span></div>
+                <div class="progress-container"><div class="progress-bar" style="width:${perc}%"></div></div>
+                <div style="display:flex;justify-content:space-between;font-size:9px;opacity:0.6;"><span>Já: R$ ${m.atual.toLocaleString('pt-BR')}</span><span>Alvo: R$ ${m.alvo.toLocaleString('pt-BR')}</span></div>
+            </div>`;
             dMetas.innerHTML += html;
-            lMetas.innerHTML += `<div class="card">${html}<button class="btn" style="width:auto;padding:5px 10px;" onclick="editMeta(${m.id})">Editar</button></div>`;
+            lMetas.innerHTML += `<div class="card">${html}
+                <button class="btn-mini" style="background:var(--accent-blue)" onclick="editMeta(${m.id})">Editar</button>
+                <button class="btn-mini" style="background:var(--accent-red)" onclick="delMeta(${m.id})">Apagar</button></div>`;
         });
 
-        // Extrato Parcelado
+        // Extrato Parcelado no Dashboard
         const corpo = document.getElementById('dash-extrato-corpo');
         corpo.innerHTML = '';
         db.lan.filter(x => x.tipo === 'despesa').forEach(l => {
             const faltam = l.parcelasTotal - (l.parcelasPagas || 0);
             if (faltam > 0) {
-                corpo.innerHTML += `<tr><td>[${l.user}] ${l.desc}</td><td>R$ ${l.valorParcela.toLocaleString('pt-BR')}</td><td>${faltam}x</td><td>R$ ${(l.valorParcela * faltam).toLocaleString('pt-BR')}</td></tr>`;
+                corpo.innerHTML += `<tr>
+                    <td>[${l.user}] ${l.desc}</td>
+                    <td>R$ ${l.valorParcela.toLocaleString('pt-BR')}</td>
+                    <td>${faltam}x</td>
+                    <td style="color:var(--accent-red);font-weight:bold;">R$ ${(l.valorParcela * faltam).toLocaleString('pt-BR')}</td>
+                    <td>
+                        <button class="btn-mini" style="background:var(--accent-blue)" onclick="editLan(${l.id})">✏️</button>
+                        <button class="btn-mini" style="background:var(--accent-red)" onclick="delLan(${l.id})">🗑️</button>
+                    </td>
+                </tr>`;
             }
         });
 
-        // Gerenciar
+        // Gerenciar Tudo
         const g = document.getElementById('lista-gerenciar');
         g.innerHTML = '';
         db.lan.forEach(l => {
-            g.innerHTML += `<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid var(--border);"><span>${l.desc}</span><div><button onclick="editLan(${l.id})">✏️</button><button onclick="delLan(${l.id})">🗑️</button></div></div>`;
+            g.innerHTML += `<div style="display:flex;justify-content:space-between;padding:12px;border-bottom:1px solid var(--border);">
+                <span>[${l.user}] ${l.desc} - R$ ${l.valorTotal.toLocaleString('pt-BR')}</span>
+                <div>
+                    <button class="btn-mini" style="background:var(--accent-blue)" onclick="editLan(${l.id})">Editar</button>
+                    <button class="btn-mini" style="background:var(--accent-red)" onclick="delLan(${l.id})">Apagar</button>
+                </div>
+            </div>`;
         });
 
+        // Gráfico
         if (chartG) chartG.destroy();
         chartG = new Chart(document.getElementById('chartGeral'), {
             type: 'bar',
-            data: { labels: ['Receitas', 'Despesas'], datasets: [{ data: [recTotal, gastTotal], backgroundColor: ['#00ffa3', '#ff4d6d'] }] },
-            options: { responsive: true, maintainAspectRatio: false }
+            data: { labels: ['Ganhos', 'Gastos'], datasets: [{ data: [recTotal, gastTotal], backgroundColor: ['#00ffa3', '#ff4d6d'] }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
         });
         
         renderProjecao(recTotal);
     }
 
+    // --- PROJEÇÃO 12 MESES ---
     function renderProjecao(rec) {
         const c = document.getElementById('lista-projecao'); c.innerHTML = '';
         for (let i = 1; i <= 12; i++) {
             let gast = 0;
             db.lan.filter(x => x.tipo === 'despesa').forEach(l => { if (i <= (l.parcelasTotal - l.parcelasPagas)) gast += l.valorParcela; });
-            c.innerHTML += `<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid var(--border);"><span>Mês ${i}</span><b>R$ ${(rec - gast).toLocaleString('pt-BR')}</b></div>`;
+            const saldo = rec - gast;
+            c.innerHTML += `<div style="display:flex;justify-content:space-between;padding:10px;border-bottom:1px solid var(--border); font-size:13px;">
+                <span>Mês +${i}</span>
+                <span style="color:${saldo>=0?'var(--accent-green)':'var(--accent-red)'}"><b>R$ ${saldo.toLocaleString('pt-BR')}</b></span>
+            </div>`;
         }
     }
 
+    // --- CALCULADORA ---
+    function calcSimulador() {
+        const vV = parseFloat(document.getElementById('c-vista').value) || 0;
+        const nP = parseInt(document.getElementById('c-parc').value) || 0;
+        const vP = parseFloat(document.getElementById('c-vparc').value) || 0;
+        const renda = parseFloat(document.getElementById('c-renda').value) || 0;
+        const res = document.getElementById('calc-resultado');
+        if(vV && nP && vP) {
+            const tot = nP * vP;
+            const j = tot - vV;
+            let h = "";
+            if(renda > 0) h = `<br>⏱️ <b>${(tot / (renda / 220)).toFixed(0)} horas</b> de vida.`;
+            res.innerHTML = `Total: R$ ${tot.toLocaleString('pt-BR')}<br>Juros: R$ ${j.toLocaleString('pt-BR')} (${((j/vV)*100).toFixed(1)}%)${h}`;
+        }
+    }
+
+    // --- NAVEGAÇÃO E AÇÕES ---
     function editLan(id) { 
         const l = db.lan.find(x => x.id == id); 
         showView('lancamentos');
         document.getElementById('l-edit-id').value = l.id;
+        document.getElementById('l-user').value = l.user;
         document.getElementById('l-desc').value = l.desc;
         document.getElementById('l-valor').value = l.valorTotal;
         document.getElementById('l-parcelas').value = l.parcelasTotal;
+        document.getElementById('l-tipo').value = l.tipo;
+        document.getElementById('lan-title').innerText = "Editando Lançamento";
     }
     
     function editMeta(id) {
         const m = db.metas.find(x => x.id == id);
+        showView('metas_view');
         document.getElementById('m-edit-id').value = m.id;
         document.getElementById('m-nome').value = m.nome;
         document.getElementById('m-alvo').value = m.alvo;
         document.getElementById('m-atual').value = m.atual;
+        document.getElementById('meta-title').innerText = "Editando Meta";
     }
 
-    function delLan(id) { if (confirm("Excluir?")) { db.lan = db.lan.filter(x => x.id != id); saveCloud(); } }
+    function delLan(id) { if (confirm("Excluir lançamento?")) { db.lan = db.lan.filter(x => x.id != id); saveCloud(); } }
+    function delMeta(id) { if (confirm("Excluir meta?")) { db.metas = db.metas.filter(x => x.id != id); saveCloud(); } }
 
     function showView(id, el) {
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
