@@ -16,64 +16,44 @@
             --sidebar-width: 260px;
         }
         * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; overflow-x: hidden; }
-        
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
         .sidebar { width: var(--sidebar-width); background: var(--bg2); border-right: 1px solid var(--border); position: fixed; height: 100vh; z-index: 100; overflow-y: auto; }
         .logo { padding: 30px; font-family: 'Syne'; font-weight: 800; font-size: 16px; border-bottom: 1px solid var(--border); text-align: center; }
         .logo span { color: var(--accent-purple); font-size: 9px; display: block; opacity: 0.7; letter-spacing: 1px; }
-        
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 25px; cursor: pointer; color: var(--text-muted); font-size: 13px; font-weight: 600; transition: 0.3s; }
-        .nav-item:hover { color: #fff; background: rgba(255,255,255,0.02); }
         .nav-item.active { background: linear-gradient(to right, rgba(139,92,246,0.1), transparent); color: #fff; border-left: 4px solid var(--accent-purple); }
-
         .main { flex: 1; margin-left: var(--sidebar-width); padding: 30px; width: calc(100% - var(--sidebar-width)); }
         .view-section { display: none; animation: fadeIn 0.4s ease; }
         .view-section.active { display: block; }
-
-        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 15px; }
         .kpi-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 15px; border-left: 3px solid var(--accent-blue); }
         .kpi-label { font-size: 9px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
         .kpi-value { font-family: 'Syne'; font-size: 18px; font-weight: 800; }
-
-        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; max-width: 900px; }
-        .charts-row canvas { max-height: 160px; }
-
         .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; }
-        
         input, select { background: var(--bg3); border: 1px solid var(--border); padding: 10px; color: #fff; border-radius: 8px; width: 100%; margin-bottom: 10px; font-size: 12px; }
-        .btn { padding: 12px; border: none; border-radius: 8px; background: var(--accent-purple); color: #fff; font-weight: 800; cursor: pointer; width: 100%; transition: 0.2s; }
-        .btn-del { background: var(--accent-red); padding: 5px 8px; font-size: 10px; border-radius: 5px; border: none; color: white; cursor: pointer; margin-left: 4px;}
-        .btn-edit { background: var(--accent-blue); padding: 5px 8px; font-size: 10px; border-radius: 5px; border: none; color: white; cursor: pointer; }
-
-        .calc-box { background: var(--bg3); padding: 12px; border-radius: 10px; margin-top: 5px; font-size: 11px; line-height: 1.5; border: 1px solid var(--border); color: var(--accent-green); }
+        .btn { padding: 12px; border: none; border-radius: 8px; background: var(--accent-purple); color: #fff; font-weight: 800; cursor: pointer; width: 100%; }
+        .btn-del { background: var(--accent-red); padding: 4px 8px; font-size: 10px; border-radius: 4px; border: none; color: white; cursor: pointer; margin-left: 5px; }
+        .btn-edit { background: var(--accent-blue); padding: 4px 8px; font-size: 10px; border-radius: 4px; border: none; color: white; cursor: pointer; }
         .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
-        
         #toast { visibility: hidden; min-width: 200px; background-color: var(--accent-green); color: #000; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; right: 30px; top: 30px; font-weight: bold; }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div id="toast">✅ Sincronizado com Sucesso!</div>
+<div id="toast">✅ Sincronizado!</div>
 
 <aside class="sidebar">
     <div class="logo">FINANCEIRO PRO<span>JUNIOR & MÔNICA</span></div>
     <nav>
         <div class="nav-item active" onclick="showView('dashboard', this)">📊 Painel Geral</div>
         <div class="nav-item" onclick="showView('lancamentos', this)">↕️ Lançamentos</div>
-        <div class="nav-item" onclick="showView('gerenciar', this)">⚙️ Gerenciar</div>
         <div class="nav-item" onclick="showView('metas_view', this)">🎯 Metas</div>
         <div class="nav-item" onclick="showView('invest_view', this)">📈 Investimentos</div>
         <div class="nav-item" onclick="showView('fgts_view', this)">🏦 Saldo FGTS</div>
-        
-        <div style="padding: 20px 25px 5px 25px; font-size: 10px; font-weight: 800; color: var(--accent-purple);">🧐 SIMULADOR DE COMPRA</div>
-        <div style="padding: 10px 25px;">
-            <input type="number" id="c-vista" placeholder="Valor à vista R$" oninput="calcSimulador()">
-            <input type="number" id="c-parc" placeholder="Nº parcelas" oninput="calcSimulador()">
-            <input type="number" id="c-vparc" placeholder="Valor parcela R$" oninput="calcSimulador()">
-            <div class="calc-box" id="calc-resultado">Aguardando dados...</div>
-        </div>
+        <div class="nav-item" onclick="showView('gerenciar', this)">⚙️ Gerenciar Tudo</div>
     </nav>
 </aside>
 
@@ -82,19 +62,18 @@
         <div class="kpi-grid">
             <div class="kpi-card" style="border-color: var(--accent-blue);"><div class="kpi-label">Junior (Mês)</div><div id="d-eu" class="kpi-value">R$ 0</div></div>
             <div class="kpi-card" style="border-color: var(--accent-purple);"><div class="kpi-label">Mônica (Mês)</div><div id="d-ela" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Contas do Mês</div><div id="d-total" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Total Gasto</div><div id="d-total" class="kpi-value">R$ 0</div></div>
             <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Sobra Livre</div><div id="d-saldo" class="kpi-value">R$ 0</div></div>
         </div>
-
         <div class="kpi-grid">
             <div class="kpi-card" style="border-color: #f59e0b;"><div class="kpi-label">FGTS Junior</div><div id="d-fgts-j" class="kpi-value">R$ 0</div></div>
             <div class="kpi-card" style="border-color: #f59e0b;"><div class="kpi-label">FGTS Mônica</div><div id="d-fgts-m" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Investimentos</div><div id="d-invest-total" class="kpi-value">R$ 0</div></div>
             <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Dívidas Futuras</div><div id="d-total-falta" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card" style="border-color: var(--accent-purple);"><div class="kpi-label">Falta p/ Metas</div><div id="d-metas-falta" class="kpi-value">R$ 0</div></div>
         </div>
 
         <div class="card">
-            <h4 style="margin-bottom: 15px; font-size: 11px; opacity: 0.6;">CONTAS PARCELADAS (PENDENTES)</h4>
+            <h4 style="font-size: 10px; opacity: 0.5; margin-bottom: 10px;">CONTAS PARCELADAS EM ABERTO</h4>
             <div id="dash-contas-falta"></div>
         </div>
 
@@ -102,33 +81,51 @@
             <div class="card" style="padding:10px;"><canvas id="chartGeral"></canvas></div>
             <div class="card" style="padding:10px;"><canvas id="chartResumo"></canvas></div>
         </div>
-       <div class="kpi-grid">
-    <div class="kpi-card" style="border-color: #f59e0b;"><div class="kpi-label">FGTS Junior</div><div id="d-fgts-j" class="kpi-value">R$ 0</div></div>
-    <div class="kpi-card" style="border-color: #f59e0b;"><div class="kpi-label">FGTS Mônica</div><div id="d-fgts-m" class="kpi-value">R$ 0</div></div>
-    <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Total Investido</div><div id="d-invest-total" class="kpi-value">R$ 0</div></div>
-    <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Dívidas Futuras</div><div id="d-total-falta" class="kpi-value">R$ 0</div></div>
-</div>
     </section>
 
     <section id="lancamentos" class="view-section">
         <div class="card">
-            <h3 id="l-titulo">Novo Lançamento</h3><br>
+            <h3>Novo Lançamento</h3><br>
             <input type="hidden" id="l-edit-id">
             <select id="l-user"><option value="Junior">Junior</option><option value="Mônica">Mônica</option></select>
             <input type="text" id="l-desc" placeholder="Descrição">
             <input type="number" id="l-valor" placeholder="Valor Total R$">
-            <input type="number" id="l-parcelas" placeholder="Vezes (À vista = 1)" value="1">
-            <select id="l-cat">
-                <option value="🏠">🏠 Casa</option><option value="⛽">⛽ Transporte</option><option value="🍕">🍕 Alimentação</option><option value="💰">💰 Receita</option>
-            </select>
+            <input type="number" id="l-parcelas" placeholder="Qtd Parcelas" value="1">
             <select id="l-tipo"><option value="despesa">Despesa</option><option value="receita">Receita</option></select>
-            <button class="btn" id="btn-lan" onclick="addLan()">Salvar Lançamento</button>
+            <button class="btn" onclick="addLan()">Salvar Lançamento</button>
+        </div>
+    </section>
+
+    <section id="invest_view" class="view-section">
+        <div class="card">
+            <h3>Meus Investimentos 📈</h3><br>
+            <input type="hidden" id="i-edit-id">
+            <input type="text" id="i-nome" placeholder="Ativo (ex: CDB, Tesouro)">
+            <input type="number" id="i-valor" placeholder="Valor R$">
+            <button class="btn" id="btn-inv" onclick="addInv()">Salvar Investimento</button>
+        </div>
+        <div class="card">
+            <div id="lista-invest-hist"></div>
+        </div>
+    </section>
+
+    <section id="fgts_view" class="view-section">
+        <div class="card">
+            <h3>Extrato FGTS 🏦</h3><br>
+            <input type="hidden" id="f-edit-id">
+            <select id="f-user"><option value="Junior">Junior</option><option value="Mônica">Mônica</option></select>
+            <input type="text" id="f-desc" placeholder="Ex: Depósito Mensal">
+            <input type="number" id="f-valor" placeholder="Valor R$">
+            <button class="btn" id="btn-fgts" onclick="addFgts()">Salvar no FGTS</button>
+        </div>
+        <div class="card">
+            <div id="lista-fgts-hist"></div>
         </div>
     </section>
 
     <section id="gerenciar" class="view-section">
         <div class="card">
-            <h3>Gerenciar Dados</h3>
+            <h3>Gerenciar Lançamentos</h3><br>
             <div id="lista-gerenciar"></div>
         </div>
     </section>
@@ -137,335 +134,178 @@
         <div class="card">
             <h3>Minhas Metas 🎯</h3><br>
             <input type="hidden" id="m-edit-id">
-            <input type="text" id="m-nome" placeholder="Nome da Meta">
-            <input type="number" id="m-alvo" placeholder="Valor Alvo R$">
-            <input type="number" id="m-atual" placeholder="Já tenho R$">
-            <button class="btn" id="btn-meta" onclick="addMeta()">Salvar Meta</button>
-            <hr style="margin:20px 0; border-color: var(--border);">
-            <div id="lista-metas-detalhe"></div>
+            <input type="text" id="m-nome" placeholder="Meta">
+            <input type="number" id="m-alvo" placeholder="Valor Alvo">
+            <input type="number" id="m-atual" placeholder="Já tenho">
+            <button class="btn" onclick="addMeta()">Salvar Meta</button>
         </div>
-    <section id="invest_view" class="view-section">
-    <div class="card">
-        <h3>Meus Investimentos 📈</h3><br>
-        <input type="hidden" id="i-edit-id">
-        <input type="text" id="i-nome" placeholder="Nome do Ativo (CDB, Ações, etc)">
-        <input type="number" id="i-valor" placeholder="Valor R$">
-        <button class="btn" id="btn-inv" onclick="addInv()">Salvar Investimento</button>
-    </div>
-    <div class="card">
-        <h4 style="font-size: 11px; opacity: 0.6; margin-bottom: 10px;">LISTA DE ATIVOS</h4>
-        <div id="lista-invest-hist"></div>
-    </div>
-</section>
-
-   <section id="fgts_view" class="view-section">
-    <div class="card">
-        <h3>Histórico FGTS 🏦</h3><br>
-        <input type="hidden" id="f-edit-id">
-        <select id="f-user"><option value="Junior">Junior</option><option value="Mônica">Mônica</option></select>
-        <input type="text" id="f-desc" placeholder="Descrição do Depósito">
-        <input type="number" id="f-valor" placeholder="Valor R$">
-        <button class="btn" id="btn-fgts" onclick="addFgts()">Salvar no FGTS</button>
-    </div>
-    <div class="card">
-        <h4 style="font-size: 11px; opacity: 0.6; margin-bottom: 10px;">EXTRATO DE LANÇAMENTOS</h4>
-        <div id="lista-fgts-hist"></div>
-    </div>
-</section>
+        <div id="lista-metas-detalhe"></div>
+    </section>
 </main>
 
 <script>
     const FIREBASE_URL = 'https://financeiro-casal-4bc7f-default-rtdb.firebaseio.com/dados.json';
-    let db = { lan: [], metas: [], inv: [], fgts_j: 0, fgts_m: 0 };
+    let db = { lan: [], metas: [], inv: [], fgts_lan: [] };
     let chartG, chartR;
 
-    // Procure a função loadCloud e deixe o trecho inicial assim:
-async function loadCloud() {
-    try {
+    async function loadCloud() {
         const res = await fetch(FIREBASE_URL);
         const data = await res.json();
-        if (data) { 
-            db = data; 
-            db.lan = db.lan || []; 
-            db.metas = db.metas || []; 
-            
-            // SE A LISTA NOVA ESTIVER VAZIA, MAS EXISTIR SALDO ANTIGO, VAMOS MIGRAR:
-            if ((!db.fgts_lan || db.fgts_lan.length === 0) && (db.fgts_j > 0 || db.fgts_m > 0)) {
-                db.fgts_lan = [];
-                if (db.fgts_j > 0) db.fgts_lan.push({ id: 1, user: 'Junior', desc: 'Saldo Inicial', valor: db.fgts_j, data: 'Anterior' });
-                if (db.fgts_m > 0) db.fgts_lan.push({ id: 2, user: 'Mônica', desc: 'Saldo Inicial', valor: db.fgts_m, data: 'Anterior' });
-            }
+        if(data) {
+            db = data;
+            db.lan = db.lan || [];
+            db.metas = db.metas || [];
+            db.inv = db.inv || [];
             db.fgts_lan = db.fgts_lan || [];
         }
         updateUI();
-    } catch (e) { console.error(e); }
-}
-
-    async function saveCloud() {
-        try {
-            await fetch(FIREBASE_URL, { method: 'PUT', body: JSON.stringify(db) });
-            updateUI();
-            showToast();
-        } catch (e) { alert("Erro ao salvar!"); }
     }
 
-    function showToast() {
-        const x = document.getElementById("toast");
-        x.className = "show";
-        setTimeout(() => { x.className = x.className.replace("show", ""); }, 3000);
+    async function saveCloud() {
+        await fetch(FIREBASE_URL, { method: 'PUT', body: JSON.stringify(db) });
+        updateUI();
+        showToast();
     }
 
     function addLan() {
         const id = document.getElementById('l-edit-id').value;
-        const d = document.getElementById('l-desc').value;
-        const v = parseFloat(document.getElementById('l-valor').value);
-        const p = parseInt(document.getElementById('l-parcelas').value) || 1;
-        if(!d || isNaN(v)) return;
+        const user = document.getElementById('l-user').value;
+        const desc = document.getElementById('l-desc').value;
+        const valorTotal = parseFloat(document.getElementById('l-valor').value);
+        const parcelasTotal = parseInt(document.getElementById('l-parcelas').value) || 1;
+        const tipo = document.getElementById('l-tipo').value;
+        const valorParcela = valorTotal / parcelasTotal;
 
         if(id) {
             let item = db.lan.find(x => x.id == id);
-            item.user = document.getElementById('l-user').value;
-            item.desc = d; item.valorTotal = v; item.valorParcela = v/p;
-            item.parcelasTotal = p; item.tipo = document.getElementById('l-tipo').value;
+            Object.assign(item, { user, desc, valorTotal, parcelasTotal, valorParcela, tipo });
         } else {
-            db.lan.push({ id: Date.now(), user: document.getElementById('l-user').value, desc: d, valorTotal: v, valorParcela: v/p, parcelasTotal: p, parcelasPagas: 1, tipo: document.getElementById('l-tipo').value });
+            db.lan.push({ id: Date.now(), user, desc, valorTotal, parcelasTotal, parcelasPagas: 0, valorParcela, tipo });
         }
-        
-        document.getElementById('l-edit-id').value = '';
-        document.getElementById('l-titulo').innerText = 'Novo Lançamento';
-        document.getElementById('btn-lan').innerText = 'Salvar Lançamento';
         saveCloud();
     }
 
-    function editLan(id) {
-        let item = db.lan.find(x => x.id == id);
-        document.getElementById('l-edit-id').value = item.id;
-        document.getElementById('l-desc').value = item.desc;
-        document.getElementById('l-valor').value = item.valorTotal;
-        document.getElementById('l-parcelas').value = item.parcelasTotal;
-        document.getElementById('l-user').value = item.user;
-        document.getElementById('l-tipo').value = item.tipo;
-        document.getElementById('l-titulo').innerText = 'Corrigir Lançamento';
-        document.getElementById('btn-lan').innerText = 'Atualizar';
-        showView('lancamentos');
+    function addFgts() {
+        const id = document.getElementById('f-edit-id').value;
+        const user = document.getElementById('f-user').value;
+        const desc = document.getElementById('f-desc').value || "Depósito";
+        const valor = parseFloat(document.getElementById('f-valor').value);
+        if(id) {
+            let item = db.fgts_lan.find(x => x.id == id);
+            Object.assign(item, { user, desc, valor });
+        } else {
+            db.fgts_lan.push({ id: Date.now(), user, desc, valor, data: new Date().toLocaleDateString() });
+        }
+        document.getElementById('f-edit-id').value = '';
+        saveCloud();
+    }
+
+    function addInv() {
+        const id = document.getElementById('i-edit-id').value;
+        const nome = document.getElementById('i-nome').value;
+        const valor = parseFloat(document.getElementById('i-valor').value);
+        if(id) {
+            let item = db.inv.find(x => x.id == id);
+            Object.assign(item, { nome, valor });
+        } else {
+            db.inv.push({ id: Date.now(), nome, valor });
+        }
+        document.getElementById('i-edit-id').value = '';
+        saveCloud();
     }
 
     function addMeta() {
         const id = document.getElementById('m-edit-id').value;
-        const n = document.getElementById('m-nome').value;
-        const a = parseFloat(document.getElementById('m-alvo').value);
-        const cur = parseFloat(document.getElementById('m-atual').value) || 0;
-        if(!n || isNaN(a)) return;
-
+        const nome = document.getElementById('m-nome').value;
+        const alvo = parseFloat(document.getElementById('m-alvo').value);
+        const atual = parseFloat(document.getElementById('m-atual').value);
         if(id) {
-            let m = db.metas.find(x => x.id == id);
-            m.nome = n; m.alvo = a; m.atual = cur;
+            let item = db.metas.find(x => x.id == id);
+            Object.assign(item, { nome, alvo, atual });
         } else {
-            db.metas.push({ id: Date.now(), nome: n, alvo: a, atual: cur });
+            db.metas.push({ id: Date.now(), nome, alvo, atual });
         }
-        document.getElementById('m-edit-id').value = '';
         saveCloud();
     }
 
-    function editMeta(id) {
-        let m = db.metas.find(x => x.id == id);
-        document.getElementById('m-edit-id').value = m.id;
-        document.getElementById('m-nome').value = m.nome;
-        document.getElementById('m-alvo').value = m.alvo;
-        document.getElementById('m-atual').value = m.atual;
-        document.getElementById('btn-meta').innerText = 'Atualizar Meta';
-    }
-
     function updateUI() {
-    // Cálculo FGTS
-    db.fgts_lan = db.fgts_lan || [];
-    const totalJ = db.fgts_lan.filter(x => x.user === 'Junior').reduce((a,b) => a + b.valor, 0);
-    const totalM = db.fgts_lan.filter(x => x.user === 'Mônica').reduce((a,b) => a + b.valor, 0);
-    
-    // Atualiza Dashboard e Tela FGTS
-    document.getElementById('d-fgts-j').innerText = `R$ ${totalJ.toLocaleString('pt-BR')}`;
-    document.getElementById('d-fgts-m').innerText = `R$ ${totalM.toLocaleString('pt-BR')}`;
+        const junD = db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0);
+        const monD = db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0);
+        const recTotal = db.lan.filter(x => x.tipo === 'receita').reduce((a,b)=>a+b.valorTotal, 0);
+        
+        // Cards Dashboard
+        document.getElementById('d-eu').innerText = `R$ ${junD.toLocaleString('pt-BR')}`;
+        document.getElementById('d-ela').innerText = `R$ ${monD.toLocaleString('pt-BR')}`;
+        document.getElementById('d-total').innerText = `R$ ${(junD+monD).toLocaleString('pt-BR')}`;
+        document.getElementById('d-saldo').innerText = `R$ ${(recTotal - (junD+monD)).toLocaleString('pt-BR')}`;
 
-    // Cálculo Investimentos
-    db.inv = db.inv || [];
-    const totalInv = db.inv.reduce((a,b) => a + b.valor, 0);
-    
-    // Atualiza Dashboard e Tela Investimentos
-    document.getElementById('d-invest-total').innerText = `R$ ${totalInv.toLocaleString('pt-BR')}`;
-    
-    // Lista de Investimentos (Para a aba não ficar vazia)
-    const listInv = document.getElementById('lista-invest-hist');
-    if(listInv) {
-        listInv.innerHTML = '';
-        db.inv.forEach(item => {
-            listInv.innerHTML += `<div class="item-row"><span>${item.nome}</span><span>R$ ${item.valor.toLocaleString('pt-BR')} <button class="btn-edit" onclick="editInv(${item.id})">✎</button></span></div>`;
-        });
-    }
-    
-    // ... restante da função (gráficos e contas)
-}
+        // FGTS
+        const fgtsJ = db.fgts_lan.filter(x => x.user === 'Junior').reduce((a,b)=>a+b.valor, 0);
+        const fgtsM = db.fgts_lan.filter(x => x.user === 'Mônica').reduce((a,b)=>a+b.valor, 0);
+        document.getElementById('d-fgts-j').innerText = `R$ ${fgtsJ.toLocaleString('pt-BR')}`;
+        document.getElementById('d-fgts-m').innerText = `R$ ${fgtsM.toLocaleString('pt-BR')}`;
 
-        const listM = document.getElementById('lista-metas-detalhe');
-        listM.innerHTML = '';
-        db.metas.forEach(m => {
-            listM.innerHTML += `<div class="card" style="background:var(--bg3)">
-                <b>${m.nome}</b><br>Falta: R$ ${(m.alvo-m.atual).toLocaleString('pt-BR')}<br><br>
-                <button class="btn-edit" onclick="editMeta(${m.id})">Editar</button>
-                <button class="btn-del" onclick="if(confirm('Excluir?')){db.metas=db.metas.filter(x=>x.id!=${m.id});saveCloud();}">X</button>
-            </div>`;
+        // Investimentos
+        const totalInv = db.inv.reduce((a,b)=>a+b.valor, 0);
+        document.getElementById('d-invest-total').innerText = `R$ ${totalInv.toLocaleString('pt-BR')}`;
+
+        // Dívidas Futuras
+        const dividaFutura = db.lan.filter(x => x.tipo === 'despesa').reduce((a,b) => a + (b.valorParcela * (b.parcelasTotal - b.parcelasPagas)), 0);
+        document.getElementById('d-total-falta').innerText = `R$ ${dividaFutura.toLocaleString('pt-BR')}`;
+
+        // Listas
+        const dashContas = document.getElementById('dash-contas-falta');
+        dashContas.innerHTML = '';
+        db.lan.filter(x => x.tipo === 'despesa').forEach(t => {
+            const falta = t.valorParcela * (t.parcelasTotal - t.parcelasPagas);
+            if(falta > 0) dashContas.innerHTML += `<div class="item-row"><span>[${t.user}] ${t.desc}</span><b>R$ ${falta.toLocaleString('pt-BR')}</b></div>`;
         });
 
-        renderCharts(rec, (junD+monD));
+        const listFGTS = document.getElementById('lista-fgts-hist');
+        if(listFGTS) {
+            listFGTS.innerHTML = '';
+            db.fgts_lan.forEach(t => {
+                listFGTS.innerHTML += `<div class="item-row"><span>${t.user}: ${t.desc}</span><span>R$ ${t.valor.toLocaleString('pt-BR')} <button class="btn-del" onclick="delFGTS(${t.id})">X</button></span></div>`;
+            });
+        }
+
+        const listInv = document.getElementById('lista-invest-hist');
+        if(listInv) {
+            listInv.innerHTML = '';
+            db.inv.forEach(t => {
+                listInv.innerHTML += `<div class="item-row"><span>${t.nome}</span><span>R$ ${t.valor.toLocaleString('pt-BR')} <button class="btn-del" onclick="delInv(${t.id})">X</button></span></div>`;
+            });
+        }
+
+        const listGerenciar = document.getElementById('lista-gerenciar');
+        listGerenciar.innerHTML = '';
+        db.lan.forEach(t => {
+            listGerenciar.innerHTML += `<div class="item-row"><span>${t.desc} (${t.user})</span><span>R$ ${t.valorTotal.toLocaleString('pt-BR')} <button class="btn-del" onclick="delLan(${t.id})">X</button></span></div>`;
+        });
+
+        renderCharts(recTotal, (junD+monD));
     }
+
+    function delLan(id) { if(confirm("Excluir?")) { db.lan = db.lan.filter(x => x.id != id); saveCloud(); } }
+    function delFGTS(id) { if(confirm("Excluir?")) { db.fgts_lan = db.fgts_lan.filter(x => x.id != id); saveCloud(); } }
+    function delInv(id) { if(confirm("Excluir?")) { db.inv = db.inv.filter(x => x.id != id); saveCloud(); } }
 
     function renderCharts(rec, gast) {
-    // Definindo cores amigáveis para daltônicos
-    const corGanhos = '#0072B2'; // Azul escuro vibrante
-    const corGastos = '#E69F00'; // Laranja forte
-    const corJunior = '#56B4E9'; // Azul céu
-    const corMonica = '#F0E442'; // Amarelo (opcional: use #CC79A7 para Rosa se preferir)
-
-    if(chartG) chartG.destroy();
-    chartG = new Chart(document.getElementById('chartGeral'), { 
-        type: 'bar', 
-        data: { 
-            labels: ['Ganhos', 'Gastos'], 
-            datasets: [{ 
-                data: [rec, gast], 
-                backgroundColor: [corGanhos, corGastos] 
-            }] 
-        }, 
-        options: { 
-            plugins: { legend: { display: false } }, 
-            scales: { y: { display: false } } 
-        } 
-    });
-
-    if(chartR) chartR.destroy();
-    chartR = new Chart(document.getElementById('chartResumo'), { 
-        type: 'doughnut', 
-        data: { 
-            labels: ['Junior', 'Mônica'], 
-            datasets: [{ 
-                data: [
-                    db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0), 
-                    db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0)
-                ], 
-                backgroundColor: [corJunior, corMonica], 
-                borderWidth: 2,
-                borderColor: '#0f121d' // Cor de fundo para dar separação entre fatias
-            }] 
-        }, 
-        options: { 
-            plugins: { 
-                legend: { 
-                    position: 'bottom', 
-                    labels: { color: '#fff', font: { size: 10, weight: 'bold' } } 
-                } 
-            } 
-        } 
-    });
-}
-
-    function calcSimulador() {
-        const v = parseFloat(document.getElementById('c-vista').value) || 0;
-        const n = parseInt(document.getElementById('c-parc').value) || 0;
-        const vp = parseFloat(document.getElementById('c-vparc').value) || 0;
-        const res = document.getElementById('calc-resultado');
-        if(v && n && vp) {
-            const tot = n * vp;
-            const jur = tot - v;
-            res.innerHTML = `Total: R$ ${tot.toLocaleString('pt-BR')}<br>Juros: R$ ${jur.toLocaleString('pt-BR')} (${((jur/v)*100).toFixed(1)}%)`;
-        } else { res.innerText = 'Aguardando dados...'; }
+        if(chartG) chartG.destroy();
+        chartG = new Chart(document.getElementById('chartGeral'), { type: 'bar', data: { labels: ['Ganhos', 'Gastos'], datasets: [{ data: [rec, gast], backgroundColor: ['#0072B2', '#E69F00'] }] }, options: { plugins: { legend: { display: false } } } });
+        if(chartR) chartR.destroy();
+        chartR = new Chart(document.getElementById('chartResumo'), { type: 'doughnut', data: { labels: ['Junior', 'Mônica'], datasets: [{ data: [db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0), db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0)], backgroundColor: ['#56B4E9', '#F0E442'] }] } });
     }
 
     function showView(id, el) {
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(el) el.classList.add('active');
-    }
-    function addInv() {
-    const id = document.getElementById('i-edit-id').value;
-    const nome = document.getElementById('i-nome').value;
-    const valor = parseFloat(document.getElementById('i-valor').value);
-    
-    if(!nome || isNaN(valor)) return alert("Preencha nome e valor!");
-
-    db.inv = db.inv || [];
-
-    if(id) {
-        let item = db.inv.find(x => x.id == id);
-        if(item) { item.nome = nome; item.valor = valor; }
-    } else {
-        db.inv.push({ id: Date.now(), nome, valor });
+        el.classList.add('active');
     }
 
-    document.getElementById('i-edit-id').value = '';
-    document.getElementById('i-nome').value = '';
-    document.getElementById('i-valor').value = '';
-    document.getElementById('btn-inv').innerText = "Salvar Investimento";
-    saveCloud();
-}
+    function showToast() { const x = document.getElementById("toast"); x.className = "show"; setTimeout(() => { x.className = x.className.replace("show", ""); }, 3000); }
 
-function editInv(id) {
-    let item = db.inv.find(x => x.id == id);
-    document.getElementById('i-edit-id').value = item.id;
-    document.getElementById('i-nome').value = item.nome;
-    document.getElementById('i-valor').value = item.valor;
-    document.getElementById('btn-inv').innerText = "Atualizar Investimento";
-}
-
-function deleteInv(id) {
-    if(confirm("Excluir este ativo?")) {
-        db.inv = db.inv.filter(x => x.id != id);
-        saveCloud();
-    }
-}
-
-  // COPIE E COLE NO LUGAR DA FUNÇÃO updateFGTS ANTIGA
-function addFgts() {
-    const id = document.getElementById('f-edit-id').value;
-    const user = document.getElementById('f-user').value;
-    const desc = document.getElementById('f-desc').value || "Depósito FGTS";
-    const valor = parseFloat(document.getElementById('f-valor').value);
-    
-    if(isNaN(valor)) return alert("Digite um valor!");
-
-    // Inicializa a lista se não existir no banco
-    db.fgts_lan = db.fgts_lan || [];
-
-    if(id) {
-        let item = db.fgts_lan.find(x => x.id == id);
-        if(item) { item.user = user; item.desc = desc; item.valor = valor; }
-    } else {
-        db.fgts_lan.push({ id: Date.now(), user, desc, valor, data: new Date().toLocaleDateString() });
-    }
-
-    // Limpa os campos
-    document.getElementById('f-edit-id').value = '';
-    document.getElementById('f-desc').value = '';
-    document.getElementById('f-valor').value = '';
-    document.getElementById('btn-fgts').innerText = "Salvar Lançamento";
-    saveCloud();
-}
-
-function editFgts(id) {
-    let item = db.fgts_lan.find(x => x.id == id);
-    if(!item) return;
-    document.getElementById('f-edit-id').value = item.id;
-    document.getElementById('f-user').value = item.user;
-    document.getElementById('f-desc').value = item.desc;
-    document.getElementById('f-valor').value = item.valor;
-    document.getElementById('btn-fgts').innerText = "Atualizar Lançamento";
-}
-
-function deleteFgts(id) {
-    if(confirm("Excluir este lançamento de FGTS?")) {
-        db.fgts_lan = db.fgts_lan.filter(x => x.id != id);
-        saveCloud();
-    }
-}
     loadCloud();
 </script>
 </body>
