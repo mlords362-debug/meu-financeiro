@@ -96,8 +96,10 @@
 
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px; margin-bottom:15px;">
             <div class="card"><h3>🎯 Minhas Metas</h3><div id="dash-metas"></div></div>
-            <div class="card"><h3>📊 Divisão Mensal</h3><canvas id="chartRosca" style="max-height:180px;"></canvas></div>
-        </div>
+            <div class="card">
+    <h3>📊 Divisão Mensal</h3>
+    <canvas id="chartRosca" style="max-height:180px;"></canvas>
+</div>
 
         <div class="card">
             <h3>🧾 Extrato das Contas (Ativas)</h3>
@@ -300,46 +302,91 @@
         renderTabelas(gastosMes, mesSel, anoSel);
     }
 
-    function renderMetas() {
-        const dash = document.getElementById('dash-metas');
-        const lista = document.getElementById('metas-lista');
-        if(dash) dash.innerHTML = '';
-        if(lista) lista.innerHTML = '';
+   // FUNÇÃO PARA AS METAS FICAREM BONITAS NOVAMENTE
+function renderMetas() {
+    const dash = document.getElementById('dash-metas');
+    const lista = document.getElementById('metas-lista');
+    if(dash) dash.innerHTML = '';
+    if(lista) lista.innerHTML = '';
 
-        db.metas.forEach((m, idx) => {
-            const perc = Math.min(100, (m.atual / m.alvo) * 100);
-            const html = `<div class="meta-card">
-                <div style="display:flex; justify-content:space-between; font-size:12px;">
-                    <strong>${m.nome}</strong><span>${perc.toFixed(1)}%</span>
+    db.metas.forEach((m, idx) => {
+        const perc = Math.min(100, (m.atual / m.alvo) * 100);
+        // HTML das metas com o estilo original
+        const html = `
+            <div class="meta-card" style="margin-bottom: 15px; background: var(--bg3); padding: 15px; border-radius: 10px;">
+                <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom: 8px;">
+                    <strong style="color: #fff;">${m.nome}</strong>
+                    <span style="color: var(--text-muted);">${perc.toFixed(1)}%</span>
                 </div>
-                <div class="progress-bg"><div class="progress-fill" style="width:${perc}%"></div></div>
+                <div class="progress-bg" style="background: #000; height: 8px; border-radius: 4px; overflow: hidden;">
+                    <div class="progress-fill" style="width:${perc}%; background: var(--accent-green); height: 100%; transition: 0.5s;"></div>
+                </div>
             </div>`;
-            if(dash) dash.innerHTML += html;
-            if(lista) lista.innerHTML += html + `<button class="btn-del" onclick="db.metas.splice(${idx},1);saveCloud()">🗑️</button>`;
+        
+        if(dash) dash.innerHTML += html;
+        if(lista) {
+            lista.innerHTML += `
+                <div style="position: relative;">
+                    ${html}
+                    <button class="btn-del" onclick="db.metas.splice(${idx},1);saveCloud()" style="position: absolute; right: 10px; top: 10px; background: var(--accent-red); border: none; border-radius: 4px; color: #fff; cursor: pointer; padding: 2px 6px;">🗑️</button>
+                </div>`;
+        }
+    });
+}
+
+// FUNÇÃO PARA O GRÁFICO DE ROSCA VOLTAR
+function renderGrafico(jG, mG, aG) {
+    const ctx = document.getElementById('chartRosca');
+    if (!ctx) return;
+
+    if (myChart) myChart.destroy(); // Destrói o anterior para não dar erro
+
+    myChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Junior', 'Mônica', 'Ambos'],
+            datasets: [{
+                data: [jG, mG, aG],
+                backgroundColor: ['#3b82f6', '#8b5cf6', '#ffffff'],
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { display: true, position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } }
+            },
+            cutout: '70%'
+        }
+    });
+}
+
+// ATUALIZE A RENDER TABELAS PARA CHAMAR O GRÁFICO
+function renderTabelas(gastosMes, mesSel, anoSel, jG, mG, aG) {
+    // Tabela Dashboard
+    const dBody = document.querySelector('#dash-extrato tbody');
+    if(dBody) {
+        dBody.innerHTML = '';
+        gastosMes.filter(x=>x.tipo==='despesa').forEach(l => {
+            const mInicio = l.mesInicio !== undefined ? l.mesInicio : 3;
+            const aInicio = l.anoInicio || 2026;
+            const num = (anoSel * 12 + mesSel) - (aInicio * 12 + mInicio) + 1;
+            dBody.innerHTML += `<tr><td>${l.user}</td><td>${l.desc}</td><td>R$ ${l.valorParcela.toFixed(2)}</td><td>${num} de ${l.parcelasTotal}</td></tr>`;
         });
     }
 
-    function renderTabelas(gastosMes, mesSel, anoSel) {
-        // Tabela Dashboard (Extrato)
-        const dBody = document.querySelector('#dash-extrato tbody');
-        if(dBody) {
-            dBody.innerHTML = '';
-            gastosMes.filter(x=>x.tipo==='despesa').forEach(l => {
-                const mInicio = l.mesInicio !== undefined ? l.mesInicio : 3;
-                const aInicio = l.anoInicio || 2026;
-                const num = (anoSel * 12 + mesSel) - (aInicio * 12 + mInicio) + 1;
-                dBody.innerHTML += `<tr><td>${l.user}</td><td>${l.desc}</td><td>R$ ${l.valorParcela.toFixed(2)}</td><td>${num} de ${l.parcelasTotal}</td></tr>`;
-            });
-        }
-        // Tabela Lançamentos (Histórico Local)
-        const lBody = document.querySelector('#lan-tabela tbody');
-        if(lBody) {
-            lBody.innerHTML = '';
-            db.lan.forEach((l, idx) => {
-                lBody.innerHTML += `<tr><td>${l.desc}</td><td>R$ ${l.valorParcela.toFixed(2)}</td><td>${l.parcelasTotal}</td><td><button class="btn-del" onclick="deleteLan(${idx})">🗑️</button></td></tr>`;
-            });
-        }
+    // Tabela Lançamentos
+    const lBody = document.querySelector('#lan-tabela tbody');
+    if(lBody) {
+        lBody.innerHTML = '';
+        db.lan.forEach((l, idx) => {
+            lBody.innerHTML += `<tr><td>${l.desc}</td><td>R$ ${l.valorParcela.toFixed(2)}</td><td>${l.parcelasTotal}</td><td><button class="btn-del" onclick="deleteLan(${idx})">🗑️</button></td></tr>`;
+        });
     }
+
+    // CHAMA O GRÁFICO AQUI DENTRO
+    renderGrafico(jG, mG, aG);
+}
 
     async function loadCloud() {
         try {
