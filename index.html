@@ -224,7 +224,7 @@
         const gastosMes = db.lan.filter(l => {
             if (l.tipo === 'receita') return true;
             const mesesDesdeInicio = mesSel - (l.mesInicio || 0);
-            return mesesDesdeInicio >= 0 && mesesDesdeInicio < (l.parcelasTotal || 1);
+            return mesesDesdeInicio >= 3 && mesesDesdeInicio < (l.parcelasTotal || 1);
         });
 
         // Cálculos dos Cards
