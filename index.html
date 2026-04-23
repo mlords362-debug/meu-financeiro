@@ -140,18 +140,26 @@
         </div>
     </section>
 
-    <section id="invest_view" class="view-section">
-        <div class="card"><h3>Investimentos 📈</h3><input type="text" id="i-nome" placeholder="Ativo"><input type="number" id="i-valor" placeholder="Valor R$"><button class="btn" onclick="addInv()">Salvar</button></div>
-    </section>
-
     <section id="fgts_view" class="view-section">
-        <div class="card">
-            <h3>Saldos FGTS 🏦</h3><br>
-            <select id="f-user"><option value="Junior">Junior</option><option value="Mônica">Mônica</option></select>
-            <input type="number" id="f-valor" placeholder="Saldo Atual R$">
-            <button class="btn" onclick="updateFGTS()">Atualizar Saldo</button>
-        </div>
-    </section>
+    <div class="kpi-grid">
+        <div class="kpi-card" style="border-color: #f59e0b;"><div class="kpi-label">Saldo Atual Junior</div><div id="f-total-j" class="kpi-value">R$ 0</div></div>
+        <div class="kpi-card" style="border-color: #f59e0b;"><div class="kpi-label">Saldo Atual Mônica</div><div id="f-total-m" class="kpi-value">R$ 0</div></div>
+    </div>
+
+    <div class="card">
+        <h3>Lançar Depósito / Ajuste 🏦</h3><br>
+        <input type="hidden" id="f-edit-id">
+        <select id="f-user"><option value="Junior">Junior</option><option value="Mônica">Mônica</option></select>
+        <input type="text" id="f-desc" placeholder="Ex: Depósito Mensal ou Ajuste Saldo">
+        <input type="number" id="f-valor" placeholder="Valor R$">
+        <button class="btn" id="btn-fgts" onclick="addFgts()">Salvar Lançamento</button>
+    </div>
+
+    <div class="card">
+        <h4 style="font-size: 11px; opacity: 0.6; margin-bottom: 10px;">HISTÓRICO DE LANÇAMENTOS FGTS</h4>
+        <div id="lista-fgts-hist"></div>
+    </div>
+</section>
 </main>
 
 <script>
@@ -357,20 +365,48 @@ db.lan.filter(x => x.tipo === 'despesa').forEach(t => {
         if(el) el.classList.add('active');
     }
 
-    function updateFGTS() {
-    const v = parseFloat(document.getElementById('f-valor').value) || 0;
+  // COPIE E COLE NO LUGAR DA FUNÇÃO updateFGTS ANTIGA
+function addFgts() {
+    const id = document.getElementById('f-edit-id').value;
     const user = document.getElementById('f-user').value;
+    const desc = document.getElementById('f-desc').value || "Depósito FGTS";
+    const valor = parseFloat(document.getElementById('f-valor').value);
+    
+    if(isNaN(valor)) return alert("Digite um valor!");
 
-    if(user === "Junior") {
-        // O += faz ele pegar o saldo antigo e somar com o novo
-        db.fgts_j = (db.fgts_j || 0) + v; 
+    // Inicializa a lista se não existir no banco
+    db.fgts_lan = db.fgts_lan || [];
+
+    if(id) {
+        let item = db.fgts_lan.find(x => x.id == id);
+        if(item) { item.user = user; item.desc = desc; item.valor = valor; }
     } else {
-        db.fgts_m = (db.fgts_m || 0) + v;
+        db.fgts_lan.push({ id: Date.now(), user, desc, valor, data: new Date().toLocaleDateString() });
     }
 
-    // Limpa o campo após lançar para não confundir
-    document.getElementById('f-valor').value = ''; 
+    // Limpa os campos
+    document.getElementById('f-edit-id').value = '';
+    document.getElementById('f-desc').value = '';
+    document.getElementById('f-valor').value = '';
+    document.getElementById('btn-fgts').innerText = "Salvar Lançamento";
     saveCloud();
+}
+
+function editFgts(id) {
+    let item = db.fgts_lan.find(x => x.id == id);
+    if(!item) return;
+    document.getElementById('f-edit-id').value = item.id;
+    document.getElementById('f-user').value = item.user;
+    document.getElementById('f-desc').value = item.desc;
+    document.getElementById('f-valor').value = item.valor;
+    document.getElementById('btn-fgts').innerText = "Atualizar Lançamento";
+}
+
+function deleteFgts(id) {
+    if(confirm("Excluir este lançamento de FGTS?")) {
+        db.fgts_lan = db.fgts_lan.filter(x => x.id != id);
+        saveCloud();
+    }
 }
     loadCloud();
 </script>
