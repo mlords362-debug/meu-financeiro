@@ -18,36 +18,51 @@
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
+        
+        /* Sidebar */
         .sidebar { width: var(--sidebar-width); background: var(--bg2); border-right: 1px solid var(--border); position: fixed; height: 100vh; z-index: 100; overflow-y: auto; }
         .logo { padding: 30px; font-family: 'Syne'; font-weight: 800; font-size: 16px; border-bottom: 1px solid var(--border); text-align: center; }
         .logo span { color: var(--accent-purple); font-size: 9px; display: block; opacity: 0.7; letter-spacing: 1px; }
         .nav-item { display: flex; align-items: center; gap: 12px; padding: 14px 25px; cursor: pointer; color: var(--text-muted); font-size: 13px; font-weight: 600; transition: 0.3s; }
         .nav-item.active { background: linear-gradient(to right, rgba(139,92,246,0.1), transparent); color: #fff; border-left: 4px solid var(--accent-purple); }
+        
+        /* Main Content */
         .main { flex: 1; margin-left: var(--sidebar-width); padding: 30px; width: calc(100% - var(--sidebar-width)); }
         .view-section { display: none; animation: fadeIn 0.4s ease; }
         .view-section.active { display: block; }
+        
+        /* Cards e KPIs */
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 15px; }
         .kpi-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 15px; border-left: 3px solid var(--accent-blue); }
         .kpi-label { font-size: 9px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
         .kpi-value { font-family: 'Syne'; font-size: 18px; font-weight: 800; }
         .card { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 15px; }
-        input, select { background: var(--bg3); border: 1px solid var(--border); padding: 10px; color: #fff; border-radius: 8px; width: 100%; margin-bottom: 10px; font-size: 12px; }
-        .btn { padding: 12px; border: none; border-radius: 8px; background: var(--accent-purple); color: #fff; font-weight: 800; cursor: pointer; width: 100%; }
-        .btn-del { background: var(--accent-red); padding: 4px 8px; font-size: 10px; border-radius: 4px; border: none; color: white; cursor: pointer; margin-left: 5px; }
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+        
+        /* Gráficos Controlados */
+        canvas { max-height: 180px !important; }
+        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        /* Formulários */
+        input, select { background: var(--bg3); border: 1px solid var(--border); padding: 12px; color: #fff; border-radius: 8px; width: 100%; margin-bottom: 10px; font-size: 13px; }
+        .btn { padding: 12px; border: none; border-radius: 8px; background: var(--accent-purple); color: #fff; font-weight: 800; cursor: pointer; width: 100%; transition: 0.3s; }
+        .btn:hover { opacity: 0.8; }
+        
+        /* Listas e Metas */
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+        .btn-del { background: var(--accent-red); padding: 6px 10px; font-size: 10px; border-radius: 6px; border: none; color: white; cursor: pointer; margin-left: 5px; }
+        .btn-edit { background: var(--accent-blue); padding: 6px 10px; font-size: 10px; border-radius: 6px; border: none; color: white; cursor: pointer; }
+        
+        .progress-container { background: var(--bg3); border-radius: 10px; height: 10px; margin: 10px 0; overflow: hidden; }
+        .progress-bar { background: var(--accent-green); height: 100%; transition: 0.5s; }
+
         #toast { visibility: hidden; min-width: 200px; background-color: var(--accent-green); color: #000; text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000; right: 30px; top: 30px; font-weight: bold; }
         #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
-        
-        /* Ajuste dos Gráficos */
-        canvas { max-height: 180px !important; }
-        .charts-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div id="toast">✅ Sincronizado!</div>
+<div id="toast">✅ Sincronizado com a Nuvem!</div>
 
 <aside class="sidebar">
     <div class="logo">FINANCEIRO PRO<span>JUNIOR & MÔNICA</span></div>
@@ -57,8 +72,8 @@
         <div class="nav-item" onclick="showView('metas_view', this)">🎯 Metas</div>
         <div class="nav-item" onclick="showView('invest_view', this)">📈 Investimentos</div>
         <div class="nav-item" onclick="showView('fgts_view', this)">🏦 Saldo FGTS</div>
-        <div class="nav-item" onclick="showView('gerenciar', this)">⚙️ Gerenciar Tudo</div>
         <div class="nav-item" onclick="showView('projecao_view', this)">📅 Projeção Mensal</div>
+        <div class="nav-item" onclick="showView('gerenciar', this)">⚙️ Gerenciar Tudo</div>
         
         <div style="padding: 20px 25px 5px 25px; font-size: 10px; font-weight: 800; color: var(--accent-purple); border-top: 1px solid var(--border); margin-top: 10px;">🧐 SUPER SIMULADOR</div>
         <div style="padding: 10px 25px;">
@@ -66,7 +81,7 @@
             <input type="number" id="c-parc" placeholder="Nº parcelas" oninput="calcSimulador()">
             <input type="number" id="c-vparc" placeholder="R$ da parcela" oninput="calcSimulador()">
             <input type="number" id="c-renda" placeholder="Sua Renda Mensal R$" oninput="calcSimulador()">
-            <div id="calc-resultado" style="font-size: 10px; background: var(--bg3); padding: 10px; border-radius: 8px; border: 1px solid var(--border); line-height: 1.4;">Aguardando dados...</div>
+            <div id="calc-resultado" style="font-size: 10px; background: var(--bg3); padding: 10px; border-radius: 8px; border: 1px solid var(--border); line-height: 1.4;">Aguardando...</div>
         </div>
     </nav>
 </aside>
@@ -85,27 +100,22 @@
             <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Investimentos</div><div id="d-invest-total" class="kpi-value">R$ 0</div></div>
             <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Dívidas Futuras</div><div id="d-total-falta" class="kpi-value">R$ 0</div></div>
         </div>
-        <div class="card">
-            <h4 style="font-size: 10px; opacity: 0.5; margin-bottom: 10px;">CONTAS PARCELADAS EM ABERTO</h4>
-            <div id="dash-contas-falta"></div>
-        </div>
         <div class="charts-row">
-            <div class="card" style="padding:10px; height: 200px; display: flex; justify-content: center; align-items: center;"><canvas id="chartGeral"></canvas></div>
-            <div class="card" style="padding:10px; height: 200px; display: flex; justify-content: center; align-items: center;"><canvas id="chartResumo"></canvas></div>
+            <div class="card" style="padding:15px; height: 210px; display: flex; align-items: center;"><canvas id="chartGeral"></canvas></div>
+            <div class="card" style="padding:15px; height: 210px; display: flex; align-items: center;"><canvas id="chartResumo"></canvas></div>
         </div>
     </section>
 
     <section id="projecao_view" class="view-section">
         <div class="card">
-            <h3>Projeção dos Próximos Meses 🗓️</h3>
-            <p style="font-size: 11px; opacity: 0.7; margin-bottom: 15px;">Previsão de gastos parcelados para os próximos 12 meses.</p>
+            <h3>Projeção de Fluxo de Caixa (12 meses) 🗓️</h3><br>
             <div id="lista-projecao"></div>
         </div>
     </section>
 
     <section id="lancamentos" class="view-section">
         <div class="card">
-            <h3>Novo Lançamento</h3><br>
+            <h3 id="lan-title">Novo Lançamento</h3><br>
             <input type="hidden" id="l-edit-id">
             <select id="l-user"><option value="Junior">Junior</option><option value="Mônica">Mônica</option></select>
             <input type="text" id="l-desc" placeholder="Descrição">
@@ -116,16 +126,47 @@
         </div>
     </section>
 
+    <section id="metas_view" class="view-section">
+        <div class="card">
+            <h3>🎯 Minhas Metas</h3><br>
+            <input type="hidden" id="m-edit-id">
+            <input type="text" id="m-nome" placeholder="Nome da Meta">
+            <input type="number" id="m-alvo" placeholder="Valor Alvo">
+            <input type="number" id="m-atual" placeholder="Valor que já tenho">
+            <button class="btn" onclick="addMeta()">Salvar Meta</button>
+        </div>
+        <div id="lista-metas-detalhe"></div>
+    </section>
+
     <section id="invest_view" class="view-section">
-        <div class="card"><h3>Investimentos 📈</h3><input type="text" id="i-nome" placeholder="Ativo"><input type="number" id="i-valor" placeholder="Valor"><button class="btn" onclick="addInv()">Salvar</button></div>
-        <div class="card"><div id="lista-invest-hist"></div></div>
+        <div class="card">
+            <h3>📈 Investimentos</h3><br>
+            <input type="hidden" id="i-edit-id">
+            <input type="text" id="i-nome" placeholder="Ativo (Ex: CDB, Ações)">
+            <input type="number" id="i-valor" placeholder="Valor R$">
+            <button class="btn" onclick="addInv()">Salvar</button>
+        </div>
+        <div class="card" id="lista-invest-hist"></div>
     </section>
+
     <section id="fgts_view" class="view-section">
-        <div class="card"><h3>FGTS 🏦</h3><select id="f-user"><option value="Junior">Junior</option><option value="Mônica">Mônica</option></select><input type="text" id="f-desc" placeholder="Descrição"><input type="number" id="f-valor" placeholder="Valor"><button class="btn" onclick="addFgts()">Salvar</button></div>
-        <div class="card"><div id="lista-fgts-hist"></div></div>
+        <div class="card">
+            <h3>🏦 Saldo FGTS</h3><br>
+            <input type="hidden" id="f-edit-id">
+            <select id="f-user"><option value="Junior">Junior</option><option value="Mônica">Mônica</option></select>
+            <input type="text" id="f-desc" placeholder="Ex: Depósito Mensal">
+            <input type="number" id="f-valor" placeholder="Valor R$">
+            <button class="btn" onclick="addFgts()">Salvar</button>
+        </div>
+        <div class="card" id="lista-fgts-hist"></div>
     </section>
-    <section id="gerenciar" class="view-section"><div class="card"><h3>Gerenciar Lançamentos</h3><div id="lista-gerenciar"></div></div></section>
-    <section id="metas_view" class="view-section"><div class="card"><h3>Metas 🎯</h3><input type="text" id="m-nome" placeholder="Meta"><input type="number" id="m-alvo" placeholder="Alvo"><input type="number" id="m-atual" placeholder="Atual"><button class="btn" onclick="addMeta()">Salvar</button></div><div id="lista-metas-detalhe"></div></section>
+
+    <section id="gerenciar" class="view-section">
+        <div class="card">
+            <h3>⚙️ Gerenciar Todos os Dados</h3><br>
+            <div id="lista-gerenciar"></div>
+        </div>
+    </section>
 </main>
 
 <script>
@@ -133,17 +174,20 @@
     let db = { lan: [], metas: [], inv: [], fgts_lan: [] };
     let chartG, chartR;
 
+    // --- CARREGAMENTO E NUVEM ---
     async function loadCloud() {
-        const res = await fetch(FIREBASE_URL);
-        const data = await res.json();
-        if(data) {
-            db = data;
-            db.lan = db.lan || [];
-            db.metas = db.metas || [];
-            db.inv = db.inv || [];
-            db.fgts_lan = db.fgts_lan || [];
-        }
-        updateUI();
+        try {
+            const res = await fetch(FIREBASE_URL);
+            const data = await res.json();
+            if(data) {
+                db = data;
+                db.lan = db.lan || [];
+                db.metas = db.metas || [];
+                db.inv = db.inv || [];
+                db.fgts_lan = db.fgts_lan || [];
+            }
+            updateUI();
+        } catch (e) { console.error("Erro ao carregar", e); }
     }
 
     async function saveCloud() {
@@ -152,42 +196,148 @@
         showToast();
     }
 
+    // --- FUNÇÕES DE ADICIONAR / EDITAR ---
+    function addLan() {
+        const id = document.getElementById('l-edit-id').value;
+        const valTotal = parseFloat(document.getElementById('l-valor').value);
+        const parcTotal = parseInt(document.getElementById('l-parcelas').value) || 1;
+        const dados = {
+            user: document.getElementById('l-user').value,
+            desc: document.getElementById('l-desc').value,
+            valorTotal: valTotal,
+            parcelasTotal: parcTotal,
+            valorParcela: valTotal / parcTotal,
+            tipo: document.getElementById('l-tipo').value,
+            parcelasPagas: 0
+        };
+
+        if(id) {
+            const index = db.lan.findIndex(x => x.id == id);
+            db.lan[index] = { ...db.lan[index], ...dados };
+            document.getElementById('l-edit-id').value = '';
+            document.getElementById('lan-title').innerText = "Novo Lançamento";
+        } else {
+            db.lan.push({ id: Date.now(), ...dados });
+        }
+        saveCloud();
+    }
+
+    function addMeta() {
+        const id = document.getElementById('m-edit-id').value;
+        const d = { nome: document.getElementById('m-nome').value, alvo: parseFloat(document.getElementById('m-alvo').value), atual: parseFloat(document.getElementById('m-atual').value) };
+        if(id) {
+            const i = db.metas.findIndex(x => x.id == id);
+            db.metas[i] = { ...db.metas[i], ...d };
+            document.getElementById('m-edit-id').value = '';
+        } else { db.metas.push({ id: Date.now(), ...d }); }
+        saveCloud();
+    }
+
+    function addInv() {
+        const id = document.getElementById('i-edit-id').value;
+        const d = { nome: document.getElementById('i-nome').value, valor: parseFloat(document.getElementById('i-valor').value) };
+        if(id) {
+            const i = db.inv.findIndex(x => x.id == id);
+            db.inv[i] = { ...db.inv[i], ...d };
+            document.getElementById('i-edit-id').value = '';
+        } else { db.inv.push({ id: Date.now(), ...d }); }
+        saveCloud();
+    }
+
+    function addFgts() {
+        const id = document.getElementById('f-edit-id').value;
+        const d = { user: document.getElementById('f-user').value, desc: document.getElementById('f-desc').value, valor: parseFloat(document.getElementById('f-valor').value) };
+        if(id) {
+            const i = db.fgts_lan.findIndex(x => x.id == id);
+            db.fgts_lan[i] = { ...db.fgts_lan[i], ...d };
+            document.getElementById('f-edit-id').value = '';
+        } else { db.fgts_lan.push({ id: Date.now(), ...d }); }
+        saveCloud();
+    }
+
+    // --- INTERFACE ---
     function updateUI() {
-        const lancamentos = db.lan || [];
-        const junD = lancamentos.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0);
-        const monD = lancamentos.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0);
-        const recTotal = lancamentos.filter(x => x.tipo === 'receita').reduce((a,b)=>a+b.valorTotal, 0);
-        
+        const junD = db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0);
+        const monD = db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0);
+        const recTotal = db.lan.filter(x => x.tipo === 'receita').reduce((a,b)=>a+b.valorTotal, 0);
+        const sobra = recTotal - (junD + monD);
+
         document.getElementById('d-eu').innerText = `R$ ${junD.toLocaleString('pt-BR')}`;
         document.getElementById('d-ela').innerText = `R$ ${monD.toLocaleString('pt-BR')}`;
         document.getElementById('d-total').innerText = `R$ ${(junD+monD).toLocaleString('pt-BR')}`;
-        document.getElementById('d-saldo').innerText = `R$ ${(recTotal - (junD+monD)).toLocaleString('pt-BR')}`;
+        document.getElementById('d-saldo').innerText = `R$ ${sobra.toLocaleString('pt-BR')}`;
+        document.getElementById('d-saldo').style.color = sobra >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
 
-        const fgtsJ = db.fgts_lan.filter(x => x.user === 'Junior').reduce((a,b)=>a+b.valor, 0);
-        const fgtsM = db.fgts_lan.filter(x => x.user === 'Mônica').reduce((a,b)=>a+b.valor, 0);
-        document.getElementById('d-fgts-j').innerText = `R$ ${fgtsJ.toLocaleString('pt-BR')}`;
-        document.getElementById('d-fgts-m').innerText = `R$ ${fgtsM.toLocaleString('pt-BR')}`;
-        document.getElementById('d-invest-total').innerText = `R$ ${db.inv.reduce((a,b)=>a+b.valor, 0).toLocaleString('pt-BR')}`;
+        const fJ = db.fgts_lan.filter(x=>x.user==='Junior').reduce((a,b)=>a+b.valor,0);
+        const fM = db.fgts_lan.filter(x=>x.user==='Mônica').reduce((a,b)=>a+b.valor,0);
+        document.getElementById('d-fgts-j').innerText = `R$ ${fJ.toLocaleString('pt-BR')}`;
+        document.getElementById('d-fgts-m').innerText = `R$ ${fM.toLocaleString('pt-BR')}`;
+        document.getElementById('d-invest-total').innerText = `R$ ${db.inv.reduce((a,b)=>a+b.valor,0).toLocaleString('pt-BR')}`;
         
-        const dividaFutura = lancamentos.filter(x => x.tipo === 'despesa').reduce((a,b) => a + (b.valorParcela * (b.parcelasTotal - b.parcelasPagas)), 0);
-        document.getElementById('d-total-falta').innerText = `R$ ${dividaFutura.toLocaleString('pt-BR')}`;
+        const divida = db.lan.filter(x=>x.tipo==='despesa').reduce((a,b)=>a+(b.valorParcela*(b.parcelasTotal-b.parcelasPagas)),0);
+        document.getElementById('d-total-falta').innerText = `R$ ${divida.toLocaleString('pt-BR')}`;
 
-        const dashContas = document.getElementById('dash-contas-falta');
-        dashContas.innerHTML = '';
-        lancamentos.filter(x => x.tipo === 'despesa').forEach(t => {
-            const falta = t.valorParcela * (t.parcelasTotal - t.parcelasPagas);
-            if(falta > 0) dashContas.innerHTML += `<div class="item-row"><span>[${t.user}] ${t.desc}</span><b>R$ ${falta.toLocaleString('pt-BR')}</b></div>`;
+        // Renderizar Metas com Barra de Progresso
+        const listMetas = document.getElementById('lista-metas-detalhe');
+        listMetas.innerHTML = '';
+        db.metas.forEach(m => {
+            const perc = Math.min((m.atual/m.alvo)*100, 100);
+            listMetas.innerHTML += `
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between"><b>${m.nome}</b> <span>${perc.toFixed(1)}%</span></div>
+                    <div class="progress-container"><div class="progress-bar" style="width: ${perc}%"></div></div>
+                    <div style="display:flex; justify-content:space-between; font-size:11px; opacity:0.7">
+                        <span>Já tenho: R$ ${m.atual.toLocaleString('pt-BR')}</span>
+                        <span>Falta: R$ ${(m.alvo-m.atual).toLocaleString('pt-BR')}</span>
+                    </div>
+                    <div style="margin-top:10px; text-align:right">
+                        <button class="btn-edit" onclick="editItem('metas', ${m.id})">Editar</button>
+                        <button class="btn-del" onclick="delItem('metas', ${m.id})">X</button>
+                    </div>
+                </div>`;
+        });
+
+        // Gerenciar Lançamentos
+        const listG = document.getElementById('lista-gerenciar');
+        listG.innerHTML = '';
+        db.lan.forEach(l => {
+            listG.innerHTML += `<div class="item-row">
+                <span>[${l.user}] ${l.desc} - R$ ${l.valorTotal.toLocaleString('pt-BR')}</span>
+                <div><button class="btn-edit" onclick="editItem('lan', ${l.id})">✏️</button>
+                <button class="btn-del" onclick="delItem('lan', ${l.id})">X</button></div>
+            </div>`;
         });
 
         renderCharts(recTotal, (junD+monD));
     }
 
+    function editItem(type, id) {
+        const item = db[type].find(x => x.id == id);
+        if(type === 'lan') {
+            showView('lancamentos');
+            document.getElementById('l-edit-id').value = item.id;
+            document.getElementById('l-user').value = item.user;
+            document.getElementById('l-desc').value = item.desc;
+            document.getElementById('l-valor').value = item.valorTotal;
+            document.getElementById('l-parcelas').value = item.parcelasTotal;
+            document.getElementById('l-tipo').value = item.tipo;
+            document.getElementById('lan-title').innerText = "Editando Lançamento";
+        } else if(type === 'metas') {
+            document.getElementById('m-edit-id').value = item.id;
+            document.getElementById('m-nome').value = item.nome;
+            document.getElementById('m-alvo').value = item.alvo;
+            document.getElementById('m-atual').value = item.atual;
+        }
+    }
+
+    function delItem(type, id) { if(confirm("Excluir item?")) { db[type] = db[type].filter(x => x.id != id); saveCloud(); } }
+
     function renderCharts(rec, gast) {
         const opt = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
         if(chartG) chartG.destroy();
-        chartG = new Chart(document.getElementById('chartGeral'), { type: 'bar', data: { labels: ['Ganhos', 'Gastos'], datasets: [{ data: [rec, gast], backgroundColor: ['#0072B2', '#E69F00'] }] }, options: opt });
+        chartG = new Chart(document.getElementById('chartGeral'), { type: 'bar', data: { labels: ['Receitas', 'Despesas'], datasets: [{ data: [rec, gast], backgroundColor: ['#00ffa3', '#ff4d6d'] }] }, options: opt });
         if(chartR) chartR.destroy();
-        chartR = new Chart(document.getElementById('chartResumo'), { type: 'doughnut', data: { labels: ['Junior', 'Mônica'], datasets: [{ data: [db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0), db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0)], backgroundColor: ['#56B4E9', '#F0E442'] }] }, options: opt });
+        chartR = new Chart(document.getElementById('chartResumo'), { type: 'doughnut', data: { labels: ['Junior', 'Mônica'], datasets: [{ data: [db.lan.filter(x=>x.user==='Junior'&&x.tipo==='despesa').reduce((a,b)=>a+b.valorParcela,0), db.lan.filter(x=>x.user==='Mônica'&&x.tipo==='despesa').reduce((a,b)=>a+b.valorParcela,0)], backgroundColor: ['#3b82f6', '#F0E442'] }] }, options: { ...opt, plugins: { legend: { display: true, position: 'bottom', labels: { color: '#fff', font: { size: 10 } } } } } });
     }
 
     function showView(id, el) {
@@ -199,59 +349,36 @@
     }
 
     function calcSimulador() {
-        const vVista = parseFloat(document.getElementById('c-vista').value) || 0;
-        const nParc = parseInt(document.getElementById('c-parc').value) || 0;
-        const vParc = parseFloat(document.getElementById('c-vparc').value) || 0;
+        const vV = parseFloat(document.getElementById('c-vista').value) || 0;
+        const nP = parseInt(document.getElementById('c-parc').value) || 0;
+        const vP = parseFloat(document.getElementById('c-vparc').value) || 0;
         const renda = parseFloat(document.getElementById('c-renda').value) || 0;
-        const resDiv = document.getElementById('calc-resultado');
-
-        if(vVista && nParc && vParc) {
-            const total = nParc * vParc;
-            const juros = total - vVista;
-            let horas = "";
-            if (renda > 0) {
-                const h = total / (renda / 220);
-                horas = `<br>⏱️ Vale <b>${h.toFixed(0)} horas</b> de trabalho.`;
-            }
-            resDiv.innerHTML = `<b>Total:</b> R$ ${total.toLocaleString('pt-BR')}<br><b>Juros:</b> R$ ${juros.toLocaleString('pt-BR')} (${((juros/vVista)*100).toFixed(1)}%)${horas}`;
-        } else {
-            resDiv.innerText = "Aguardando dados...";
+        const res = document.getElementById('calc-resultado');
+        if(vV && nP && vP) {
+            const tot = nP * vP;
+            const j = tot - vV;
+            let h = "";
+            if(renda > 0) h = `<br>⏱️ <b>${(tot/(renda/220)).toFixed(0)} horas</b> de vida.`;
+            res.innerHTML = `Total: R$ ${tot.toLocaleString('pt-BR')}<br>Juros: R$ ${j.toLocaleString('pt-BR')} (${((j/vV)*100).toFixed(1)}%)${h}`;
         }
     }
 
     function renderProjecao() {
         const lista = document.getElementById('lista-projecao');
         lista.innerHTML = '';
-        const recTotal = db.lan.filter(x => x.tipo === 'receita').reduce((a,b)=>a+b.valorTotal, 0);
-        for (let m = 1; m <= 12; m++) {
-            let totalMes = 0;
-            db.lan.filter(x => x.tipo === 'despesa').forEach(t => {
-                if (m <= (t.parcelasTotal - t.parcelasPagas)) totalMes += t.valorParcela;
-            });
-            if (totalMes > 0 || recTotal > 0) {
-                const sobra = recTotal - totalMes;
-                lista.innerHTML += `<div class="card" style="border-left: 4px solid ${sobra >= 0 ? 'var(--accent-blue)' : 'var(--accent-red)'}; margin-bottom: 10px; padding: 15px;">
-                    <div style="display: flex; justify-content: space-between;"><b>Mês +${m}</b><span>Gasto: R$ ${totalMes.toLocaleString('pt-BR')}</span></div>
-                    <div style="text-align: right; color: ${sobra >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}; font-weight: bold; margin-top: 5px;">Sobra: R$ ${sobra.toLocaleString('pt-BR')}</div>
-                </div>`;
-            }
+        const rec = db.lan.filter(x=>x.tipo==='receita').reduce((a,b)=>a+b.valorTotal,0);
+        for(let m=1; m<=12; m++) {
+            let gasto = 0;
+            db.lan.filter(x=>x.tipo==='despesa').forEach(t => { if(m <= (t.parcelasTotal - t.parcelasPagas)) gasto += t.valorParcela; });
+            const s = rec - gasto;
+            lista.innerHTML += `<div class="card" style="border-left: 4px solid ${s>=0?'var(--accent-blue)':'var(--accent-red)'}">
+                <div style="display:flex; justify-content:space-between"><b>Mês +${m}</b> <span>Gasto: R$ ${gasto.toLocaleString('pt-BR')}</span></div>
+                <div style="text-align:right; color:${s>=0?'var(--accent-green)':'var(--accent-red)'}; font-weight:bold; margin-top:5px">Previsto: R$ ${s.toLocaleString('pt-BR')}</div>
+            </div>`;
         }
     }
 
-    // Funções de add (Lan, Inv, Fgts, Meta) e del simplificadas para o script rodar liso
-    function addLan() {
-        const desc = document.getElementById('l-desc').value;
-        const v = parseFloat(document.getElementById('l-valor').value);
-        const p = parseInt(document.getElementById('l-parcelas').value) || 1;
-        db.lan.push({ id: Date.now(), user: document.getElementById('l-user').value, desc, valorTotal: v, parcelasTotal: p, parcelasPagas: 0, valorParcela: v/p, tipo: document.getElementById('l-tipo').value });
-        saveCloud();
-    }
-    function addInv() { db.inv.push({ id: Date.now(), nome: document.getElementById('i-nome').value, valor: parseFloat(document.getElementById('i-valor').value) }); saveCloud(); }
-    function addFgts() { db.fgts_lan.push({ id: Date.now(), user: document.getElementById('f-user').value, desc: document.getElementById('f-desc').value, valor: parseFloat(document.getElementById('f-valor').value) }); saveCloud(); }
-    function addMeta() { db.metas.push({ id: Date.now(), nome: document.getElementById('m-nome').value, alvo: parseFloat(document.getElementById('m-alvo').value), atual: parseFloat(document.getElementById('m-atual').value) }); saveCloud(); }
-    function delLan(id) { db.lan = db.lan.filter(x => x.id != id); saveCloud(); }
-    function showToast() { const x = document.getElementById("toast"); x.className = "show"; setTimeout(() => { x.className = ""; }, 3000); }
-
+    function showToast() { const t = document.getElementById("toast"); t.className = "show"; setTimeout(()=>t.className="", 3000); }
     loadCloud();
 </script>
 </body>
