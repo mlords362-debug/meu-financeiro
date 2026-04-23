@@ -166,28 +166,62 @@
             <h3>⚙️ Gerenciar Todos os Dados</h3><br>
             <div id="lista-gerenciar"></div>
         </div>
+  <main class="main">
+    <section id="dashboard" class="view-section active">
+        <div class="kpi-grid">
+            <div class="kpi-card" style="border-color: var(--accent-blue);"><div class="kpi-label">Junior (Mês)</div><div id="d-eu" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card" style="border-color: var(--accent-purple);"><div class="kpi-label">Mônica (Mês)</div><div id="d-ela" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Total Gasto</div><div id="d-total" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Sobra Livre</div><div id="d-saldo" class="kpi-value">R$ 0</div></div>
+        </div>
+
+        <div class="charts-row">
+            <div class="card" style="padding:15px; height: 280px; display: flex; align-items: center;"><canvas id="chartGeral"></canvas></div>
+            <div class="card" style="padding:15px; height: 280px; overflow-y: auto;">
+                <h3 style="font-size: 12px; font-family: 'Syne'; margin-bottom: 15px; color: var(--accent-purple);">🎯 STATUS DAS METAS</h3>
+                <div id="dash-metas-container"></div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 15px;">
+            <h3 style="font-size: 12px; font-family: 'Syne'; margin-bottom: 15px; color: var(--accent-blue);">🧾 CONTAS PARCELADAS (PENDENTES)</h3>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+                    <thead>
+                        <tr style="text-align: left; color: var(--text-muted); border-bottom: 1px solid var(--border);">
+                            <th style="padding: 10px 5px;">DESCRIÇÃO</th>
+                            <th style="padding: 10px 5px;">MENSAL</th>
+                            <th style="padding: 10px 5px;">FALTAM</th>
+                            <th style="padding: 10px 5px;">TOTAL DEVEDOR</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dash-extrato-corpo">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="kpi-grid" style="margin-top: 15px;">
+            <div class="kpi-card" style="border-color: #f59e0b;"><div class="kpi-label">FGTS Total</div><div id="d-fgts-total" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card" style="border-color: var(--accent-green);"><div class="kpi-label">Investido</div><div id="d-invest-total" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card" style="border-color: var(--accent-red);"><div class="kpi-label">Dívida Total Acumulada</div><div id="d-total-falta" class="kpi-value">R$ 0</div></div>
+        </div>
     </section>
-</main>
+
+    </main>
 
 <script>
     const FIREBASE_URL = 'https://financeiro-casal-4bc7f-default-rtdb.firebaseio.com/dados.json';
     let db = { lan: [], metas: [], inv: [], fgts_lan: [] };
-    let chartG, chartR;
+    let chartG;
 
-    // --- CARREGAMENTO E NUVEM ---
     async function loadCloud() {
         try {
             const res = await fetch(FIREBASE_URL);
             const data = await res.json();
-            if(data) {
-                db = data;
-                db.lan = db.lan || [];
-                db.metas = db.metas || [];
-                db.inv = db.inv || [];
-                db.fgts_lan = db.fgts_lan || [];
-            }
+            if(data) db = data;
             updateUI();
-        } catch (e) { console.error("Erro ao carregar", e); }
+        } catch (e) { console.error(e); }
     }
 
     async function saveCloud() {
@@ -196,70 +230,11 @@
         showToast();
     }
 
-    // --- FUNÇÕES DE ADICIONAR / EDITAR ---
-    function addLan() {
-        const id = document.getElementById('l-edit-id').value;
-        const valTotal = parseFloat(document.getElementById('l-valor').value);
-        const parcTotal = parseInt(document.getElementById('l-parcelas').value) || 1;
-        const dados = {
-            user: document.getElementById('l-user').value,
-            desc: document.getElementById('l-desc').value,
-            valorTotal: valTotal,
-            parcelasTotal: parcTotal,
-            valorParcela: valTotal / parcTotal,
-            tipo: document.getElementById('l-tipo').value,
-            parcelasPagas: 0
-        };
-
-        if(id) {
-            const index = db.lan.findIndex(x => x.id == id);
-            db.lan[index] = { ...db.lan[index], ...dados };
-            document.getElementById('l-edit-id').value = '';
-            document.getElementById('lan-title').innerText = "Novo Lançamento";
-        } else {
-            db.lan.push({ id: Date.now(), ...dados });
-        }
-        saveCloud();
-    }
-
-    function addMeta() {
-        const id = document.getElementById('m-edit-id').value;
-        const d = { nome: document.getElementById('m-nome').value, alvo: parseFloat(document.getElementById('m-alvo').value), atual: parseFloat(document.getElementById('m-atual').value) };
-        if(id) {
-            const i = db.metas.findIndex(x => x.id == id);
-            db.metas[i] = { ...db.metas[i], ...d };
-            document.getElementById('m-edit-id').value = '';
-        } else { db.metas.push({ id: Date.now(), ...d }); }
-        saveCloud();
-    }
-
-    function addInv() {
-        const id = document.getElementById('i-edit-id').value;
-        const d = { nome: document.getElementById('i-nome').value, valor: parseFloat(document.getElementById('i-valor').value) };
-        if(id) {
-            const i = db.inv.findIndex(x => x.id == id);
-            db.inv[i] = { ...db.inv[i], ...d };
-            document.getElementById('i-edit-id').value = '';
-        } else { db.inv.push({ id: Date.now(), ...d }); }
-        saveCloud();
-    }
-
-    function addFgts() {
-        const id = document.getElementById('f-edit-id').value;
-        const d = { user: document.getElementById('f-user').value, desc: document.getElementById('f-desc').value, valor: parseFloat(document.getElementById('f-valor').value) };
-        if(id) {
-            const i = db.fgts_lan.findIndex(x => x.id == id);
-            db.fgts_lan[i] = { ...db.fgts_lan[i], ...d };
-            document.getElementById('f-edit-id').value = '';
-        } else { db.fgts_lan.push({ id: Date.now(), ...d }); }
-        saveCloud();
-    }
-
-    // --- INTERFACE ---
     function updateUI() {
-        const junD = db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0);
-        const monD = db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0);
-        const recTotal = db.lan.filter(x => x.tipo === 'receita').reduce((a,b)=>a+b.valorTotal, 0);
+        // Cálculos Financeiros
+        const junD = db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+(parseFloat(b.valorParcela)||0), 0);
+        const monD = db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+(parseFloat(b.valorParcela)||0), 0);
+        const recTotal = db.lan.filter(x => x.tipo === 'receita').reduce((a,b)=>a+(parseFloat(b.valorTotal)||0), 0);
         const sobra = recTotal - (junD + monD);
 
         document.getElementById('d-eu').innerText = `R$ ${junD.toLocaleString('pt-BR')}`;
@@ -268,113 +243,67 @@
         document.getElementById('d-saldo').innerText = `R$ ${sobra.toLocaleString('pt-BR')}`;
         document.getElementById('d-saldo').style.color = sobra >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
 
-        const fJ = db.fgts_lan.filter(x=>x.user==='Junior').reduce((a,b)=>a+b.valor,0);
-        const fM = db.fgts_lan.filter(x=>x.user==='Mônica').reduce((a,b)=>a+b.valor,0);
-        document.getElementById('d-fgts-j').innerText = `R$ ${fJ.toLocaleString('pt-BR')}`;
-        document.getElementById('d-fgts-m').innerText = `R$ ${fM.toLocaleString('pt-BR')}`;
-        document.getElementById('d-invest-total').innerText = `R$ ${db.inv.reduce((a,b)=>a+b.valor,0).toLocaleString('pt-BR')}`;
-        
-        const divida = db.lan.filter(x=>x.tipo==='despesa').reduce((a,b)=>a+(b.valorParcela*(b.parcelasTotal-b.parcelasPagas)),0);
-        document.getElementById('d-total-falta').innerText = `R$ ${divida.toLocaleString('pt-BR')}`;
-
-        // Renderizar Metas com Barra de Progresso
-        const listMetas = document.getElementById('lista-metas-detalhe');
-        listMetas.innerHTML = '';
+        // 1. RENDERIZAR METAS NO DASHBOARD
+        const dashMetas = document.getElementById('dash-metas-container');
+        dashMetas.innerHTML = '';
         db.metas.forEach(m => {
-            const perc = Math.min((m.atual/m.alvo)*100, 100);
-            listMetas.innerHTML += `
-                <div class="card">
-                    <div style="display:flex; justify-content:space-between"><b>${m.nome}</b> <span>${perc.toFixed(1)}%</span></div>
-                    <div class="progress-container"><div class="progress-bar" style="width: ${perc}%"></div></div>
-                    <div style="display:flex; justify-content:space-between; font-size:11px; opacity:0.7">
-                        <span>Já tenho: R$ ${m.atual.toLocaleString('pt-BR')}</span>
-                        <span>Falta: R$ ${(m.alvo-m.atual).toLocaleString('pt-BR')}</span>
-                    </div>
-                    <div style="margin-top:10px; text-align:right">
-                        <button class="btn-edit" onclick="editItem('metas', ${m.id})">Editar</button>
-                        <button class="btn-del" onclick="delItem('metas', ${m.id})">X</button>
-                    </div>
+            const alvo = parseFloat(m.alvo) || 0;
+            const atual = parseFloat(m.atual) || 0;
+            const perc = alvo > 0 ? Math.min((atual/alvo)*100, 100) : 0;
+            dashMetas.innerHTML += `
+                <div style="margin-bottom:12px;">
+                    <div style="display:flex; justify-content:space-between; font-size:11px;"><b>${m.nome}</b> <span>${perc.toFixed(1)}%</span></div>
+                    <div class="progress-container" style="background:var(--bg3); height:6px; border-radius:10px; margin:4px 0;"><div class="progress-bar" style="width:${perc}%; background:var(--accent-green); height:100%; border-radius:10px;"></div></div>
                 </div>`;
         });
 
-        // Gerenciar Lançamentos
-        const listG = document.getElementById('lista-gerenciar');
-        listG.innerHTML = '';
-        db.lan.forEach(l => {
-            listG.innerHTML += `<div class="item-row">
-                <span>[${l.user}] ${l.desc} - R$ ${l.valorTotal.toLocaleString('pt-BR')}</span>
-                <div><button class="btn-edit" onclick="editItem('lan', ${l.id})">✏️</button>
-                <button class="btn-del" onclick="delItem('lan', ${l.id})">X</button></div>
-            </div>`;
-        });
+        // 2. RENDERIZAR EXTRATO DE PARCELAS (O NOVO)
+        const corpoExtrato = document.getElementById('dash-extrato-corpo');
+        corpoExtrato.innerHTML = '';
+        let dividaAcumulada = 0;
 
+        db.lan.filter(x => x.tipo === 'despesa').forEach(l => {
+            const parcPagas = parseInt(l.parcelasPagas) || 0;
+            const parcTotais = parseInt(l.parcelasTotal) || 1;
+            const faltam = parcTotais - parcPagas;
+            const vMensal = parseFloat(l.valorParcela) || 0;
+            const vDevedor = vMensal * faltam;
+            
+            dividaAcumulada += vDevedor;
+
+            if(faltam > 0) {
+                corpoExtrato.innerHTML += `
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 10px 5px;">[${l.user}] ${l.desc}</td>
+                        <td style="padding: 10px 5px;">R$ ${vMensal.toLocaleString('pt-BR')}</td>
+                        <td style="padding: 10px 5px;">${faltam}x</td>
+                        <td style="padding: 10px 5px; font-weight:bold; color:var(--accent-red);">R$ ${vDevedor.toLocaleString('pt-BR')}</td>
+                    </tr>`;
+            }
+        });
+        document.getElementById('d-total-falta').innerText = `R$ ${dividaAcumulada.toLocaleString('pt-BR')}`;
+
+        // Gráficos e Outros
         renderCharts(recTotal, (junD+monD));
     }
 
-    function editItem(type, id) {
-        const item = db[type].find(x => x.id == id);
-        if(type === 'lan') {
-            showView('lancamentos');
-            document.getElementById('l-edit-id').value = item.id;
-            document.getElementById('l-user').value = item.user;
-            document.getElementById('l-desc').value = item.desc;
-            document.getElementById('l-valor').value = item.valorTotal;
-            document.getElementById('l-parcelas').value = item.parcelasTotal;
-            document.getElementById('l-tipo').value = item.tipo;
-            document.getElementById('lan-title').innerText = "Editando Lançamento";
-        } else if(type === 'metas') {
-            document.getElementById('m-edit-id').value = item.id;
-            document.getElementById('m-nome').value = item.nome;
-            document.getElementById('m-alvo').value = item.alvo;
-            document.getElementById('m-atual').value = item.atual;
-        }
-    }
-
-    function delItem(type, id) { if(confirm("Excluir item?")) { db[type] = db[type].filter(x => x.id != id); saveCloud(); } }
-
+    // Mantenha as outras funções (addLan, editItem, delItem, showView, etc) iguais ao código anterior.
     function renderCharts(rec, gast) {
-        const opt = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } };
+        const ctx = document.getElementById('chartGeral');
         if(chartG) chartG.destroy();
-        chartG = new Chart(document.getElementById('chartGeral'), { type: 'bar', data: { labels: ['Receitas', 'Despesas'], datasets: [{ data: [rec, gast], backgroundColor: ['#00ffa3', '#ff4d6d'] }] }, options: opt });
-        if(chartR) chartR.destroy();
-        chartR = new Chart(document.getElementById('chartResumo'), { type: 'doughnut', data: { labels: ['Junior', 'Mônica'], datasets: [{ data: [db.lan.filter(x=>x.user==='Junior'&&x.tipo==='despesa').reduce((a,b)=>a+b.valorParcela,0), db.lan.filter(x=>x.user==='Mônica'&&x.tipo==='despesa').reduce((a,b)=>a+b.valorParcela,0)], backgroundColor: ['#3b82f6', '#F0E442'] }] }, options: { ...opt, plugins: { legend: { display: true, position: 'bottom', labels: { color: '#fff', font: { size: 10 } } } } } });
+        chartG = new Chart(ctx, {
+            type: 'bar',
+            data: { labels: ['Ganhos', 'Gastos'], datasets: [{ data: [rec, gast], backgroundColor: ['#00ffa3', '#ff4d6d'] }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
     }
 
     function showView(id, el) {
         document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         document.getElementById(id).classList.add('active');
-        if(el) el.classList.add('active');
-        if(id === 'projecao_view') renderProjecao();
-    }
-
-    function calcSimulador() {
-        const vV = parseFloat(document.getElementById('c-vista').value) || 0;
-        const nP = parseInt(document.getElementById('c-parc').value) || 0;
-        const vP = parseFloat(document.getElementById('c-vparc').value) || 0;
-        const renda = parseFloat(document.getElementById('c-renda').value) || 0;
-        const res = document.getElementById('calc-resultado');
-        if(vV && nP && vP) {
-            const tot = nP * vP;
-            const j = tot - vV;
-            let h = "";
-            if(renda > 0) h = `<br>⏱️ <b>${(tot/(renda/220)).toFixed(0)} horas</b> de vida.`;
-            res.innerHTML = `Total: R$ ${tot.toLocaleString('pt-BR')}<br>Juros: R$ ${j.toLocaleString('pt-BR')} (${((j/vV)*100).toFixed(1)}%)${h}`;
-        }
-    }
-
-    function renderProjecao() {
-        const lista = document.getElementById('lista-projecao');
-        lista.innerHTML = '';
-        const rec = db.lan.filter(x=>x.tipo==='receita').reduce((a,b)=>a+b.valorTotal,0);
-        for(let m=1; m<=12; m++) {
-            let gasto = 0;
-            db.lan.filter(x=>x.tipo==='despesa').forEach(t => { if(m <= (t.parcelasTotal - t.parcelasPagas)) gasto += t.valorParcela; });
-            const s = rec - gasto;
-            lista.innerHTML += `<div class="card" style="border-left: 4px solid ${s>=0?'var(--accent-blue)':'var(--accent-red)'}">
-                <div style="display:flex; justify-content:space-between"><b>Mês +${m}</b> <span>Gasto: R$ ${gasto.toLocaleString('pt-BR')}</span></div>
-                <div style="text-align:right; color:${s>=0?'var(--accent-green)':'var(--accent-red)'}; font-weight:bold; margin-top:5px">Previsto: R$ ${s.toLocaleString('pt-BR')}</div>
-            </div>`;
+        if(el) {
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
         }
     }
 
