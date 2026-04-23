@@ -229,6 +229,32 @@
         setTimeout(() => document.getElementById("toast").classList.remove("show"), 3000);
         updateUI();
     }
+    function renderLanTabela() {
+    const tbody = document.querySelector('#lan-tabela tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    // Mostra todos os lançamentos para você poder gerenciar o que cadastrou
+    db.lan.forEach((l, index) => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${l.desc}</td>
+                <td>R$ ${l.valorParcela.toFixed(2)}</td>
+                <td>${l.parcelasTotal}</td>
+                <td>
+                    <button class="btn-del" onclick="deleteLan(${index})">🗑️</button>
+                </td>
+            </tr>`;
+    });
+}
+
+// Função para deletar que faltava:
+function deleteLan(index) {
+    if(confirm("Deseja excluir este lançamento?")) {
+        db.lan.splice(index, 1);
+        saveCloud();
+    }
+}
 
     function addLan() {
     const filtro = document.getElementById('filtro-mes').value.split('-');
@@ -363,6 +389,11 @@ function deleteMeta(index) {
                 // No final da função updateUI, adicione isso:
     renderMetasDash();
     renderMetasLista();
+                // No final da função updateUI, deve ficar assim:
+    renderMetasDash();
+    renderMetasLista();
+    renderLanTabela(); // ADICIONE ESTA LINHA AQUI
+}
             });
         }
     }
