@@ -167,14 +167,27 @@
     let db = { lan: [], metas: [], inv: [], fgts_j: 0, fgts_m: 0 };
     let chartG, chartR;
 
-    async function loadCloud() {
-        try {
-            const res = await fetch(FIREBASE_URL);
-            const data = await res.json();
-            if (data) { db = data; db.lan = db.lan || []; db.metas = db.metas || []; db.inv = db.inv || []; }
-            updateUI();
-        } catch (e) { console.error(e); }
-    }
+    // Procure a função loadCloud e deixe o trecho inicial assim:
+async function loadCloud() {
+    try {
+        const res = await fetch(FIREBASE_URL);
+        const data = await res.json();
+        if (data) { 
+            db = data; 
+            db.lan = db.lan || []; 
+            db.metas = db.metas || []; 
+            
+            // SE A LISTA NOVA ESTIVER VAZIA, MAS EXISTIR SALDO ANTIGO, VAMOS MIGRAR:
+            if ((!db.fgts_lan || db.fgts_lan.length === 0) && (db.fgts_j > 0 || db.fgts_m > 0)) {
+                db.fgts_lan = [];
+                if (db.fgts_j > 0) db.fgts_lan.push({ id: 1, user: 'Junior', desc: 'Saldo Inicial', valor: db.fgts_j, data: 'Anterior' });
+                if (db.fgts_m > 0) db.fgts_lan.push({ id: 2, user: 'Mônica', desc: 'Saldo Inicial', valor: db.fgts_m, data: 'Anterior' });
+            }
+            db.fgts_lan = db.fgts_lan || [];
+        }
+        updateUI();
+    } catch (e) { console.error(e); }
+}
 
     async function saveCloud() {
         try {
