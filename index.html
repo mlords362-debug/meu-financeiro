@@ -54,9 +54,16 @@
         <div class="nav-item" onclick="showView('invest_view', this)">📈 Investimentos</div>
         <div class="nav-item" onclick="showView('fgts_view', this)">🏦 Saldo FGTS</div>
         <div class="nav-item" onclick="showView('gerenciar', this)">⚙️ Gerenciar Tudo</div>
+        
+        <div style="padding: 20px 25px 5px 25px; font-size: 10px; font-weight: 800; color: var(--accent-purple); border-top: 1px solid var(--border); margin-top: 10px;">🧐 SIMULADOR</div>
+        <div style="padding: 10px 25px;">
+            <input type="number" id="c-vista" placeholder="Valor à vista R$" oninput="calcSimulador()" style="margin-bottom: 5px; font-size: 11px;">
+            <input type="number" id="c-parc" placeholder="Nº parcelas" oninput="calcSimulador()" style="margin-bottom: 5px; font-size: 11px;">
+            <input type="number" id="c-vparc" placeholder="R$ parcela" oninput="calcSimulador()" style="margin-bottom: 5px; font-size: 11px;">
+            <div id="calc-resultado" style="font-size:10px; color:var(--accent-green); line-height: 1.2;">Aguardando dados...</div>
+        </div>
     </nav>
 </aside>
-
 <main class="main">
     <section id="dashboard" class="view-section active">
         <div class="kpi-grid">
@@ -77,10 +84,14 @@
             <div id="dash-contas-falta"></div>
         </div>
 
-        <div class="charts-row">
-            <div class="card" style="padding:10px;"><canvas id="chartGeral"></canvas></div>
-            <div class="card" style="padding:10px;"><canvas id="chartResumo"></canvas></div>
-        </div>
+        <<div class="charts-row">
+    <div class="card" style="padding:10px; display: flex; justify-content: center; align-items: center;">
+        <canvas id="chartGeral"></canvas>
+    </div>
+    <div class="card" style="padding:10px; display: flex; justify-content: center; align-items: center;">
+        <canvas id="chartResumo"></canvas>
+    </div>
+</div>
     </section>
 
     <section id="lancamentos" class="view-section">
@@ -307,6 +318,20 @@
     function showToast() { const x = document.getElementById("toast"); x.className = "show"; setTimeout(() => { x.className = x.className.replace("show", ""); }, 3000); }
 
     loadCloud();
+    
+    function calcSimulador() {
+    const v = parseFloat(document.getElementById('c-vista').value) || 0;
+    const n = parseInt(document.getElementById('c-parc').value) || 0;
+    const vp = parseFloat(document.getElementById('c-vparc').value) || 0;
+    
+    if(v && n && vp) {
+        const tot = n * vp;
+        const juros = tot - v;
+        document.getElementById('calc-resultado').innerHTML = `Total: R$ ${tot.toLocaleString('pt-BR')}<br>Juros: R$ ${juros.toLocaleString('pt-BR')}`;
+    } else {
+        document.getElementById('calc-resultado').innerText = "Aguardando dados...";
+    }
+}
 </script>
 </body>
 </html>
