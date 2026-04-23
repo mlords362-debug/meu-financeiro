@@ -110,17 +110,25 @@
     </section>
 
     <section id="lancamentos" class="view-section">
-        <div class="card">
-            <h3 id="lan-title">Novo Lançamento</h3><br>
-            <input type="hidden" id="l-edit-id">
-            <select id="l-user"><option value="Junior">Junior</option><option value="Mônica">Mônica</option></select>
-            <input type="text" id="l-desc" placeholder="Ex: Aluguel, Parcela Carro">
-            <input type="number" id="l-valor" placeholder="Valor Total R$">
-            <input type="number" id="l-parcelas" placeholder="Qtd Parcelas" value="1">
-            <select id="l-tipo"><option value="despesa">Despesa</option><option value="receita">Receita</option><option value="investimento">Investimento</option></select>
-            <button class="btn" onclick="addLan()">Salvar Lançamento</button>
-        </div>
-    </section>
+    <div class="card">
+        <h3 id="lan-title">Novo Lançamento</h3><br>
+        <input type="hidden" id="l-edit-id">
+        <select id="l-user"><option value="Junior">Junior</option><option value="Mônica">Mônica</option></select>
+        <input type="text" id="l-desc" placeholder="Descrição (Ex: Empréstimo)">
+        <input type="number" id="l-valor" placeholder="Valor da PARCELA MENSAL R$">
+        <input type="number" id="l-parcelas" placeholder="Qtd Total de Parcelas" value="1">
+        <select id="l-tipo"><option value="despesa">Despesa</option><option value="receita">Receita</option></select>
+        <button class="btn" onclick="addLan()">Salvar Lançamento</button>
+    </div>
+
+    <div class="card">
+        <h3>📋 Histórico de Contas</h3><br>
+        <table>
+            <thead><tr><th>USUÁRIO</th><th>DESCRIÇÃO</th><th>VALOR MENSAL</th><th>PARCELAS</th><th>AÇÕES</th></tr></thead>
+            <tbody id="lista-lancamentos-tabela"></tbody>
+        </table>
+    </div>
+</section>
 
     <section id="metas_view" class="view-section">
         <div class="card">
@@ -332,32 +340,42 @@
     }
 
     // --- AUXILIARES ---
-    function editLan(id) { 
-        const l = db.lan.find(x => x.id == id); showView('lancamentos');
-        document.getElementById('l-edit-id').value = l.id;
-        document.getElementById('l-desc').value = l.desc;
-        document.getElementById('l-valor').value = l.valorTotal;
-        document.getElementById('l-parcelas').value = l.parcelasTotal;
-        document.getElementById('l-tipo').value = l.tipo;
-    }
-    function delLan(id) { if(confirm("Excluir?")) { db.lan = db.lan.filter(x => x.id != id); saveCloud(); } }
+    f// --- AUXILIARES ATUALIZADOS ---
+function editLan(id) { 
+    const l = db.lan.find(x => x.id == id); 
+    showView('lancamentos');
+    document.getElementById('l-edit-id').value = l.id;
+    document.getElementById('l-user').value = l.user;
+    document.getElementById('l-desc').value = l.desc;
+    // IMPORTANTE: Aqui ele volta o valor da PARCELA para o campo, conforme sua solicitação
+    document.getElementById('l-valor').value = l.valorParcela; 
+    document.getElementById('l-parcelas').value = l.parcelasTotal;
+    document.getElementById('l-tipo').value = l.tipo;
+    document.getElementById('lan-title').innerText = "Editando Lançamento";
+}
 
-    function editMeta(id) {
-        const m = db.metas.find(x => x.id == id); showView('metas_view');
-        document.getElementById('m-edit-id').value = m.id;
-        document.getElementById('m-nome').value = m.nome;
-        document.getElementById('m-alvo').value = m.alvo;
-        document.getElementById('m-atual').value = m.atual;
-    }
-    function delMeta(id) { if(confirm("Excluir meta?")) { db.metas = db.metas.filter(x => x.id != id); saveCloud(); } }
+function delLan(id) { 
+    if(confirm("Deseja realmente excluir este lançamento?")) { 
+        db.lan = db.lan.filter(x => x.id != id); 
+        saveCloud(); 
+    } 
+}
 
-    function editFGTS(id) {
-        const f = db.fgts.find(x => x.id == id); showView('fgts_view');
-        document.getElementById('f-edit-id').value = f.id;
-        document.getElementById('f-desc').value = f.desc;
-        document.getElementById('f-valor').value = f.valor;
-    }
-    function delFGTS(id) { if(confirm("Excluir?")) { db.fgts = db.fgts.filter(x => x.id != id); saveCloud(); } }
+function editMeta(id) {
+    const m = db.metas.find(x => x.id == id); 
+    showView('metas_view');
+    document.getElementById('m-edit-id').value = m.id;
+    document.getElementById('m-nome').value = m.nome;
+    document.getElementById('m-alvo').value = m.alvo;
+    document.getElementById('m-atual').value = m.atual;
+}
+
+function delMeta(id) { 
+    if(confirm("Excluir esta meta definitivamente?")) { 
+        db.metas = db.metas.filter(x => x.id != id); 
+        saveCloud(); 
+    } 
+}
 
     function calcSimulador() {
         const vV = parseFloat(document.getElementById('c-vista').value) || 0;
