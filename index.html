@@ -290,11 +290,53 @@ db.lan.filter(x => x.tipo === 'despesa').forEach(t => {
     }
 
     function renderCharts(rec, gast) {
-        if(chartG) chartG.destroy();
-        chartG = new Chart(document.getElementById('chartGeral'), { type: 'bar', data: { labels: ['Ganhos', 'Gastos'], datasets: [{ data: [rec, gast], backgroundColor: ['#00ffa3', '#ff4d6d'] }] }, options: { plugins: { legend: { display: false } }, scales: { y: { display: false } } } });
-        if(chartR) chartR.destroy();
-        chartR = new Chart(document.getElementById('chartResumo'), { type: 'doughnut', data: { labels: ['Junior', 'Mônica'], datasets: [{ data: [db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0), db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0)], backgroundColor: ['#3b82f6', '#8b5cf6'], borderWidth: 0 }] }, options: { plugins: { legend: { position: 'bottom', labels: { color: '#fff', font: { size: 9 } } } } } });
-    }
+    // Definindo cores amigáveis para daltônicos
+    const corGanhos = '#0072B2'; // Azul escuro vibrante
+    const corGastos = '#E69F00'; // Laranja forte
+    const corJunior = '#56B4E9'; // Azul céu
+    const corMonica = '#F0E442'; // Amarelo (opcional: use #CC79A7 para Rosa se preferir)
+
+    if(chartG) chartG.destroy();
+    chartG = new Chart(document.getElementById('chartGeral'), { 
+        type: 'bar', 
+        data: { 
+            labels: ['Ganhos', 'Gastos'], 
+            datasets: [{ 
+                data: [rec, gast], 
+                backgroundColor: [corGanhos, corGastos] 
+            }] 
+        }, 
+        options: { 
+            plugins: { legend: { display: false } }, 
+            scales: { y: { display: false } } 
+        } 
+    });
+
+    if(chartR) chartR.destroy();
+    chartR = new Chart(document.getElementById('chartResumo'), { 
+        type: 'doughnut', 
+        data: { 
+            labels: ['Junior', 'Mônica'], 
+            datasets: [{ 
+                data: [
+                    db.lan.filter(x => x.user === 'Junior' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0), 
+                    db.lan.filter(x => x.user === 'Mônica' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela, 0)
+                ], 
+                backgroundColor: [corJunior, corMonica], 
+                borderWidth: 2,
+                borderColor: '#0f121d' // Cor de fundo para dar separação entre fatias
+            }] 
+        }, 
+        options: { 
+            plugins: { 
+                legend: { 
+                    position: 'bottom', 
+                    labels: { color: '#fff', font: { size: 10, weight: 'bold' } } 
+                } 
+            } 
+        } 
+    });
+}
 
     function calcSimulador() {
         const v = parseFloat(document.getElementById('c-vista').value) || 0;
