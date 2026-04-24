@@ -3,58 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financeiro Pro - 12 Cards Edition</title>
+    <title>Financeiro Casal Pro</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --bg: #0f172a; --bg2: #1e293b; --bg3: #334155;
+            --bg: #0b0f19; --bg2: #161b2a; --bg3: #242b3d;
             --accent-blue: #3b82f6; --accent-purple: #8b5cf6;
             --accent-green: #10b981; --accent-red: #ef4444;
-            --accent-orange: #f59e0b; --text: #f8fafc; --text-muted: #94a3b8;
+            --text: #f8fafc; --text-muted: #94a3b8;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
         
-        nav { width: 220px; background: #000; padding: 20px; border-right: 1px solid #334155; position: fixed; height: 100%; z-index: 100; }
-        .nav-item { padding: 12px; cursor: pointer; color: var(--text-muted); display: flex; align-items: center; gap: 10px; border-radius: 8px; transition: 0.3s; margin-bottom: 5px; }
-        .nav-item.active { background: var(--bg2); color: #fff; border-left: 4px solid var(--accent-purple); }
+        /* Menu Lateral */
+        nav { width: 240px; background: #000; padding: 20px; border-right: 1px solid var(--bg3); position: fixed; height: 100%; overflow-y: auto; }
+        .nav-item { padding: 12px; cursor: pointer; color: var(--text-muted); border-radius: 8px; transition: 0.3s; margin-bottom: 4px; font-size: 14px; }
+        .nav-item:hover, .nav-item.active { background: var(--bg2); color: #fff; border-left: 4px solid var(--accent-purple); }
 
-        main { flex: 1; margin-left: 220px; padding: 30px; }
+        /* Conteúdo Principal */
+        main { flex: 1; margin-left: 240px; padding: 25px; }
         .view-section { display: none; }
         .view-section.active { display: block; }
 
-        /* GRID DE 12 CARDS */
-        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
-        .kpi-card { background: var(--bg2); padding: 15px; border-radius: 12px; border-bottom: 3px solid var(--bg3); }
-        .kpi-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; letter-spacing: 1px; }
-        .kpi-value { font-size: 16px; font-weight: bold; color: #fff; }
+        /* Grid de 12 Cards */
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+        .kpi-card { background: var(--bg2); padding: 15px; border-radius: 12px; border-bottom: 2px solid var(--bg3); }
+        .kpi-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+        .kpi-value { font-size: 16px; font-weight: bold; }
 
-        .card { background: var(--bg2); padding: 20px; border-radius: 15px; margin-bottom: 20px; }
-        .card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-        /* TABELA */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { text-align: left; padding: 12px; color: var(--text-muted); font-size: 12px; border-bottom: 1px solid var(--bg3); }
-        td { padding: 12px; font-size: 13px; border-bottom: 1px solid #2d3748; }
-
-        /* METAS */
-        .meta-card { background: #000; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--accent-green); }
-        .progress-bg { background: #334155; height: 8px; border-radius: 4px; margin-top: 8px; }
-        .progress-fill { background: var(--accent-green); height: 100%; border-radius: 4px; transition: 1s; }
-
-        select, input { background: var(--bg2); border: 1px solid var(--bg3); color: #fff; padding: 10px; border-radius: 6px; width: 100%; margin-bottom: 10px; }
+        /* Estilo Geral */
+        .card { background: var(--bg2); padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid var(--bg3); }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+        th { text-align: left; padding: 12px; color: var(--text-muted); border-bottom: 1px solid var(--bg3); }
+        td { padding: 12px; border-bottom: 1px solid #1e2536; }
+        
+        input, select { background: var(--bg); border: 1px solid var(--bg3); color: #fff; padding: 10px; border-radius: 6px; width: 100%; margin-bottom: 10px; }
         .btn { background: var(--accent-purple); color: #fff; border: none; padding: 12px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; }
+        
+        /* Metas */
+        .meta-card { background: #000; padding: 15px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--accent-green); }
+        .progress-bg { background: var(--bg3); height: 8px; border-radius: 4px; margin: 8px 0; }
+        .progress-fill { background: var(--accent-green); height: 100%; border-radius: 4px; transition: 1s; }
     </style>
 </head>
 <body>
 
 <nav>
-    <h2 style="margin-bottom: 30px;">FINANCEIRO<br><span style="color: var(--accent-purple);">PRO</span></h2>
+    <h2 style="color: var(--accent-purple); margin-bottom: 20px; font-size: 18px;">FINANCEIRO PRO</h2>
     <div class="nav-item active" onclick="showView('dashboard', this)">📊 Dashboard</div>
     <div class="nav-item" onclick="showView('lancamentos', this)">➕ Lançamentos</div>
     <div class="nav-item" onclick="showView('metas_view', this)">🎯 Metas</div>
-    <div class="nav-item" onclick="showView('proj_view', this)">📈 Projeção</div>
-    <div class="nav-item" onclick="showView('gerenciar_view', this)">⚙️ Gerenciar</div>
+    <div class="nav-item" onclick="showView('fgts_view', this)">💰 FGTS</div>
+    <div class="nav-item" onclick="showView('invest_view', this)">📈 Investimentos</div>
+    <div class="nav-item" onclick="showView('proj_view', this)">📅 Projeção 12 Meses</div>
+    <div class="nav-item" onclick="showView('calc_view', this)">🧮 Calculadora Juros</div>
 </nav>
 
 <main>
@@ -68,57 +70,115 @@
             <div class="kpi-card"><div class="kpi-label">Entrada Junior</div><div id="k-j-e" class="kpi-value" style="color:var(--accent-green)">R$ 0</div></div>
             <div class="kpi-card"><div class="kpi-label">Gasto Junior</div><div id="k-j-g" class="kpi-value" style="color:var(--accent-red)">R$ 0</div></div>
             <div class="kpi-card"><div class="kpi-label">Sobra Junior</div><div id="k-j-s" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card"><div class="kpi-label">Meta Junior</div><div id="k-j-m" class="kpi-value" style="color:var(--accent-blue)">R$ 0</div></div>
+            <div class="kpi-card"><div class="kpi-label">Metas Junior</div><div id="k-j-m" class="kpi-value">R$ 0</div></div>
 
             <div class="kpi-card"><div class="kpi-label">Entrada Mônica</div><div id="k-m-e" class="kpi-value" style="color:var(--accent-green)">R$ 0</div></div>
             <div class="kpi-card"><div class="kpi-label">Gasto Mônica</div><div id="k-m-g" class="kpi-value" style="color:var(--accent-red)">R$ 0</div></div>
             <div class="kpi-card"><div class="kpi-label">Sobra Mônica</div><div id="k-m-s" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card"><div class="kpi-label">Meta Mônica</div><div id="k-m-m" class="kpi-value" style="color:var(--accent-blue)">R$ 0</div></div>
+            <div class="kpi-card"><div class="kpi-label">Metas Mônica</div><div id="k-m-m" class="kpi-value">R$ 0</div></div>
 
             <div class="kpi-card"><div class="kpi-label">Total Entradas</div><div id="k-total-e" class="kpi-value">R$ 0</div></div>
             <div class="kpi-card"><div class="kpi-label">Total Gastos</div><div id="k-total-g" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card"><div class="kpi-label">Ambos (Juntos)</div><div id="k-a-g" class="kpi-value">R$ 0</div></div>
-            <div class="kpi-card"><div class="kpi-label">Total Dívida Restante</div><div id="k-total-d" class="kpi-value" style="color:var(--accent-orange)">R$ 0</div></div>
+            <div class="kpi-card"><div class="kpi-label">FGTS Acumulado</div><div id="k-total-fgts" class="kpi-value">R$ 0</div></div>
+            <div class="kpi-card"><div class="kpi-label">Dívida Total Restante</div><div id="k-total-d" class="kpi-value" style="color:var(--accent-orange)">R$ 0</div></div>
         </div>
 
-        <div class="card-row">
-            <div class="card"><h4>🎯 Metas Ativas</h4><div id="dash-metas"></div></div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="card"><h4>🎯 Metas Atuais</h4><div id="dash-metas"></div></div>
             <div class="card"><h4>📊 Divisão de Gastos</h4><canvas id="chartRosca" style="max-height:180px"></canvas></div>
         </div>
+    </section>
 
+    <section id="lancamentos" class="view-section">
+        <div class="card" style="max-width: 500px; margin: auto;">
+            <h3>Nova Conta/Salário</h3><br>
+            <input type="text" id="l-desc" placeholder="Descrição (Ex: Cartão XP)">
+            <input type="number" id="l-valor" placeholder="Valor R$">
+            <input type="number" id="l-parcelas" placeholder="Número de Parcelas" value="1">
+            <select id="l-user"><option>Junior</option><option>Mônica</option><option>Ambos</option></select>
+            <select id="l-tipo"><option value="despesa">Despesa</option><option value="receita">Receita</option></select>
+            <button class="btn" onclick="addLan()">Salvar Registro</button>
+        </div>
         <div class="card">
-            <h4>📄 Extrato do Mês (Quanto falta pagar)</h4>
-            <table id="dash-extrato">
-                <thead><tr><th>Dono</th><th>Descrição</th><th>Valor Parcela</th><th>Parcelas</th><th>Total a Quitar</th></tr></thead>
+            <h4>Histórico e Parcelas Pendentes</h4>
+            <table id="lan-tabela">
+                <thead><tr><th>Dono</th><th>Descrição</th><th>Valor Parcela</th><th>Status Parcela</th><th>Total a Quitar</th><th>Ação</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
     </section>
 
-    <section id="lancamentos" class="view-section"><div class="card"><h3>Lançar Conta</h3><input type="text" id="l-desc" placeholder="Desc"><input type="number" id="l-valor" placeholder="R$"><input type="number" id="l-parcelas" value="1"><select id="l-user"><option>Junior</option><option>Mônica</option><option>Ambos</option></select><select id="l-tipo"><option value="despesa">Despesa</option><option value="receita">Receita</option></select><button class="btn" onclick="addLan()">Salvar</button></div></section>
-    <section id="metas_view" class="view-section"><div class="card"><h3>Nova Meta</h3><input type="text" id="m-nome" placeholder="Meta"><input type="number" id="m-alvo" placeholder="Alvo"><input type="number" id="m-atual" placeholder="Atual"><button class="btn" onclick="addMeta()">Criar</button></div><div id="metas-lista"></div></section>
-    <section id="proj_view" class="view-section"><div class="card"><h3>Projeção 12 Meses</h3><table id="proj-tabela"><thead><tr><th>Mês</th><th>Total</th></tr></thead><tbody></tbody></table></div></section>
-    <section id="gerenciar_view" class="view-section"><div class="card"><h3>Gerenciar</h3><table id="gerenciar-tabela"><thead><tr><th>Desc</th><th>Total</th><th>Ação</th></tr></thead><tbody></tbody></table></div></section>
+    <section id="metas_view" class="view-section">
+        <div class="card" style="max-width: 500px; margin: auto;">
+            <h3>Nova Meta / Objetivo</h3><br>
+            <input type="text" id="m-nome" placeholder="Nome da Meta">
+            <input type="number" id="m-alvo" placeholder="Valor Final R$">
+            <input type="date" id="m-prazo">
+            <button class="btn" onclick="addMeta()">Criar Meta</button>
+        </div><br>
+        <div id="metas-lista" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;"></div>
+    </section>
+
+    <section id="fgts_view" class="view-section">
+        <div class="card" style="max-width: 500px; margin: auto;">
+            <h3>Lançar Saldo FGTS</h3><br>
+            <select id="f-user"><option>Junior</option><option>Mônica</option></select>
+            <input type="number" id="f-valor" placeholder="Saldo Atual R$">
+            <button class="btn" onclick="addFGTS()">Atualizar Saldo</button>
+        </div>
+        <div class="card">
+            <h4>Extrato FGTS</h4>
+            <table id="fgts-tabela">
+                <thead><tr><th>Mês/Ano</th><th>Dono</th><th>Valor</th><th>Ação</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="invest_view" class="view-section">
+        <div class="card" style="max-width: 500px; margin: auto;">
+            <h3>Novo Investimento</h3><br>
+            <input type="text" id="i-banco" placeholder="Banco/Corretora">
+            <input type="text" id="i-tipo" placeholder="Tipo (CDB, Ações, FII...)">
+            <input type="number" id="i-valor" placeholder="Valor R$">
+            <select id="i-user"><option>Junior</option><option>Mônica</option></select>
+            <button class="btn" onclick="addInvest()">Lançar Investimento</button>
+        </div>
+        <div class="card">
+            <h4>Carteira de Ativos</h4>
+            <table id="invest-tabela">
+                <thead><tr><th>Banco</th><th>Tipo</th><th>Dono</th><th>Valor</th><th>Ação</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="proj_view" class="view-section">
+        <div class="card">
+            <h3>Projeção Financeira - Próximos 12 Meses</h3>
+            <table id="proj-tabela">
+                <thead><tr><th>Mês/Ano</th><th>Total Despesas R$</th><th>Capacidade de Poupar</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section id="calc_view" class="view-section">
+        <div class="card" style="max-width: 500px; margin: auto;">
+            <h3>Calculadora de Juros vs Capacidade</h3><br>
+            <input type="number" id="c-vista" placeholder="Valor à Vista R$">
+            <input type="number" id="c-parc-val" placeholder="Valor da Parcela R$">
+            <input type="number" id="c-parc-qtd" placeholder="Quantidade de Parcelas">
+            <button class="btn" onclick="calcularJuros()">Analisar Compra</button>
+            <div id="res-calc" style="margin-top: 20px; font-size: 14px; line-height: 1.6;"></div>
+        </div>
+    </section>
 </main>
 
 <script>
     const FIREBASE_URL = 'https://financeiro-casal-4bc7f-default-rtdb.firebaseio.com/dados.json';
-    let db = { lan: [], metas: [] };
+    let db = { lan: [], metas: [], fgts: [], invest: [] };
     let myChart;
-
-    function popularMeses() {
-        const select = document.getElementById('filtro-mes');
-        const meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-        [2026, 2027].forEach(ano => {
-            meses.forEach((m, i) => {
-                let opt = document.createElement('option');
-                opt.value = `${ano}-${i}`;
-                opt.innerHTML = `${m} ${ano}`;
-                if(ano === 2026 && i === new Date().getMonth()) opt.selected = true;
-                select.appendChild(opt);
-            });
-        });
-    }
 
     function showView(id, el) {
         document.querySelectorAll('.view-section').forEach(v => v.style.display = 'none');
@@ -141,11 +201,26 @@
         updateUI();
     }
 
+    function popularMeses() {
+        const select = document.getElementById('filtro-mes');
+        const mesesNomes = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+        const anoAtual = 2026;
+        for(let a of [2026, 2027]) {
+            mesesNomes.forEach((m, i) => {
+                let opt = document.createElement('option');
+                opt.value = `${a}-${i}`;
+                opt.innerHTML = `${m} ${a}`;
+                if(a === 2026 && i === new Date().getMonth()) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+    }
+
+    // CRUD FUNÇÕES
     function addLan() {
         const [ano, mes] = document.getElementById('filtro-mes').value.split('-').map(Number);
         db.lan.push({
-            id: Date.now(),
-            user: document.getElementById('l-user').value,
+            id: Date.now(), user: document.getElementById('l-user').value,
             desc: document.getElementById('l-desc').value,
             valorParcela: parseFloat(document.getElementById('l-valor').value) || 0,
             parcelasTotal: parseInt(document.getElementById('l-parcelas').value) || 1,
@@ -157,86 +232,170 @@
 
     function addMeta() {
         db.metas.push({
-            nome: document.getElementById('m-nome').value,
+            id: Date.now(), nome: document.getElementById('m-nome').value,
             alvo: parseFloat(document.getElementById('m-alvo').value) || 0,
-            atual: parseFloat(document.getElementById('m-atual').value) || 0
+            atual: 0, prazo: document.getElementById('m-prazo').value
         });
         saveCloud();
     }
 
+    function addFGTS() {
+        const [ano, mes] = document.getElementById('filtro-mes').value.split('-').map(Number);
+        db.fgts.push({ id: Date.now(), user: document.getElementById('f-user').value, valor: parseFloat(document.getElementById('f-valor').value), mes, ano });
+        saveCloud();
+    }
+
+    function addInvest() {
+        db.invest.push({ id: Date.now(), banco: document.getElementById('i-banco').value, tipo: document.getElementById('i-tipo').value, valor: parseFloat(document.getElementById('i-valor').value), user: document.getElementById('i-user').value });
+        saveCloud();
+    }
+
+    // INTERFACE
     function updateUI() {
         const [anoSel, mesSel] = document.getElementById('filtro-mes').value.split('-').map(Number);
         
+        // Filtro Mês Atual
         const ativos = db.lan.filter(l => {
             const diff = (anoSel * 12 + mesSel) - (l.anoInicio * 12 + l.mesInicio);
             return diff >= 0 && diff < l.parcelasTotal;
         });
 
-        const calc = (user, tipo) => ativos.filter(x => x.user === user && x.tipo === tipo).reduce((a,b)=>a+b.valorParcela,0);
+        // Cálculos
+        const calc = (user, tipo) => ativos.filter(x => (user === 'Ambos' ? true : x.user === user) && x.tipo === tipo).reduce((a,b)=>a + (user === 'Ambos' && x.user !== 'Ambos' ? 0 : b.valorParcela), 0);
         
-        const jE = calc('Junior', 'receita'); const jG = calc('Junior', 'despesa');
-        const mE = calc('Mônica', 'receita'); const mG = calc('Mônica', 'despesa');
-        const aG = calc('Ambos', 'despesa');
+        // Versão simplificada para os 12 cards
+        const jE = ativos.filter(x => x.user === 'Junior' && x.tipo === 'receita').reduce((a,b)=>a+b.valorParcela,0);
+        const jG = ativos.filter(x => (x.user === 'Junior' || x.user === 'Ambos') && x.tipo === 'despesa').reduce((a,b)=>a + (x.user === 'Ambos' ? b.valorParcela/2 : b.valorParcela), 0);
+        
+        const mE = ativos.filter(x => x.user === 'Mônica' && x.tipo === 'receita').reduce((a,b)=>a+b.valorParcela,0);
+        const mG = ativos.filter(x => (x.user === 'Mônica' || x.user === 'Ambos') && x.tipo === 'despesa').reduce((a,b)=>a + (x.user === 'Ambos' ? b.valorParcela/2 : b.valorParcela), 0);
 
-        // Total Dívida Restante (Soma de todas as parcelas futuras de todos os lançamentos)
+        const ambosG = ativos.filter(x => x.user === 'Ambos' && x.tipo === 'despesa').reduce((a,b)=>a+b.valorParcela,0);
+
         const totalD = db.lan.filter(x => x.tipo === 'despesa').reduce((acc, l) => {
             const diff = (anoSel * 12 + mesSel) - (l.anoInicio * 12 + l.mesInicio);
             const faltam = Math.max(0, l.parcelasTotal - diff);
             return acc + (faltam * l.valorParcela);
         }, 0);
 
+        const fgtsTotal = db.fgts.reduce((a,b)=>a+b.valor,0);
+
+        // Atualiza Cards
         document.getElementById('k-j-e').innerText = `R$ ${jE.toFixed(2)}`;
         document.getElementById('k-j-g').innerText = `R$ ${jG.toFixed(2)}`;
-        document.getElementById('k-j-s').innerText = `R$ ${(jE - jG - (aG/2)).toFixed(2)}`;
+        document.getElementById('k-j-s').innerText = `R$ ${(jE - jG).toFixed(2)}`;
         
         document.getElementById('k-m-e').innerText = `R$ ${mE.toFixed(2)}`;
         document.getElementById('k-m-g').innerText = `R$ ${mG.toFixed(2)}`;
-        document.getElementById('k-m-s').innerText = `R$ ${(mE - mG - (aG/2)).toFixed(2)}`;
+        document.getElementById('k-m-s').innerText = `R$ ${(mE - mG).toFixed(2)}`;
 
         document.getElementById('k-total-e').innerText = `R$ ${(jE+mE).toFixed(2)}`;
-        document.getElementById('k-total-g').innerText = `R$ ${(jG+mG+aG).toFixed(2)}`;
-        document.getElementById('k-a-g').innerText = `R$ ${aG.toFixed(2)}`;
+        document.getElementById('k-total-g').innerText = `R$ ${(jG+mG).toFixed(2)}`;
+        document.getElementById('k-a-g').innerText = `R$ ${ambosG.toFixed(2)}`;
         document.getElementById('k-total-d').innerText = `R$ ${totalD.toFixed(2)}`;
+        document.getElementById('k-total-fgts').innerText = `R$ ${fgtsTotal.toFixed(2)}`;
 
         renderMetas();
-        renderExtrato(ativos, mesSel, anoSel);
-        renderGrafico(jG, mG, aG);
+        renderLançamentos(ativos, mesSel, anoSel);
+        renderFGTS();
+        renderInvest();
         renderProjecao(mesSel, anoSel);
+        renderGrafico(jG, mG, ambosG);
     }
 
-    function renderMetas() {
-        const cont = document.getElementById('dash-metas'); cont.innerHTML = '';
-        db.metas.forEach(m => {
-            const perc = Math.min(100, (m.atual / m.alvo) * 100);
-            cont.innerHTML += `<div class="meta-card"><strong>${m.nome}</strong><div class="progress-bg"><div class="progress-fill" style="width:${perc}%"></div></div></div>`;
+    function renderLançamentos(ativos, mes, ano) {
+        const tbody = document.querySelector('#lan-tabela tbody');
+        tbody.innerHTML = '';
+        db.lan.forEach((l, idx) => {
+            const diff = (ano * 12 + mes) - (l.anoInicio * 12 + l.mesInicio);
+            const status = (diff >= 0 && diff < l.parcelasTotal) ? `${diff+1}ª de ${l.parcelasTotal}` : (diff < 0 ? 'Futuro' : 'Finalizado');
+            const faltam = Math.max(0, l.parcelasTotal - (diff < 0 ? 0 : diff));
+            tbody.innerHTML += `<tr><td>${l.user}</td><td>${l.desc}</td><td>R$ ${l.valorParcela.toFixed(2)}</td><td>${status}</td><td>R$ ${(faltam * l.valorParcela).toFixed(2)}</td><td><button onclick="db.lan.splice(${idx},1);saveCloud()">🗑️</button></td></tr>`;
         });
     }
 
-    function renderExtrato(ativos, mes, ano) {
-        const tbody = document.querySelector('#dash-extrato tbody'); tbody.innerHTML = '';
-        ativos.filter(x => x.tipo === 'despesa').forEach(l => {
-            const diff = (ano * 12 + mes) - (l.anoInicio * 12 + l.mesInicio);
-            const faltam = l.parcelasTotal - diff;
-            tbody.innerHTML += `<tr><td>${l.user}</td><td>${l.desc}</td><td>R$ ${l.valorParcela.toFixed(2)}</td><td>${diff+1}/${l.parcelasTotal}</td><td>R$ ${(faltam * l.valorParcela).toFixed(2)}</td></tr>`;
+    function renderMetas() {
+        const dash = document.getElementById('dash-metas');
+        const lista = document.getElementById('metas-lista');
+        dash.innerHTML = ''; lista.innerHTML = '';
+        db.metas.forEach((m, idx) => {
+            const perc = Math.min(100, (m.atual / m.alvo) * 100);
+            const html = `<div class="meta-card">
+                <div style="display:flex; justify-content:space-between"><strong>${m.nome}</strong> <span>${perc.toFixed(1)}%</span></div>
+                <div class="progress-bg"><div class="progress-fill" style="width:${perc}%"></div></div>
+                <div style="font-size:11px; color:var(--text-muted)">Alvo: R$ ${m.alvo.toFixed(2)} | Prazo: ${m.prazo || 'N/A'}</div>
+            </div>`;
+            dash.innerHTML += html;
+            lista.innerHTML += `<div>${html} <input type="number" placeholder="Aportar R$" onchange="aportarMeta(${idx}, this.value)"> <button class="btn" style="background:var(--accent-red)" onclick="db.metas.splice(${idx},1);saveCloud()">Excluir Meta</button></div>`;
+        });
+    }
+
+    function aportarMeta(idx, val) {
+        db.metas[idx].atual += parseFloat(val);
+        saveCloud();
+    }
+
+    function renderFGTS() {
+        const tbody = document.querySelector('#fgts-tabela tbody');
+        tbody.innerHTML = '';
+        db.fgts.forEach((f, idx) => {
+            tbody.innerHTML += `<tr><td>${f.mes+1}/${f.ano}</td><td>${f.user}</td><td>R$ ${f.valor.toFixed(2)}</td><td><button onclick="db.fgts.splice(${idx},1);saveCloud()">🗑️</button></td></tr>`;
+        });
+    }
+
+    function renderInvest() {
+        const tbody = document.querySelector('#invest-tabela tbody');
+        tbody.innerHTML = '';
+        db.invest.forEach((i, idx) => {
+            tbody.innerHTML += `<tr><td>${i.banco}</td><td>${i.tipo}</td><td>${i.user}</td><td>R$ ${i.valor.toFixed(2)}</td><td><button onclick="db.invest.splice(${idx},1);saveCloud()">🗑️</button></td></tr>`;
         });
     }
 
     function renderProjecao(mS, aS) {
-        const tb = document.querySelector('#proj-tabela tbody'); tb.innerHTML = '';
+        const tbody = document.querySelector('#proj-tabela tbody');
+        tbody.innerHTML = '';
         for(let i=0; i<12; i++) {
-            let m = (mS + i) % 12; let a = aS + Math.floor((mS + i)/12);
-            let total = db.lan.filter(l => {
+            let m = (mS + i) % 12; let a = aS + Math.floor((mS + i) / 12);
+            let totalG = db.lan.filter(l => {
                 const d = (a * 12 + m) - (l.anoInicio * 12 + l.mesInicio);
                 return l.tipo === 'despesa' && d >= 0 && d < l.parcelasTotal;
             }).reduce((acc, cur) => acc + cur.valorParcela, 0);
-            tb.innerHTML += `<tr><td>${m+1}/${a}</td><td>R$ ${total.toFixed(2)}</td></tr>`;
+            tbody.innerHTML += `<tr><td>${m+1}/${a}</td><td style="color:var(--accent-red)">R$ ${totalG.toFixed(2)}</td><td>---</td></tr>`;
         }
+    }
+
+    function calcularJuros() {
+        const vista = parseFloat(document.getElementById('c-vista').value);
+        const pVal = parseFloat(document.getElementById('c-parc-val').value);
+        const pQtd = parseInt(document.getElementById('c-parc-qtd').value);
+        const totalP = pVal * pQtd;
+        const jurosVal = totalP - vista;
+        const jurosPerc = (jurosVal / vista) * 100;
+        
+        const sobra = parseFloat(document.getElementById('k-j-s').innerText.replace('R$ ','')) + parseFloat(document.getElementById('k-m-s').innerText.replace('R$ ',''));
+
+        let analise = jurosPerc > 15 ? "⚠️ Juros altos! Tente pagar à vista." : "✅ Juros aceitáveis.";
+        let cabe = sobra > pVal ? "👍 A parcela cabe no orçamento atual do casal." : "❌ Cuidado! Essa parcela compromete sua sobra mensal.";
+
+        document.getElementById('res-calc').innerHTML = `
+            <b>Total a Prazo:</b> R$ ${totalP.toFixed(2)}<br>
+            <b>Valor em Juros:</b> R$ ${jurosVal.toFixed(2)} (${jurosPerc.toFixed(1)}%)<br>
+            <b>Análise:</b> ${analise}<br>
+            <b>Capacidade:</b> ${cabe}
+        `;
     }
 
     function renderGrafico(j, m, a) {
         const ctx = document.getElementById('chartRosca');
         if (myChart) myChart.destroy();
-        myChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Junior', 'Mônica', 'Ambos'], datasets: [{ data: [j, m, a], backgroundColor: ['#3b82f6', '#8b5cf6', '#fff'], borderWidth: 0 }] }, options: { plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } } } });
+        myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Junior', 'Mônica', 'Ambos'],
+                datasets: [{ data: [j, m, a], backgroundColor: ['#3b82f6', '#8b5cf6', '#fff'], borderWidth: 0 }]
+            },
+            options: { plugins: { legend: { position: 'bottom', labels: { color: '#fff' } } } }
+        });
     }
 
     loadCloud();
