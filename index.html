@@ -3,29 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financeiro Casal - Sistema Completo</title>
+    <title>Financeiro Casal Pro - Versão Final</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --bg: #0b0f19; --bg2: #161b2a; --bg3: #242b3d;
             --accent-purple: #8b5cf6; --accent-green: #10b981;
-            --accent-red: #ef4444; --accent-blue: #3b82f6;
+            --accent-red: #ef4444; --accent-blue: #3b82f6; --accent-orange: #f59e0b;
             --text: #f8fafc; --text-muted: #94a3b8;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); color: var(--text); display: flex; min-height: 100vh; overflow-x: hidden; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background: var(--bg); color: var(--text); display: flex; min-height: 100vh; }
         
         /* Menu Lateral */
-        nav { width: 250px; background: #000; padding: 20px; border-right: 1px solid var(--bg3); height: 100vh; position: fixed; }
-        .nav-item { padding: 12px; cursor: pointer; color: var(--text-muted); border-radius: 8px; margin-bottom: 5px; font-size: 14px; display: flex; align-items: center; gap: 10px; }
+        nav { width: 250px; background: #000; padding: 20px; border-right: 1px solid var(--bg3); height: 100vh; position: fixed; z-index: 100; }
+        .nav-item { padding: 12px; cursor: pointer; color: var(--text-muted); border-radius: 8px; margin-bottom: 5px; font-size: 14px; display: flex; align-items: center; gap: 10px; transition: 0.2s; }
         .nav-item:hover, .nav-item.active { background: var(--bg2); color: #fff; border-left: 4px solid var(--accent-purple); }
 
-        /* Conteúdo */
+        /* Conteúdo Principal */
         main { flex: 1; margin-left: 250px; padding: 25px; width: calc(100% - 250px); }
-        .view-section { display: none; }
+        .view-section { display: none; animation: fadeIn 0.3s; }
         .view-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Grid 12 Cards */
+        /* Grid de 12 Cards */
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
         .kpi-card { background: var(--bg2); padding: 15px; border-radius: 12px; border-bottom: 2px solid var(--bg3); }
         .kpi-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -33,16 +34,17 @@
 
         .card { background: var(--bg2); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--bg3); }
         table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
-        th { text-align: left; color: var(--text-muted); padding: 10px; border-bottom: 1px solid var(--bg3); }
-        td { padding: 10px; border-bottom: 1px solid #1e2536; }
+        th { text-align: left; color: var(--text-muted); padding: 12px; border-bottom: 1px solid var(--bg3); }
+        td { padding: 12px; border-bottom: 1px solid #1e2536; }
         
-        input, select { background: var(--bg); border: 1px solid var(--bg3); color: #fff; padding: 10px; border-radius: 6px; width: 100%; margin-bottom: 10px; }
-        .btn { background: var(--accent-purple); color: #fff; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; }
+        input, select { background: var(--bg); border: 1px solid var(--bg3); color: #fff; padding: 10px; border-radius: 6px; width: 100%; margin-bottom: 10px; font-size: 14px; }
+        .btn { background: var(--accent-purple); color: #fff; border: none; padding: 12px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; transition: 0.3s; }
+        .btn:hover { opacity: 0.8; }
         .btn-del { color: var(--accent-red); cursor: pointer; background: none; border: none; font-size: 16px; }
 
-        .meta-container { background: #000; padding: 15px; border-radius: 10px; border-left: 4px solid var(--accent-green); margin-bottom: 15px; }
+        .meta-container { background: #000; padding: 15px; border-radius: 10px; border-left: 4px solid var(--accent-green); margin-bottom: 15px; position: relative; }
         .bar-bg { background: #334155; height: 8px; border-radius: 4px; margin: 10px 0; }
-        .bar-fill { background: var(--accent-green); height: 100%; border-radius: 4px; transition: 0.5s; }
+        .bar-fill { background: var(--accent-green); height: 100%; border-radius: 4px; transition: 0.8s ease-in-out; }
     </style>
 </head>
 <body>
@@ -61,13 +63,13 @@
 <main>
     <section id="dashboard" class="view-section active">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h2>Dashboard Principal</h2>
+            <h2>Painel Geral</h2>
             <select id="filtro-mes" onchange="updateUI()" style="width:180px; margin:0;"></select>
         </div>
         <div class="kpi-grid" id="kpi-container"></div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
             <div class="card"><h4>🎯 Progresso das Metas</h4><div id="dash-metas-list"></div></div>
-            <div class="card"><h4>📊 Gastos do Mês</h4><canvas id="chartGasto" style="max-height: 200px;"></canvas></div>
+            <div class="card"><h4>📊 Distribuição de Gastos</h4><canvas id="chartGasto" style="max-height: 200px;"></canvas></div>
         </div>
     </section>
 
@@ -84,9 +86,9 @@
             </div>
         </div>
         <div class="card">
-            <h4>Extrato de Lançamentos (Ativos no Mês)</h4>
+            <h4>Extrato Detalhado</h4>
             <table id="tab-lan">
-                <thead><tr><th>Dono</th><th>Descrição</th><th>Parcela</th><th>Valor</th><th>Falta Quitar</th><th>Ação</th></tr></thead>
+                <thead><tr><th>Dono</th><th>Descrição</th><th>Parcela</th><th>Valor</th><th>Restante p/ Quitar</th><th>Ação</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -95,16 +97,16 @@
     <section id="metas_view" class="view-section">
         <div class="card" style="max-width: 500px;">
             <h3>Criar Nova Meta</h3><br>
-            <input type="text" id="m-nome" placeholder="Ex: Viagem 2027">
+            <input type="text" id="m-nome" placeholder="Nome da Meta">
             <input type="number" id="m-alvo" placeholder="Valor Objetivo R$">
             <input type="date" id="m-prazo">
             <button class="btn" onclick="addItem('metas')">Criar Objetivo</button>
         </div>
         <div class="card">
-            <h4>Gerenciar Aportes</h4>
+            <h4>Aportar em Meta Existente</h4>
             <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                 <select id="m-select" style="margin:0"></select>
-                <input type="number" id="m-aporte" placeholder="Valor do Aporte R$" style="margin:0">
+                <input type="number" id="m-aporte" placeholder="Valor R$" style="margin:0">
                 <button class="btn" onclick="fazerAporte()" style="width: 150px;">Aportar</button>
             </div>
             <div id="metas-full-list"></div>
@@ -113,10 +115,10 @@
 
     <section id="fgts_view" class="view-section">
         <div class="card" style="max-width: 500px;">
-            <h3>Lançar Saldo Mensal FGTS</h3><br>
+            <h3>Atualizar Saldo FGTS</h3><br>
             <select id="f-user"><option>Junior</option><option>Mônica</option></select>
-            <input type="number" id="f-valor" placeholder="Saldo Total Atual R$">
-            <button class="btn" onclick="addItem('fgts')">Atualizar FGTS</button>
+            <input type="number" id="f-valor" placeholder="Saldo Atual R$">
+            <button class="btn" onclick="addItem('fgts')">Salvar Saldo</button>
         </div>
         <div class="card">
             <table id="tab-fgts">
@@ -128,12 +130,12 @@
 
     <section id="invest_view" class="view-section">
         <div class="card" style="max-width: 500px;">
-            <h3>Novo Investimento</h3><br>
-            <input type="text" id="i-banco" placeholder="Banco/Corretora">
-            <input type="text" id="i-tipo" placeholder="Tipo (CDB, Ações...)">
-            <input type="number" id="i-valor" placeholder="Valor Atual R$">
+            <h3>Novo Ativo / Investimento</h3><br>
+            <input type="text" id="i-banco" placeholder="Banco ou Corretora">
+            <input type="text" id="i-tipo" placeholder="Tipo (CDB, FII, Ações)">
+            <input type="number" id="i-valor" placeholder="Valor Investido R$">
             <select id="i-user"><option>Junior</option><option>Mônica</option></select>
-            <button class="btn" onclick="addItem('invest')">Lançar Ativo</button>
+            <button class="btn" onclick="addItem('invest')">Lançar Investimento</button>
         </div>
         <div class="card">
             <table id="tab-invest">
@@ -145,9 +147,9 @@
 
     <section id="proj_view" class="view-section">
         <div class="card">
-            <h3>Projeção Financeira (Próximos 12 Meses)</h3>
+            <h3>Projeção de Gastos (Próximos 12 Meses)</h3>
             <table id="tab-proj">
-                <thead><tr><th>Mês/Ano</th><th>Total Despesas R$</th><th>Sobra Prevista R$</th></tr></thead>
+                <thead><tr><th>Mês/Ano</th><th>Gastos Previstos R$</th><th>Sobra Prevista R$</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -155,12 +157,12 @@
 
     <section id="calc_view" class="view-section">
         <div class="card" style="max-width: 500px;">
-            <h3>Calculadora de Compra Inteligente</h3><br>
-            <input type="number" id="c-vista" placeholder="Valor à Vista R$">
+            <h3>Simulador de Compra</h3><br>
+            <input type="number" id="c-vista" placeholder="Preço à Vista R$">
             <input type="number" id="c-parc-v" placeholder="Valor da Parcela R$">
             <input type="number" id="c-parc-q" placeholder="Quantidade de Parcelas">
-            <button class="btn" onclick="calcularJuros()">Analisar Viabilidade</button>
-            <div id="calc-result" style="margin-top: 20px; font-size: 14px; line-height: 1.6;"></div>
+            <button class="btn" onclick="calcularJuros()">Analisar</button>
+            <div id="calc-result" style="margin-top: 20px;"></div>
         </div>
     </section>
 </main>
@@ -206,7 +208,6 @@
         });
     }
 
-    // ADICIONAR ITENS GERAL
     function addItem(tipo) {
         const [ano, mes] = document.getElementById('filtro-mes').value.split('-').map(Number);
         if(tipo === 'lan') {
@@ -241,58 +242,61 @@
             return diff >= 0 && diff < l.parcelasTotal;
         });
 
-        // Cálculos KPIs
+        // CÁLCULOS
         const calc = (u, t) => ativos.filter(x => (u==='Ambos'? x.user==='Ambos' : x.user===u) && x.tipo===t).reduce((a,b)=>a+b.valorParcela,0);
         const jE = calc('Junior', 'receita'); const mE = calc('Mônica', 'receita');
         const aG = calc('Ambos', 'despesa');
-        const jG = ativos.filter(x=>x.user==='Junior'&&x.tipo==='despesa').reduce((a,b)=>a+b.valorParcela,0) + (aG/2);
-        const mG = ativos.filter(x=>x.user==='Mônica'&&x.tipo==='despesa').reduce((a,b)=>a+b.valorParcela,0) + (aG/2);
+        const jG = ativos.filter(x=>x.user==='Junior'&&x.tipo==='despesa').reduce((a,b)=>a+b.valorParcela,0);
+        const mG = ativos.filter(x=>x.user==='Mônica'&&x.tipo==='despesa').reduce((a,b)=>a+b.valorParcela,0);
+        
+        const sobraJ = jE - (jG + aG/2);
+        const sobraM = mE - (mG + aG/2);
         const fgtsT = db.fgts.reduce((a,b)=>a+b.valor,0);
+        const investT = db.invest.reduce((a,b)=>a+b.valor,0);
+        
         const totalDivRest = db.lan.filter(x=>x.tipo==='despesa').reduce((acc, l) => {
             const d = (anoSel*12+mesSel) - (l.anoInicio*12+l.mesInicio);
             return acc + (Math.max(0, l.parcelasTotal - (d<0?0:d)) * l.valorParcela);
         }, 0);
 
-        // Render 12 Cards
+        // 12 CARDS EXATOS
         const kpis = [
-            {l:"Entrada Junior", v:jE, c:"var(--accent-green)"}, {l:"Gasto Junior", v:jG, c:"var(--accent-red)"}, {l:"Sobra Junior", v:jE-jG, c:""}, {l:"Metas Junior", v:0, c:""},
-            {l:"Entrada Mônica", v:mE, c:"var(--accent-green)"}, {l:"Gasto Mônica", v:mG, c:"var(--accent-red)"}, {l:"Sobra Mônica", v:mE-mG, c:""}, {l:"Metas Mônica", v:0, c:""},
-            {l:"Total Entradas", v:jE+mE, c:""}, {l:"Total Gastos", v:jG+mG, c:""}, {l:"FGTS Total", v:fgtsT, c:"var(--accent-blue)"}, {l:"Dívida Restante", v:totalDivRest, c:"var(--accent-orange)"}
+            {l:"Entrada Junior", v:jE, c:"var(--accent-green)"}, {l:"Gasto Junior", v:jG + (aG/2), c:"var(--accent-red)"}, {l:"Sobra Junior", v:sobraJ, c:""}, {l:"Metas Junior", v:0, c:""},
+            {l:"Entrada Mônica", v:mE, c:"var(--accent-green)"}, {l:"Gasto Mônica", v:mG + (aG/2), c:"var(--accent-red)"}, {l:"Sobra Mônica", v:sobraM, c:""}, {l:"Metas Mônica", v:0, c:""},
+            {l:"Sobra Total Casal", v:sobraJ+sobraM, c:"var(--accent-purple)"}, {l:"Ambos (Casa)", v:aG, c:"#fff"}, {l:"FGTS Total", v:fgtsT, c:"var(--accent-blue)"}, {l:"Investimentos", v:investT, c:"var(--accent-green)"}
         ];
         document.getElementById('kpi-container').innerHTML = kpis.map(k => `<div class="kpi-card"><div class="kpi-label">${k.l}</div><div class="kpi-value" style="color:${k.c}">R$ ${k.v.toFixed(2)}</div></div>`).join('');
 
-        // Render Metas Dash e Select
+        // METAS
         const mList = document.getElementById('dash-metas-list'); mList.innerHTML = '';
         const mFull = document.getElementById('metas-full-list'); mFull.innerHTML = '';
         const mSelect = document.getElementById('m-select'); mSelect.innerHTML = '<option value="">Escolha a Meta</option>';
-        
         db.metas.forEach(m => {
             const p = Math.min(100, (m.atual/m.alvo)*100);
             const html = `<div class="meta-container"><strong>${m.nome}</strong> - Falta: R$ ${(m.alvo-m.atual).toFixed(2)}<div class="bar-bg"><div class="bar-fill" style="width:${p}%"></div></div><small>Prazo: ${m.prazo||'Indefinido'}</small></div>`;
-            mList.innerHTML += html;
-            mFull.innerHTML += `<div>${html} <button class="btn-del" onclick="deleteItem('metas', ${m.id})">🗑️ Excluir Meta</button></div>`;
+            mList.innerHTML += html; mFull.innerHTML += `<div>${html} <button class="btn-del" onclick="deleteItem('metas', ${m.id})">🗑️ Excluir Meta</button></div>`;
             mSelect.innerHTML += `<option value="${m.id}">${m.nome}</option>`;
         });
 
-        // Render Tabela Lançamentos
+        // LANÇAMENTOS
         const tLan = document.querySelector('#tab-lan tbody'); tLan.innerHTML = '';
         ativos.forEach(l => {
             const d = (anoSel*12+mesSel) - (l.anoInicio*12+l.mesInicio);
-            const res = Math.max(0, l.parcelasTotal - (d<0?0:d));
-            tLan.innerHTML += `<tr><td>${l.user}</td><td>${l.desc}</td><td>${d+1}/${l.parcelasTotal}</td><td>R$ ${l.valorParcela.toFixed(2)}</td><td>R$ ${(res*l.valorParcela).toFixed(2)}</td><td><button class="btn-del" onclick="deleteItem('lan', ${l.id})">🗑️</button></td></tr>`;
+            const rest = Math.max(0, l.parcelasTotal - (d<0?0:d));
+            tLan.innerHTML += `<tr><td>${l.user}</td><td>${l.desc}</td><td>${d+1}/${l.parcelasTotal}</td><td>R$ ${l.valorParcela.toFixed(2)}</td><td>R$ ${(rest*l.valorParcela).toFixed(2)}</td><td><button class="btn-del" onclick="deleteItem('lan', ${l.id})">🗑️</button></td></tr>`;
         });
 
-        // Render FGTS, Invest e Projeção
+        // FGTS E INVEST
         const tF = document.querySelector('#tab-fgts tbody'); tF.innerHTML = db.fgts.map(f => `<tr><td>${f.mes+1}/${f.ano}</td><td>${f.user}</td><td>R$ ${f.valor.toFixed(2)}</td><td><button class="btn-del" onclick="deleteItem('fgts', ${f.id})">🗑️</button></td></tr>`).join('');
         const tI = document.querySelector('#tab-invest tbody'); tI.innerHTML = db.invest.map(i => `<tr><td>${i.banco}</td><td>${i.tipo}</td><td>${i.user}</td><td>R$ ${i.valor.toFixed(2)}</td><td><button class="btn-del" onclick="deleteItem('invest', ${i.id})">🗑️</button></td></tr>`).join('');
         
+        // PROJEÇÃO
         const tP = document.querySelector('#tab-proj tbody'); tP.innerHTML = '';
         for(let i=0; i<12; i++) {
             let m = (mesSel+i)%12; let a = anoSel + Math.floor((mesSel+i)/12);
             let g = db.lan.filter(l => { const d = (a*12+m)-(l.anoInicio*12+l.mesInicio); return l.tipo==='despesa'&&d>=0&&d<l.parcelasTotal; }).reduce((s,c)=>s+c.valorParcela,0);
-            tP.innerHTML += `<tr><td>${m+1}/${a}</td><td style="color:var(--accent-red)">R$ ${g.toFixed(2)}</td><td>---</td></tr>`;
+            tP.innerHTML += `<tr><td>${m+1}/${a}</td><td style="color:var(--accent-red)">R$ ${g.toFixed(2)}</td><td style="color:var(--accent-green)">Calculando...</td></tr>`;
         }
-
         renderChart(jG, mG, aG);
     }
 
@@ -303,8 +307,8 @@
         const total = pv * pq;
         const jVal = total - v;
         const jPerc = (jVal/v)*100;
-        const sobra = parseFloat(document.getElementById('kpi-container').children[2].innerText.replace('R$ ','')) + parseFloat(document.getElementById('kpi-container').children[6].innerText.replace('R$ ',''));
-        document.getElementById('calc-result').innerHTML = `<b>Total Prazo:</b> R$ ${total.toFixed(2)}<br><b>Juros:</b> R$ ${jVal.toFixed(2)} (${jPerc.toFixed(1)}%)<br><b>Análise:</b> ${jPerc > 10 ? "⚠️ Juros caros." : "✅ Juros baixos."}<br><b>Cabe no bolso?</b> ${sobra > pv ? "✅ Sim, cabe na sobra do casal." : "❌ Não, excede sua sobra mensal."}`;
+        const sobraTotal = parseFloat(document.getElementById('kpi-container').children[8].innerText.replace('R$ ',''));
+        document.getElementById('calc-result').innerHTML = `<div class="card"><b>Total a Prazo:</b> R$ ${total.toFixed(2)}<br><b>Juros:</b> R$ ${jVal.toFixed(2)} (${jPerc.toFixed(1)}%)<br><b>Viabilidade:</b> ${sobraTotal > pv ? "✅ Parcela cabe na sobra do casal." : "❌ Parcela compromete o orçamento."}</div>`;
     }
 
     function renderChart(j, m, a) {
